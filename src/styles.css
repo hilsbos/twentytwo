@@ -1,0 +1,773 @@
+/* ============================================================================
+   Twenty-Two — design system (ported from the HTML card)
+   Feature agents consume these classes; do not re-derive colors inline.
+   ========================================================================== */
+
+:root {
+  --bg: #0e100d;
+  --surface: #181b15;
+  --surface2: #21251d;
+  --line: rgba(236, 238, 230, 0.09);
+  --line2: rgba(236, 238, 230, 0.16);
+  --text: #eceee6;
+  --muted: #9aa08f;
+  --faint: #6e7464;
+  --accent: #c8fa4b;
+  --push: #c8fa4b;
+  --legs: #f2b33d;
+  --pull: #5dd3e0;
+  --flex: #c9a0f0;
+  --bad: #e8775f;
+  --r: 14px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  font-family: 'Hanken Grotesk', sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  /* room for the fixed completion banner */
+  padding: 0 0 96px;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+.disp {
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  font-weight: 600;
+  line-height: 1;
+}
+
+button {
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+}
+
+.wrap {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 0 18px;
+}
+
+/* day-color helpers — set as a CSS var the component scopes ----------------- */
+.is-push {
+  --day: var(--push);
+}
+.is-legs {
+  --day: var(--legs);
+}
+.is-pull {
+  --day: var(--pull);
+}
+.is-flex {
+  --day: var(--flex);
+}
+
+/* ---------------------------------------------------------------------------
+   Header / wordmark
+   ------------------------------------------------------------------------- */
+.app-header {
+  padding: 34px 0 20px;
+  border-bottom: 1px solid var(--line);
+}
+.kicker {
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 500;
+}
+.wordmark {
+  font-size: clamp(40px, 13vw, 64px);
+  font-weight: 700;
+  margin: 8px 0 0;
+  line-height: 0.92;
+}
+.wordmark .twenty {
+  color: var(--accent);
+}
+.app-sub {
+  color: var(--muted);
+  font-size: 14px;
+  max-width: 42ch;
+  margin-top: 10px;
+}
+
+.label {
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 12.5px;
+  color: var(--faint);
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+
+/* ---------------------------------------------------------------------------
+   Nav tabs (TODAY / WEEK) — styled like the card day tabs
+   ------------------------------------------------------------------------- */
+.nav {
+  display: flex;
+  gap: 6px;
+  padding: 14px 0 4px;
+}
+.nav-tab {
+  flex: 1 1 auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 11px 13px;
+  color: var(--muted);
+  transition: 0.18s;
+  text-align: center;
+  min-height: 44px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.nav-tab[aria-selected='true'] {
+  color: var(--bg);
+  border-color: transparent;
+  background: var(--accent);
+}
+
+/* ---------------------------------------------------------------------------
+   Day header (Today)
+   ------------------------------------------------------------------------- */
+.day-head {
+  padding: 22px 0 6px;
+}
+.ptag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 9px;
+  color: var(--bg);
+  background: var(--day, var(--accent));
+}
+.ptag .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--bg);
+  opacity: 0.55;
+}
+.day-date {
+  color: var(--faint);
+  font-size: 13px;
+  margin-top: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: 'Oswald', sans-serif;
+}
+.focus {
+  color: var(--muted);
+  font-size: 13.5px;
+  margin: 14px 0 18px;
+}
+
+/* floor-mode toggle --------------------------------------------------------- */
+.floor-toggle {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: var(--surface);
+  border: 1px dashed var(--line2);
+  border-radius: 11px;
+  padding: 11px 14px;
+  margin: 0 0 18px;
+  width: 100%;
+  text-align: left;
+}
+.floor-toggle .ico {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  color: var(--legs);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  flex: 0 0 auto;
+}
+.floor-toggle p {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.floor-toggle .switch {
+  margin-left: auto;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--surface2);
+  border: 1px solid var(--line2);
+  position: relative;
+  transition: 0.18s;
+}
+.floor-toggle .switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: 0.18s;
+}
+.floor-toggle[aria-pressed='true'] {
+  border-color: var(--legs);
+}
+.floor-toggle[aria-pressed='true'] .switch {
+  background: var(--legs);
+}
+.floor-toggle[aria-pressed='true'] .switch::after {
+  left: 18px;
+  background: var(--bg);
+}
+
+/* ---------------------------------------------------------------------------
+   Warm-up strip (chips like the card)
+   ------------------------------------------------------------------------- */
+.warmup {
+  margin: 0 0 18px;
+}
+.path {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 11px;
+}
+.path .arr {
+  color: var(--faint);
+  font-size: 11px;
+}
+
+/* generic small chip (used in warm-up + flex options) ----------------------- */
+.chip {
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  padding: 4px 9px;
+  border-radius: 7px;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+   Exercise card
+   ------------------------------------------------------------------------- */
+.ex-card {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface);
+  padding: 15px 16px;
+  margin-bottom: 10px;
+  position: relative;
+  overflow: hidden;
+}
+.ex-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--day, var(--accent));
+  opacity: 0.85;
+}
+.ex-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.ex-num {
+  font-family: 'Oswald', sans-serif;
+  color: var(--faint);
+  font-size: 15px;
+  font-weight: 500;
+  margin-right: 9px;
+}
+.ex-name {
+  font-family: 'Oswald', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+.ex-sets {
+  font-family: 'Oswald', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--day, var(--accent));
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.ex-note {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+}
+.ex-target {
+  font-size: 12.5px;
+  color: var(--faint);
+  margin-top: 8px;
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ex-target b {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* progression path chips ---------------------------------------------------- */
+.path-step {
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  padding: 3px 8px;
+  border-radius: 7px;
+  white-space: nowrap;
+}
+.path-step.now {
+  color: var(--bg);
+  background: var(--day, var(--accent));
+  border-color: transparent;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------------
+   Set chips + stepper
+   ------------------------------------------------------------------------- */
+.set-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.set-chip {
+  min-width: 52px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line2);
+  background: var(--surface2);
+  color: var(--muted);
+  font-family: 'Oswald', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: transform 0.12s, background 0.18s, color 0.18s, border-color 0.18s;
+}
+.set-chip .sn {
+  font-size: 11px;
+  color: var(--faint);
+  font-weight: 500;
+}
+/* states */
+.set-chip.fresh {
+  /* unlogged, "tap me" — uses day accent outline */
+  border-color: var(--line2);
+  background: var(--surface2);
+  color: var(--muted);
+}
+.set-chip.logged {
+  /* logged, no target to compare against (first time at this level) */
+  background: var(--day, var(--accent));
+  color: var(--bg);
+  border-color: transparent;
+}
+.set-chip.under {
+  /* logged, below last time */
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--line2);
+}
+.set-chip.met {
+  /* matched last time — lime outline + tinted fill, with a small reward pop */
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+  border-color: var(--accent);
+  animation: pop 0.32s ease;
+}
+.set-chip.beat {
+  /* beat last time — lime fill + pulse */
+  background: var(--accent);
+  color: var(--bg);
+  border-color: transparent;
+  animation: pop 0.32s ease;
+}
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.16);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* inline stepper (opens under/over a set chip) ------------------------------ */
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface2);
+  border: 1px solid var(--line2);
+  border-radius: 12px;
+  padding: 6px;
+}
+.stepper button.pm {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--line2);
+  background: var(--surface);
+  color: var(--text);
+  font-family: 'Oswald', sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.stepper button.pm:active {
+  background: var(--surface2);
+}
+.stepper .val {
+  min-width: 48px;
+  text-align: center;
+  font-family: 'Oswald', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+}
+.stepper .unit {
+  font-size: 12px;
+  color: var(--faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.stepper .confirm {
+  min-width: 56px;
+  height: 44px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: 'Oswald', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0 14px;
+}
+
+/* ---------------------------------------------------------------------------
+   Level-up bar (on a card when shouldSuggestAdvance)
+   ------------------------------------------------------------------------- */
+.levelup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 11px 13px;
+  border-radius: 11px;
+  background: linear-gradient(180deg, var(--surface2), var(--surface));
+  border: 1px solid var(--accent);
+  animation: glow 0.5s ease;
+}
+.levelup .lu-text {
+  font-size: 12.5px;
+  color: var(--text);
+}
+.levelup .lu-text b {
+  color: var(--accent);
+}
+.levelup button {
+  margin-left: auto;
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 9px;
+  border: none;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+@keyframes glow {
+  from {
+    box-shadow: 0 0 0 0 rgba(200, 250, 75, 0);
+  }
+  to {
+    box-shadow: 0 0 0 4px rgba(200, 250, 75, 0.12);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Completion banner (fixed bottom)
+   ------------------------------------------------------------------------- */
+.done-banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  background: var(--accent);
+  color: var(--bg);
+  text-align: center;
+  padding: 16px 18px calc(16px + env(safe-area-inset-bottom, 0px));
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 16px;
+  animation: slideUp 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.done-banner .sub {
+  display: block;
+  font-family: 'Hanken Grotesk', sans-serif;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+  font-size: 12.5px;
+  opacity: 0.78;
+  margin-top: 2px;
+}
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Buttons (generic primary / ghost) — auth, flex log, etc.
+   ------------------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 11px;
+  border: none;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: 'Oswald', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  width: 100%;
+}
+.btn:disabled {
+  opacity: 0.5;
+}
+.btn-ghost {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line2);
+}
+.input {
+  width: 100%;
+  min-height: 48px;
+  background: var(--surface);
+  border: 1px solid var(--line2);
+  border-radius: 11px;
+  padding: 0 14px;
+  color: var(--text);
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 16px;
+}
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.err {
+  color: var(--bad);
+  font-size: 13px;
+  margin-top: 10px;
+}
+.muted-link {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 13px;
+  text-decoration: underline;
+  padding: 6px;
+}
+
+/* ---------------------------------------------------------------------------
+   Week screen
+   ------------------------------------------------------------------------- */
+.consistency {
+  text-align: center;
+  padding: 26px 0 10px;
+}
+.consistency .big {
+  font-family: 'Oswald', sans-serif;
+  font-size: clamp(56px, 22vw, 96px);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent);
+}
+.consistency .big .slash {
+  color: var(--faint);
+}
+.consistency .cap {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 6px;
+}
+.week-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 22px 0 6px;
+}
+.day-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+.day-dot .lt {
+  font-family: 'Oswald', sans-serif;
+  font-size: 12px;
+  color: var(--faint);
+  text-transform: uppercase;
+}
+.day-dot .pip {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid var(--line2);
+  background: var(--surface2);
+}
+.day-dot.trained .pip {
+  background: var(--accent);
+  border-color: transparent;
+}
+.day-dot.today .lt {
+  color: var(--text);
+}
+.day-dot.today .pip {
+  box-shadow: 0 0 0 2px var(--line2);
+}
+
+/* crew / friend rows -------------------------------------------------------- */
+.crew {
+  margin-top: 30px;
+  border-top: 1px solid var(--line);
+  padding-top: 22px;
+}
+.friend-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line);
+}
+.friend-row:last-child {
+  border-bottom: none;
+}
+.friend-name {
+  font-family: 'Oswald', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.friend-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.friend-status .live {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.friend-status.today {
+  color: var(--accent);
+}
+.friend-count {
+  margin-left: auto;
+  font-family: 'Oswald', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.crew-empty {
+  color: var(--muted);
+  font-size: 13.5px;
+  padding: 8px 0;
+}
+
+.app-footer {
+  padding: 28px 0 0;
+  color: var(--faint);
+  font-size: 12px;
+  text-align: center;
+}
+.app-footer .ver {
+  display: block;
+  margin-top: 6px;
+  color: var(--faint);
+  opacity: 0.7;
+}
+
+/* small placeholder used by stub screens before feature agents land --------- */
+.placeholder {
+  color: var(--muted);
+  font-size: 14px;
+  padding: 30px 0;
+}
