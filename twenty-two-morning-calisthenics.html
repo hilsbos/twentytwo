@@ -1,0 +1,231 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TWENTY-TWO — Anywhere Morning Build</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E100D; --surface:#181B15; --surface2:#21251D;
+    --line:rgba(236,238,230,.09); --line2:rgba(236,238,230,.16);
+    --text:#ECEEE6; --muted:#9AA08F; --faint:#6E7464;
+    --accent:#C8FA4B; --push:#C8FA4B; --legs:#F2B33D; --pull:#5DD3E0; --flex:#C9A0F0;
+    --r:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:"Hanken Grotesk",sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;padding:0 0 60px}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px}
+  h1,h2,h3,.disp{font-family:"Oswald",sans-serif;text-transform:uppercase;letter-spacing:.01em;font-weight:600;line-height:1}
+
+  header{padding:40px 0 26px;border-bottom:1px solid var(--line)}
+  .kicker{font-family:"Oswald",sans-serif;text-transform:uppercase;letter-spacing:.28em;font-size:12px;color:var(--accent);font-weight:500}
+  h1{font-size:clamp(46px,15vw,82px);font-weight:700;margin:10px 0 2px;line-height:.92}
+  h1 .twenty{color:var(--accent)}
+  .sub{color:var(--muted);font-size:15px;max-width:42ch;margin-top:14px}
+  .stats{display:flex;gap:8px;margin-top:22px;flex-wrap:wrap}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:11px 14px;flex:1;min-width:96px}
+  .stat .n{font-family:"Oswald";font-size:24px;font-weight:600;line-height:1}
+  .stat .l{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:5px}
+
+  section{padding:30px 0;border-bottom:1px solid var(--line)}
+  .label{font-family:"Oswald";text-transform:uppercase;letter-spacing:.16em;font-size:12.5px;color:var(--faint);margin-bottom:16px;font-weight:500}
+
+  /* tabs */
+  .tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:9px 13px;cursor:pointer;color:var(--muted);transition:.18s;text-align:center;min-width:62px}
+  .tab .d{font-family:"Oswald";font-size:14px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+  .tab .t{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+  .tab[aria-selected="true"]{color:var(--bg);border-color:transparent}
+  .tab[data-type="push"][aria-selected="true"]{background:var(--push)}
+  .tab[data-type="legs"][aria-selected="true"]{background:var(--legs)}
+  .tab[data-type="pull"][aria-selected="true"]{background:var(--pull)}
+  .tab[data-type="flex"][aria-selected="true"]{background:var(--flex)}
+
+  .panel{margin-top:22px}
+  .panel[hidden]{display:none}
+  .ptag{display:inline-flex;align-items:center;gap:8px;font-family:"Oswald";text-transform:uppercase;letter-spacing:.06em;font-size:13px;font-weight:600;padding:6px 12px;border-radius:9px;color:var(--bg)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--bg);opacity:.55}
+  .focus{color:var(--muted);font-size:13.5px;margin:12px 0 20px}
+
+  .ex{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:15px 16px;margin-bottom:10px;position:relative;overflow:hidden}
+  .ex::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);opacity:.85}
+  .ex.p-push::before{background:var(--push)} .ex.p-legs::before{background:var(--legs)}
+  .ex.p-pull::before{background:var(--pull)} .ex.p-flex::before{background:var(--flex)}
+  .ex-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .ex-name{font-family:"Oswald";font-size:18px;font-weight:600;text-transform:uppercase;letter-spacing:.01em}
+  .ex-num{font-family:"Oswald";color:var(--faint);font-size:15px;font-weight:500;margin-right:9px}
+  .sets{font-family:"Oswald";font-size:15px;font-weight:600;color:var(--accent);white-space:nowrap;text-transform:uppercase;letter-spacing:.03em}
+  .ex.p-legs .sets{color:var(--legs)} .ex.p-pull .sets{color:var(--pull)} .ex.p-flex .sets{color:var(--flex)}
+  .path{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:11px}
+  .path .step{font-size:12px;color:var(--muted);background:var(--surface2);border:1px solid var(--line);padding:3px 8px;border-radius:7px;white-space:nowrap}
+  .path .step.now{color:var(--text);border-color:var(--line2)}
+  .path .arr{color:var(--faint);font-size:11px}
+  .note{font-size:13px;color:var(--muted);margin-top:10px}
+
+  .rules li{list-style:none;display:flex;gap:13px;padding:13px 0;border-bottom:1px solid var(--line)}
+  .rules li:last-child{border-bottom:none}
+  .rnum{font-family:"Oswald";font-size:20px;font-weight:700;color:var(--accent);line-height:1;flex:0 0 auto;width:26px}
+  .rule-t{font-family:"Oswald";text-transform:uppercase;letter-spacing:.03em;font-size:15px;font-weight:600}
+  .rule-d{font-size:13.5px;color:var(--muted);margin-top:3px}
+
+  .callout{background:linear-gradient(180deg,var(--surface2),var(--surface));border:1px solid var(--line2);border-radius:var(--r);padding:18px}
+  .callout .h{font-family:"Oswald";text-transform:uppercase;letter-spacing:.04em;font-size:15px;font-weight:600;color:var(--accent);display:flex;align-items:center;gap:9px}
+  .callout p{font-size:13.5px;color:var(--muted);margin-top:9px}
+  .floor{display:flex;gap:12px;align-items:flex-start;margin-top:14px;background:var(--surface);border:1px dashed var(--line2);border-radius:11px;padding:13px 15px}
+  .floor .ico{font-family:"Oswald";font-weight:700;color:var(--legs);font-size:13px;letter-spacing:.08em;flex:0 0 auto;padding-top:1px}
+  .floor p{font-size:13px;color:var(--muted)}
+  footer{padding:26px 0 0;color:var(--faint);font-size:12px;text-align:center}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="kicker">Morning protocol · bodyweight</div>
+    <h1>Twenty<span class="twenty">Two</span></h1>
+    <p class="sub">A 15–20 minute morning build you can run anywhere — gym, hotel room, airport floor. Push / legs / pull on rotation, every muscle hit twice a week, recovery built in.</p>
+    <div class="stats">
+      <div class="stat"><div class="n">15–20<span style="font-size:13px;color:var(--muted)"> min</span></div><div class="l">Per morning</div></div>
+      <div class="stat"><div class="n">6+1</div><div class="l">Days / week</div></div>
+      <div class="stat"><div class="n">3×</div><div class="l">Sets, near failure</div></div>
+    </div>
+  </header>
+
+  <section>
+    <div class="label">The week</div>
+    <div class="tabs" role="tablist" aria-label="Training days">
+      <button class="tab" data-type="push" data-day="0" role="tab" aria-selected="true"><div class="d">Mon</div><div class="t">Push</div></button>
+      <button class="tab" data-type="legs" data-day="1" role="tab" aria-selected="false"><div class="d">Tue</div><div class="t">Legs</div></button>
+      <button class="tab" data-type="pull" data-day="2" role="tab" aria-selected="false"><div class="d">Wed</div><div class="t">Pull</div></button>
+      <button class="tab" data-type="push" data-day="3" role="tab" aria-selected="false"><div class="d">Thu</div><div class="t">Push</div></button>
+      <button class="tab" data-type="legs" data-day="4" role="tab" aria-selected="false"><div class="d">Fri</div><div class="t">Legs</div></button>
+      <button class="tab" data-type="pull" data-day="5" role="tab" aria-selected="false"><div class="d">Sat</div><div class="t">Pull</div></button>
+      <button class="tab" data-type="flex" data-day="6" role="tab" aria-selected="false"><div class="d">Sun</div><div class="t">Flex</div></button>
+    </div>
+
+    <div class="warm" style="margin-top:20px">
+      <div class="label" style="margin-bottom:10px">Warm-up · every day · ~2 min</div>
+      <div class="path">
+        <span class="step">20 arm circles</span><span class="arr">·</span>
+        <span class="step">15 leg swings / side</span><span class="arr">·</span>
+        <span class="step">10 bodyweight squats</span><span class="arr">·</span>
+        <span class="step">10 scapular push-ups</span><span class="arr">·</span>
+        <span class="step">wrist + ankle rolls</span>
+      </div>
+    </div>
+
+    <!-- PUSH -->
+    <div class="panel" data-panel="push">
+      <span class="ptag" style="background:var(--push)"><span class="dot"></span>Push day · chest · shoulders · triceps</span>
+      <p class="focus">Pressing strength and a fuller chest and shoulders. Pause 1–2 reps short of failure on every set; lower for a 3-count.</p>
+
+      <div class="ex p-push"><div class="ex-top"><div><span class="ex-num">01</span><span class="ex-name">Push-up</span></div><span class="sets">3 × AMRAP</span></div>
+        <div class="path"><span class="step">Hands elevated</span><span class="arr">→</span><span class="step now">Standard</span><span class="arr">→</span><span class="step">Diamond</span><span class="arr">→</span><span class="step">Decline</span><span class="arr">→</span><span class="step">Archer</span></div>
+        <p class="note">Hit the top of your range for 3 sets → move to the next variation. 3-second descent.</p></div>
+
+      <div class="ex p-push"><div class="ex-top"><div><span class="ex-num">02</span><span class="ex-name">Pike push-up</span></div><span class="sets">3 × 6–10</span></div>
+        <div class="path"><span class="step now">Feet on floor</span><span class="arr">→</span><span class="step">Feet elevated</span><span class="arr">→</span><span class="step">Wall handstand hold</span><span class="arr">→</span><span class="step">Wall HSPU</span></div>
+        <p class="note">Your shoulder builder and the road to a handstand.</p></div>
+
+      <div class="ex p-push"><div class="ex-top"><div><span class="ex-num">03</span><span class="ex-name">Chair dips</span></div><span class="sets">3 × 8–12</span></div>
+        <div class="path"><span class="step now">Knees bent</span><span class="arr">→</span><span class="step">Legs straight</span><span class="arr">→</span><span class="step">Feet elevated</span></div>
+        <p class="note">Two chairs or a bed edge. Triceps + lower chest.</p></div>
+
+      <div class="ex p-push"><div class="ex-top"><div><span class="ex-num">+</span><span class="ex-name">Hollow body hold</span></div><span class="sets">3 × 20–40s</span></div>
+        <div class="path"><span class="step now">Tuck</span><span class="arr">→</span><span class="step">One leg out</span><span class="arr">→</span><span class="step">Full hollow</span></div>
+        <p class="note">Core finisher.</p></div>
+    </div>
+
+    <!-- LEGS -->
+    <div class="panel" data-panel="legs" hidden>
+      <span class="ptag" style="background:var(--legs)"><span class="dot"></span>Leg day · quads · glutes · hamstrings</span>
+      <p class="focus">Where your loop band earns its keep. Slow descents, full depth, band above the knees for constant tension.</p>
+
+      <div class="ex p-legs"><div class="ex-top"><div><span class="ex-num">01</span><span class="ex-name">Squat</span></div><span class="sets">3 × 12–20</span></div>
+        <div class="path"><span class="step now">Bodyweight, 3s down</span><span class="arr">→</span><span class="step">Pause squat</span><span class="arr">→</span><span class="step">Bulgarian split</span><span class="arr">→</span><span class="step">Pistol progression</span></div>
+        <p class="note">Band above knees, push it out — wakes up the glutes.</p></div>
+
+      <div class="ex p-legs"><div class="ex-top"><div><span class="ex-num">02</span><span class="ex-name">Glute bridge</span></div><span class="sets">3 × 12–15 / side</span></div>
+        <div class="path"><span class="step now">Two-leg bridge</span><span class="arr">→</span><span class="step">Single-leg hip thrust</span><span class="arr">→</span><span class="step">Shoulders elevated</span></div>
+        <p class="note">Band above knees. Squeeze hard at the top for a 2-count.</p></div>
+
+      <div class="ex p-legs"><div class="ex-top"><div><span class="ex-num">03</span><span class="ex-name">Reverse lunge</span></div><span class="sets">3 × 10–12 / leg</span></div>
+        <div class="path"><span class="step now">Reverse lunge</span><span class="arr">→</span><span class="step">Walking lunge</span><span class="arr">→</span><span class="step">Deficit / jump</span></div></div>
+
+      <div class="ex p-legs"><div class="ex-top"><div><span class="ex-num">+</span><span class="ex-name">Band walks + leg raises</span></div><span class="sets">2 rounds</span></div>
+        <div class="path"><span class="step">Lateral walk 15 / way</span><span class="arr">·</span><span class="step">Monster walk 15</span><span class="arr">·</span><span class="step">Lying leg raises 15</span></div>
+        <p class="note">Glute + core finisher with the band.</p></div>
+    </div>
+
+    <!-- PULL -->
+    <div class="panel" data-panel="pull" hidden>
+      <span class="ptag" style="background:var(--pull)"><span class="dot"></span>Pull day · back · biceps · posture</span>
+      <p class="focus">The one day that needs a setup. Anchor a sturdy door, table, or — best of all — a doorway bar (see note below). This is what builds a complete, upright physique.</p>
+
+      <div class="ex p-pull"><div class="ex-top"><div><span class="ex-num">01</span><span class="ex-name">Horizontal row</span></div><span class="sets">3 × 8–12</span></div>
+        <div class="path"><span class="step now">Towel row on door</span><span class="arr">→</span><span class="step">Row under sturdy table</span><span class="arr">→</span><span class="step">Feet elevated</span><span class="arr">→</span><span class="step">One-arm</span></div>
+        <p class="note">Folded towel around a door handle, lean back, pull chest to hands. Keep the body in one line.</p></div>
+
+      <div class="ex p-pull"><div class="ex-top"><div><span class="ex-num">02</span><span class="ex-name">Band pull-apart / face-pull</span></div><span class="sets">3 × 15–20</span></div>
+        <div class="path"><span class="step now">Loop band, arms out</span><span class="arr">→</span><span class="step">Anchored face-pull</span></div>
+        <p class="note">Rear delts — the posture muscles a desk destroys.</p></div>
+
+      <div class="ex p-pull"><div class="ex-top"><div><span class="ex-num">03</span><span class="ex-name">Superman Y-T-W</span></div><span class="sets">3 × 10–12</span></div>
+        <div class="path"><span class="step now">Floor, arms in Y</span><span class="arr">→</span><span class="step">T</span><span class="arr">→</span><span class="step">W, squeeze</span></div>
+        <p class="note">Lower back + mid-traps. Zero equipment.</p></div>
+
+      <div class="ex p-pull"><div class="ex-top"><div><span class="ex-num">+</span><span class="ex-name">Towel / band curls + plank</span></div><span class="sets">3 each</span></div>
+        <div class="path"><span class="step">Curls 10–15</span><span class="arr">·</span><span class="step">Plank 30–60s</span></div></div>
+    </div>
+
+    <!-- FLEX -->
+    <div class="panel" data-panel="flex" hidden>
+      <span class="ptag" style="background:var(--flex)"><span class="dot"></span>Flex day · yoga · mobility · rest</span>
+      <p class="focus">Your call. Slot a yoga session here, do an easy mobility flow, or take the day fully off. Recovery is when the muscle is actually built — not skippable, but flexible.</p>
+      <div class="ex p-flex"><div class="ex-top"><div><span class="ex-name">Pick one</span></div></div>
+        <div class="path"><span class="step">Full yoga session</span><span class="arr">·</span><span class="step">10-min mobility flow</span><span class="arr">·</span><span class="step">Walk + stretch</span><span class="arr">·</span><span class="step">Complete rest</span></div>
+        <p class="note">If you missed a day earlier in the week, this is your make-up slot.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">How you get stronger (no weights needed)</div>
+    <ul class="rules">
+      <li><span class="rnum">1</span><div><div class="rule-t">Reps first, then harder</div><div class="rule-d">When you hit the top of a rep range for all 3 sets, graduate to the next variation in the path. That's your "adding weight."</div></div></li>
+      <li><span class="rnum">2</span><div><div class="rule-t">Slow the descent</div><div class="rule-d">A 3-second lowering phase doubles the muscle-building stimulus with zero extra equipment. This is the bodyweight cheat code.</div></div></li>
+      <li><span class="rnum">3</span><div><div class="rule-t">Stop 1–2 reps short</div><div class="rule-d">Training close to failure is the trigger for growth. Close — not into ugly, form-breaking reps.</div></div></li>
+      <li><span class="rnum">4</span><div><div class="rule-t">Write down your reps</div><div class="rule-d">Beating last week's numbers is the whole game. The notes app is your progress tracker.</div></div></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="callout">
+      <div class="h">⊕ &nbsp;One upgrade closes the gap</div>
+      <p>Bodyweight + your loop band covers roughly 80% of a complete physique — legs and pushing are fully handled. The missing piece is <em>pulling</em>. A <strong>doorway pull-up bar</strong> or a set of <strong>long door-anchor resistance bands</strong> (~$20–25, both pack flat for travel) unlocks real back and bicep development. On pull days, that turns towel rows into dead hangs → negatives → your first pull-up.</p>
+    </div>
+    <div class="floor">
+      <span class="ico">FLOOR</span>
+      <p><strong>No-excuse minimum:</strong> short on time or low energy? Do one round of the three main moves. Ten minutes, done. A consistent 10 beats a perfect 20 you skip.</p>
+    </div>
+  </section>
+
+  <footer>Twenty-Two · run it fasted before your eating window · progress lives in the rep count, not the mirror</footer>
+</div>
+
+<script>
+  (function(){
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+    var panels = {};
+    document.querySelectorAll('.panel').forEach(function(p){ panels[p.dataset.panel] = p; });
+    function show(type){
+      for(var k in panels){ panels[k].hidden = (k !== type); }
+      tabs.forEach(function(t){ t.setAttribute('aria-selected', t.dataset.type === type ? 'true':'false'); });
+    }
+    tabs.forEach(function(t){
+      t.addEventListener('click', function(){
+        tabs.forEach(function(x){ x.setAttribute('aria-selected','false'); });
+        t.setAttribute('aria-selected','true');
+        show(t.dataset.type);
+      });
+    });
+  })();
+</script>
