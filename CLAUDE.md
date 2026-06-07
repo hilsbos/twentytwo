@@ -10,9 +10,8 @@ alongside a leaner body composition. Starting from zero, so habit-building matte
 as much as the program; the product spine is ADHD-first (opens on today's workout,
 one-tap logging, no breakable streaks).
 
-The deliverable is the React app. `twenty-two-morning-calisthenics.html` at the
-repo root is the **original Claude.ai artifact** — a HISTORICAL reference only, no
-longer maintained or shipped.
+The deliverable is the React app. `docs/legacy-reference-card.html` is the
+**original Claude.ai artifact** — a historical reference only, not shipped.
 
 ## Stack & architecture
 - **React 19 + Vite + TypeScript**, static build. No router, no state lib, no CSS
@@ -34,16 +33,20 @@ longer maintained or shipped.
 ### Layout
 ```
 src/
-  program.ts        program config (rotation, exercises, progression paths) — v2
+  program.ts        program config (rotation, exercises, progression paths)
   types.ts          shared contracts
   lib/logic.ts      pure, unit-tested logic (dates, targets, consistency, level-up)
   lib/supabase.ts   client init from env
   lib/db.ts         typed data-access wrappers (no UI logic)
   screens/          Auth / Today / Week
-  components/        FormSheet (form guide sheet)
+  components/       FormSheet (form guide sheet)
   illustrations/    per-exercise 2-pose SVGs + CONVENTIONS.md + registry test
-  App.tsx           two-screen shell + auth gate
-supabase/schema.sql, scripts/gen_icons.py, scripts/render-grid.tsx, docs/
+  App.tsx           two-screen shell (brand bar + nav) + auth gate
+supabase/           schema.sql + migrations/
+scripts/            gen_icons.py, render-grid.tsx
+docs/               infra.md, program-view-proposal.md, exercise-guide-grid.png,
+                    legacy-reference-card.html
+deploy.sh           one-command production deploy (see docs/infra.md)
 ```
 
 ## Equipment reality (drove program v2)
@@ -56,7 +59,7 @@ supabase/schema.sql, scripts/gen_icons.py, scripts/render-grid.tsx, docs/
 - Still no pull-up bar. A doorway bar remains the top hardware upgrade (unlocks
   dead hangs → negatives → first pull-up).
 
-## Program v2 (in src/program.ts) — what changed and why
+## The program (src/program.ts) — current state and why
 **All 7 days are real programming.** Mon–Sat rotate Push/Legs/Pull (each muscle
 ~2×/week with 48–72h recovery); **Sunday is a programmed `core` day** — dead bug,
 band anti-rotation (Pallof) press, side plank, + a hollow-rock/V-tuck finisher.
@@ -69,7 +72,7 @@ Each session: ~2-min warm-up + 3 main moves (3 sets, stop 1–2 reps short of
 failure, 3-sec eccentric) + a core/finisher. Overload order: reps → harder
 variation → slower tempo.
 
-Changes from v1 and their rationale:
+Evidence-review changes (v1 → current) and their rationale:
 - **Lat pulldown added** (band over the door) — was the single biggest gap: the
   program had zero vertical pull.
 - **Chair dips removed → band triceps work** — dips put an untrained user's
@@ -122,7 +125,12 @@ before shipping a panel. `pushup.tsx` and `squat.tsx` are the finished reference
 ## User preferences (learned)
 - **NO day-color left stripe** on exercise cards. Keep the dark athletic theme
   (Oswald + Hanken Grotesk, lime `#C8FA4B` accent on `#0E100D`).
+- UI taste: **minimalistic but complete** — quiet brand presence (slim brand
+  bar), no dashboards, nothing that adds friction before the first logged set.
 - Wants evidence-backed, specific, ranked recommendations — not generic advice.
+- For substantial features/changes, prefers **ultracode multi-agent workflows**
+  (design → build → adversarial verify); for brainstorms, a written proposal
+  doc to review before any code (see `docs/program-view-proposal.md`).
 
 ## Dev commands
 ```bash

@@ -1,7 +1,8 @@
 # Twenty-Two
 
 A minimal, phone-first workout app for the **Twenty-Two** morning calisthenics
-program — push / legs / pull on rotation, runnable anywhere in 15–20 minutes.
+program — push / legs / pull rotating Mon–Sat plus a Sunday core day, runnable
+anywhere in 15–20 minutes.
 
 - React 19 + Vite + TypeScript (static build, no router/state/CSS frameworks)
 - Supabase (Postgres + magic-link auth + RLS) for accounts, logs, and friend presence
@@ -18,7 +19,9 @@ program — push / legs / pull on rotation, runnable anywhere in 15–20 minutes
 1. **Apply the schema.** Open the Supabase dashboard → **SQL Editor**, paste the
    contents of [`supabase/schema.sql`](supabase/schema.sql), and run it. It is
    idempotent — safe to re-run. It creates the `profiles`, `sessions`,
-   `set_logs`, and `progression` tables with full Row Level Security.
+   `set_logs`, and `progression` tables with full Row Level Security. On an
+   existing deployment, also run anything new in
+   [`supabase/migrations/`](supabase/migrations/) (each file is idempotent).
 
 2. **Configure auth redirect URLs.** Dashboard → **Authentication → URL
    Configuration**:
@@ -60,23 +63,32 @@ python3 scripts/gen_icons.py
 
 Output lands in `public/icons/`. An SVG favicon lives at `public/favicon.svg`.
 
-## Deploying under a subpath
+## Deploying
 
-The Vite `base` is `'./'` and every asset, manifest, and icon path in
-`index.html` / `manifest.webmanifest` is **relative**, so the built `dist/` can be
-dropped into any folder (e.g. an S3 + CloudFront subfolder like
-`/twenty-two/`) and will work without rewrites. After building, upload the
-contents of `dist/`.
+Production lives at **https://shushu.be/twentytwo/** (S3 + CloudFront). Deploys
+are one command — build, tiered-cache upload, CDN invalidation:
 
-Remember to add that exact subpath to the Supabase **Redirect URLs** list, or
+```bash
+./deploy.sh
+```
+
+Infra details (CloudFront function, OAC, scoped IAM deploy user, rollback):
+[`docs/infra.md`](docs/infra.md).
+
+Portable by design: Vite `base` is `'./'` and every asset/manifest/icon path is
+**relative**, so the built `dist/` works from any folder on any static host.
+Whatever URL serves it must be in the Supabase **Redirect URLs** list, or
 magic-link return will be rejected.
 
 ## Project layout
 
 ```
 public/            manifest, favicon, generated icons
-scripts/           gen_icons.py (dependency-free PNG generator)
-supabase/          schema.sql (idempotent, full RLS)
+scripts/           gen_icons.py (PNG generator), render-grid.tsx (illustration grid)
+supabase/          schema.sql (idempotent, full RLS) + migrations/
+docs/              infra.md, program-view-proposal.md, exercise-guide-grid.png,
+                   legacy-reference-card.html (the original artifact)
+deploy.sh          one-command production deploy
 src/
   program.ts       the exact program config (rotation, exercises, paths)
   types.ts         shared TypeScript contracts
@@ -84,5 +96,7 @@ src/
   lib/supabase.ts  client init from env
   lib/db.ts        typed data-access wrappers (no UI logic)
   screens/         Auth / Today / Week
+  components/      FormSheet (exercise form-guide sheet)
+  illustrations/   2-pose SVG guide per exercise + CONVENTIONS.md
   App.tsx          two-screen shell + auth gate
 ```
