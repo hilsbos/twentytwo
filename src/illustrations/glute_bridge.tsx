@@ -1,6 +1,11 @@
 import type { VariationGuide } from './types';
 
-// path: ['Two-leg bridge', 'Single-leg hip thrust', 'Shoulders elevated']
+// path: ['Two-leg bridge', 'B-stance bridge', 'Single-leg hip thrust', 'Shoulders elevated']
+//
+// NEW intermediate inserted at index 1 ("B-stance bridge"): a two-leg bridge
+// with one heel planted forward as a kickstand, bridging the bilateral ->
+// unilateral jump. It is fully drawn at index 1 below (BStanceBridgeArt — real
+// 2-pose art with the staggered kickstand foot).
 // Supine figure, side profile, faces +x (head on the LEFT, feet on the RIGHT).
 // pose-a = hips down/low (start), pose-b = hips driven up (contracted top).
 // Band sits just above the knees (faint line) per the program note.
@@ -27,49 +32,137 @@ function TwoLegBridgeArt() {
 
       {/* movement arrow: hips travel up (a -> b) */}
       <g opacity={0.6}>
-        <path d="M 100 96 L 100 70" strokeWidth={2} strokeDasharray="4 3" />
-        <path d="M 94 76 L 100 70 L 106 76" strokeWidth={2} />
+        <path d="M 90 100 L 90 84" strokeWidth={2} strokeDasharray="4 3" />
+        <path d="M 84 90 L 90 84 L 96 90" strokeWidth={2} />
       </g>
 
-      {/* pose A — hips resting low */}
+      {/* pose A — hips resting low. Torso shoulder(62,104)->hip(90,104) = 28px. */}
       <g className="pose-a">
         {/* head + neck on the ground (left) */}
         <circle cx={44} cy={104} r={7} />
         <line x1={51} y1={104} x2={62} y2={104} />
-        {/* torso along the ground: shoulder(62,104) -> hip(100,102) */}
-        <line x1={62} y1={104} x2={100} y2={102} />
-        {/* thigh up toward knee, shin down to planted foot */}
-        <line x1={100} y1={102} x2={126} y2={96} />
-        <line x1={126} y1={96} x2={130} y2={108} />
+        {/* torso along the ground: shoulder(62,104) -> hip(90,104), 28px */}
+        <line x1={62} y1={104} x2={90} y2={104} />
+        {/* thigh up to bent knee (~18px), shin down to planted foot (~16px) */}
+        <line x1={90} y1={104} x2={104} y2={92} />
+        <line x1={104} y1={92} x2={104} y2={108} />
         {/* foot planted */}
-        <line x1={130} y1={108} x2={142} y2={108} />
+        <line x1={104} y1={108} x2={116} y2={108} />
         {/* band above the knee (across thigh near knee) */}
-        <line x1={118} y1={94} x2={124} y2={104} opacity={0.5} />
+        <line x1={97} y1={94} x2={103} y2={102} opacity={0.5} />
         {/* joint dots: shoulder, hip, knee */}
         <circle cx={62} cy={104} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={100} cy={102} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={126} cy={96} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={90} cy={104} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={104} cy={92} r={2.5} fill="currentColor" stroke="none" />
       </g>
 
-      {/* pose B — hips driven up, straight shoulder->hip->knee line */}
+      {/* pose B — hips driven up; shoulder, hip, knee roughly COLINEAR (a straight
+          ramp, not an arched peak). Torso shoulder(62,104)->hip(89,96) = 28px,
+          held constant with pose A so the figure does not appear to lengthen. */}
       <g className="pose-b">
         {/* head + neck on the ground (left, unchanged) */}
         <circle cx={44} cy={104} r={7} />
         <line x1={51} y1={104} x2={62} y2={104} />
-        {/* torso lifts diagonally: shoulder(62,104) -> hip(108,74) */}
-        <line x1={62} y1={104} x2={108} y2={74} />
-        {/* thigh down to knee (shins vertical): hip(108,74) -> knee(128,92) */}
-        <line x1={108} y1={74} x2={128} y2={92} />
-        {/* shin vertical to planted foot */}
-        <line x1={128} y1={92} x2={130} y2={108} />
-        {/* foot planted */}
-        <line x1={130} y1={108} x2={142} y2={108} />
+        {/* torso lifts a little: shoulder(62,104) -> hip(89,96), 28px */}
+        <line x1={62} y1={104} x2={89} y2={96} />
+        {/* thigh continues the ramp to knee(104,92); shin vertical to foot */}
+        <line x1={89} y1={96} x2={104} y2={92} />
+        <line x1={104} y1={92} x2={104} y2={108} />
+        {/* foot planted (same as pose A) */}
+        <line x1={104} y1={108} x2={116} y2={108} />
         {/* band above the knee */}
-        <line x1={120} y1={84} x2={126} y2={94} opacity={0.5} />
+        <line x1={95} y1={90} x2={101} y2={98} opacity={0.5} />
         {/* joint dots: shoulder, hip, knee */}
         <circle cx={62} cy={104} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={108} cy={74} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={128} cy={92} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={89} cy={96} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={104} cy={92} r={2.5} fill="currentColor" stroke="none" />
+      </g>
+    </svg>
+  );
+}
+
+/**
+ * B-stance glute bridge.
+ * A two-leg bridge with STAGGERED feet: the working leg's foot is planted flat
+ * under its knee, while the OTHER leg is set forward as a light "kickstand" —
+ * only the heel touches (toes lifted up) and the leg reaches further out, taking
+ * little of the load. Distinguishing feature: the two feet are offset (one flat
+ * under the knee, one heel reaching forward with toes up). It bridges the
+ * bilateral two-leg bridge -> unilateral single-leg jump.
+ * pose-a = hips resting low; pose-b = hips driven up.
+ */
+function BStanceBridgeArt() {
+  return (
+    <svg
+      viewBox="0 0 200 120"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={3}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {/* ground */}
+      <line x1={15} y1={110} x2={185} y2={110} opacity={0.25} strokeWidth={1.5} />
+
+      {/* movement arrow: hips travel up (a -> b) */}
+      <g opacity={0.6}>
+        <path d="M 90 100 L 90 84" strokeWidth={2} strokeDasharray="4 3" />
+        <path d="M 84 90 L 90 84 L 96 90" strokeWidth={2} />
+      </g>
+
+      {/* pose A — hips resting low, staggered feet. Torso 28px, held constant. */}
+      <g className="pose-a">
+        {/* head + neck on the ground (left) */}
+        <circle cx={44} cy={104} r={7} />
+        <line x1={51} y1={104} x2={62} y2={104} />
+        {/* torso along the ground: shoulder(62,104) -> hip(90,104), 28px */}
+        <line x1={62} y1={104} x2={90} y2={104} />
+        {/* WORKING leg: thigh up to a bent knee, shin down to a flat foot
+            planted directly under the knee (same as the two-leg bridge) */}
+        <line x1={90} y1={104} x2={104} y2={92} />
+        <line x1={104} y1={92} x2={104} y2={108} />
+        <line x1={104} y1={108} x2={116} y2={108} />
+        {/* KICKSTAND leg: a REAL bent leg set forward as a prop — thigh(~18px) to
+            a knee dot, then shin(~18px) reaching further forward to a
+            HEEL-down/toes-up foot, kept LOW so it stays clear of the working leg. */}
+        <line x1={90} y1={104} x2={108} y2={102} />
+        <line x1={108} y1={102} x2={126} y2={108} />
+        {/* heel down, toes lifted up (light kickstand contact) */}
+        <line x1={126} y1={108} x2={133} y2={102} />
+        {/* band above the working knee */}
+        <line x1={97} y1={94} x2={103} y2={102} opacity={0.5} />
+        {/* joint dots: shoulder, hip, working knee, kickstand knee */}
+        <circle cx={62} cy={104} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={90} cy={104} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={104} cy={92} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={108} cy={102} r={2.5} fill="currentColor" stroke="none" />
+      </g>
+
+      {/* pose B — hips driven up, staggered feet; shoulder-hip-knee colinear ramp. */}
+      <g className="pose-b">
+        {/* head + neck on the ground (left, unchanged) */}
+        <circle cx={44} cy={104} r={7} />
+        <line x1={51} y1={104} x2={62} y2={104} />
+        {/* torso lifts a little: shoulder(62,104) -> hip(89,96), 28px */}
+        <line x1={62} y1={104} x2={89} y2={96} />
+        {/* WORKING leg: thigh continues the ramp to knee(104,92); shin vertical
+            to the flat foot (same foot as pose A) */}
+        <line x1={89} y1={96} x2={104} y2={92} />
+        <line x1={104} y1={92} x2={104} y2={108} />
+        <line x1={104} y1={108} x2={116} y2={108} />
+        {/* KICKSTAND leg: thigh(~18px) to a knee dot, shin(~18px) reaching forward
+            to the same HEEL-down/toes-up forward foot as pose A */}
+        <line x1={89} y1={96} x2={108} y2={101} />
+        <line x1={108} y1={101} x2={126} y2={108} />
+        <line x1={126} y1={108} x2={133} y2={102} />
+        {/* band above the working knee */}
+        <line x1={95} y1={90} x2={101} y2={98} opacity={0.5} />
+        {/* joint dots: shoulder, hip, working knee, kickstand knee */}
+        <circle cx={62} cy={104} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={89} cy={96} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={104} cy={92} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={108} cy={101} r={2.5} fill="currentColor" stroke="none" />
       </g>
     </svg>
   );
@@ -98,56 +191,54 @@ function SingleLegHipThrustArt() {
 
       {/* movement arrow: hips travel up (a -> b) */}
       <g opacity={0.6}>
-        <path d="M 100 96 L 100 70" strokeWidth={2} strokeDasharray="4 3" />
-        <path d="M 94 76 L 100 70 L 106 76" strokeWidth={2} />
+        <path d="M 90 100 L 90 84" strokeWidth={2} strokeDasharray="4 3" />
+        <path d="M 84 90 L 90 84 L 96 90" strokeWidth={2} />
       </g>
 
-      {/* pose A — hips low, working foot planted, free leg extended out */}
+      {/* pose A — hips low, working foot planted, free leg extended out. Torso 28px. */}
       <g className="pose-a">
         {/* head + neck on the ground */}
         <circle cx={44} cy={104} r={7} />
         <line x1={51} y1={104} x2={62} y2={104} />
-        {/* torso along ground: shoulder -> hip */}
-        <line x1={62} y1={104} x2={100} y2={102} />
-        {/* working leg: thigh up to knee, shin down to planted foot */}
-        <line x1={100} y1={102} x2={126} y2={96} />
-        <line x1={126} y1={96} x2={130} y2={108} />
-        <line x1={130} y1={108} x2={142} y2={108} />
-        {/* FREE leg: one dead-straight extended limb (~36px, standard leg
-            length), clearly raised off the floor and angled well above the
-            working knee so the two legs read as separate (one planted/bent,
-            one lifted/straight) */}
-        <line x1={100} y1={102} x2={131} y2={83} />
+        {/* torso along ground: shoulder(62,104) -> hip(90,104), 28px */}
+        <line x1={62} y1={104} x2={90} y2={104} />
+        {/* working leg: thigh up to bent knee, shin down to planted foot */}
+        <line x1={90} y1={104} x2={104} y2={92} />
+        <line x1={104} y1={92} x2={104} y2={108} />
+        <line x1={104} y1={108} x2={116} y2={108} />
+        {/* FREE leg: one dead-straight extended limb (~36px), clearly raised off
+            the floor and angled well above the working knee so the two legs read
+            as separate (one planted/bent, one lifted/straight) */}
+        <line x1={90} y1={104} x2={120} y2={84} />
         {/* band above working knee */}
-        <line x1={118} y1={94} x2={124} y2={104} opacity={0.5} />
+        <line x1={97} y1={94} x2={103} y2={102} opacity={0.5} />
         {/* joint dots: shoulder, hip, working knee */}
         <circle cx={62} cy={104} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={100} cy={102} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={126} cy={96} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={90} cy={104} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={104} cy={92} r={2.5} fill="currentColor" stroke="none" />
       </g>
 
-      {/* pose B — hips up, body + free leg one straight line */}
+      {/* pose B — hips up, body + free leg one straight line. Torso held at 28px. */}
       <g className="pose-b">
         {/* head + neck on the ground */}
         <circle cx={44} cy={104} r={7} />
         <line x1={51} y1={104} x2={62} y2={104} />
-        {/* torso lifts: shoulder -> hip up */}
-        <line x1={62} y1={104} x2={108} y2={74} />
-        {/* working leg: thigh to knee, shin vertical to foot */}
-        <line x1={108} y1={74} x2={128} y2={92} />
-        <line x1={128} y1={92} x2={130} y2={108} />
-        <line x1={130} y1={108} x2={142} y2={108} />
-        {/* FREE leg: one dead-straight limb (~36px, standard leg length)
-            continuing the torso line out/up. Hip->tip slope matches the
-            shoulder->hip slope so body + free leg form ONE straight line at
-            lockout (neutral free hip, no kink). */}
-        <line x1={108} y1={74} x2={138} y2={54} />
+        {/* torso lifts a little: shoulder(62,104) -> hip(89,96), 28px */}
+        <line x1={62} y1={104} x2={89} y2={96} />
+        {/* working leg: thigh continues the ramp to knee(104,92); shin vertical */}
+        <line x1={89} y1={96} x2={104} y2={92} />
+        <line x1={104} y1={92} x2={104} y2={108} />
+        <line x1={104} y1={108} x2={116} y2={108} />
+        {/* FREE leg: one dead-straight limb (~36px) continuing the torso line
+            out/up. Hip->tip slope matches the shoulder->hip slope so body + free
+            leg form ONE straight line at lockout (neutral free hip, no kink). */}
+        <line x1={89} y1={96} x2={124} y2={86} />
         {/* band above working knee */}
-        <line x1={120} y1={84} x2={126} y2={94} opacity={0.5} />
+        <line x1={95} y1={90} x2={101} y2={98} opacity={0.5} />
         {/* joint dots: shoulder, hip, working knee */}
         <circle cx={62} cy={104} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={108} cy={74} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={128} cy={92} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={89} cy={96} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={104} cy={92} r={2.5} fill="currentColor" stroke="none" />
       </g>
     </svg>
   );
@@ -236,12 +327,17 @@ const guides: VariationGuide[] = [
     Art: TwoLegBridgeArt,
   },
   {
-    // 1 Single-leg hip thrust
+    // 1 B-stance bridge
+    cues: ['Set one heel as a kickstand', 'Drive through the planted foot', 'Lift hips level and tall'],
+    Art: BStanceBridgeArt,
+  },
+  {
+    // 2 Single-leg hip thrust
     cues: ['Point one leg out', 'Press through one heel', 'Lift hips level and tall'],
     Art: SingleLegHipThrustArt,
   },
   {
-    // 2 Shoulders elevated
+    // 3 Shoulders elevated
     cues: ['Rest shoulders on the bench', 'Drive heels into floor', 'Make the body a table'],
     Art: ShouldersElevatedArt,
   },

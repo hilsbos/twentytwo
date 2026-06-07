@@ -2,28 +2,20 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { createElement } from 'react';
 import { writeFileSync } from 'fs';
 import { GUIDES } from '../src/illustrations/index';
+import { ROTATION, dayConfig } from '../src/program';
 
-// path arrays mirrored from program.ts for labels
-const PATHS: Record<string, string[]> = {
-  pushup: ['Hands elevated', 'Standard', 'Diamond', 'Decline', 'Archer'],
-  pike_pushup: ['Feet on floor', 'Feet elevated', 'Wall handstand hold', 'Wall HSPU'],
-  chair_dips: ['Knees bent', 'Legs straight', 'Feet elevated'],
-  hollow_hold: ['Tuck', 'One leg out', 'Full hollow'],
-  squat: ['Bodyweight 3s down', 'Pause squat', 'Bulgarian split', 'Pistol progression'],
-  glute_bridge: ['Two-leg bridge', 'Single-leg hip thrust', 'Shoulders elevated'],
-  reverse_lunge: ['Reverse lunge', 'Walking lunge', 'Deficit / jump'],
-  band_walks: ['Lateral+monster walk+leg raises'],
-  row: ['Towel row on door', 'Row under sturdy table', 'Feet elevated', 'One-arm'],
-  band_pull_apart: ['Loop band arms out', 'Anchored face-pull'],
-  superman_ytw: ['Floor arms in Y', 'T', 'W squeeze'],
-  curls_plank: ['Towel/band curls + plank'],
-};
-
-const ORDER = [
-  'pushup', 'pike_pushup', 'chair_dips', 'hollow_hold',
-  'squat', 'glute_bridge', 'reverse_lunge', 'band_walks',
-  'row', 'band_pull_apart', 'superman_ytw', 'curls_plank',
-];
+// Derive the guidable exercise order and step labels directly from program.ts,
+// so this grid never drifts from the source of truth. Walk the rotation once,
+// collect each unique guidable exercise key with its `path` array.
+const ORDER: string[] = [];
+const PATHS: Record<string, string[]> = {};
+for (const type of ROTATION) {
+  for (const ex of dayConfig(type).exercises) {
+    if (!GUIDES[ex.key] || PATHS[ex.key]) continue;
+    ORDER.push(ex.key);
+    PATHS[ex.key] = ex.path;
+  }
+}
 
 type Cell = { svg: string; label: string };
 const all: Cell[] = [];
@@ -31,7 +23,7 @@ for (const key of ORDER) {
   const guides = GUIDES[key];
   guides.forEach((g, i) => {
     const svg = renderToStaticMarkup(createElement(g.Art));
-    all.push({ svg, label: `${key} [${i}] ${PATHS[key][i]}` });
+    all.push({ svg, label: `${key} [${i}] ${PATHS[key][i] ?? ''}` });
   });
 }
 

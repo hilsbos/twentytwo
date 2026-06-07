@@ -2,15 +2,15 @@ import type { VariationGuide } from './types';
 
 import pushup from './pushup';
 import pike_pushup from './pike_pushup';
-import chair_dips from './chair_dips';
+import triceps_press from './triceps_press';
 import hollow_hold from './hollow_hold';
 import squat from './squat';
 import glute_bridge from './glute_bridge';
 import reverse_lunge from './reverse_lunge';
-import band_walks from './band_walks';
+import hinge_raises from './hinge_raises';
 import row from './row';
 import band_pull_apart from './band_pull_apart';
-import superman_ytw from './superman_ytw';
+import lat_pulldown from './lat_pulldown';
 import curls_plank from './curls_plank';
 
 export type { VariationGuide } from './types';
@@ -23,15 +23,15 @@ export type { VariationGuide } from './types';
 export const GUIDES: Record<string, VariationGuide[]> = {
   pushup,
   pike_pushup,
-  chair_dips,
+  triceps_press,
   hollow_hold,
   squat,
   glute_bridge,
   reverse_lunge,
-  band_walks,
+  hinge_raises,
   row,
   band_pull_apart,
-  superman_ytw,
+  lat_pulldown,
   curls_plank,
 };
 

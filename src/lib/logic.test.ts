@@ -289,7 +289,7 @@ describe('shouldSuggestAdvance', () => {
       makeLog('pushup', 2, 16, 0), // above max also qualifies
       makeLog('pushup', 3, 15, 0),
     ];
-    expect(shouldSuggestAdvance(logs, ex, 0)).toBe(true);
+    expect(shouldSuggestAdvance(logs, ex, 0, 6)).toBe(true);
   });
 
   it('false when one set is below max', () => {
@@ -298,7 +298,7 @@ describe('shouldSuggestAdvance', () => {
       makeLog('pushup', 2, 14, 0), // below max
       makeLog('pushup', 3, 15, 0),
     ];
-    expect(shouldSuggestAdvance(logs, ex, 0)).toBe(false);
+    expect(shouldSuggestAdvance(logs, ex, 0, 6)).toBe(false);
   });
 
   it('false when not all sets are logged (incomplete)', () => {
@@ -307,7 +307,7 @@ describe('shouldSuggestAdvance', () => {
       makeLog('pushup', 2, 15, 0),
       // set 3 missing
     ];
-    expect(shouldSuggestAdvance(logs, ex, 0)).toBe(false);
+    expect(shouldSuggestAdvance(logs, ex, 0, 6)).toBe(false);
   });
 
   it('never suggests on the last step', () => {
@@ -316,7 +316,7 @@ describe('shouldSuggestAdvance', () => {
       makeLog('pushup', 2, 15, 2),
       makeLog('pushup', 3, 15, 2),
     ];
-    expect(shouldSuggestAdvance(logs, ex, 2)).toBe(false);
+    expect(shouldSuggestAdvance(logs, ex, 2, 6)).toBe(false);
   });
 
   it('only counts logs at the queried stepIndex', () => {
@@ -328,7 +328,7 @@ describe('shouldSuggestAdvance', () => {
       // current step under-logged
       makeLog('pushup', 1, 15, 0),
     ];
-    expect(shouldSuggestAdvance(logs, ex, 0)).toBe(false);
+    expect(shouldSuggestAdvance(logs, ex, 0, 6)).toBe(false);
   });
 
   it('ignores other exercises', () => {
@@ -338,7 +338,7 @@ describe('shouldSuggestAdvance', () => {
       makeLog('pushup', 3, 15, 0),
       makeLog('squat', 1, 1, 0),
     ];
-    expect(shouldSuggestAdvance(logs, ex, 0)).toBe(true);
+    expect(shouldSuggestAdvance(logs, ex, 0, 6)).toBe(true);
   });
 
   it('handles a duplicate set number gracefully (still requires all distinct sets)', () => {
@@ -348,7 +348,30 @@ describe('shouldSuggestAdvance', () => {
       makeLog('pushup', 2, 15, 0),
       // set 3 still missing
     ];
-    expect(shouldSuggestAdvance(logs, ex, 0)).toBe(false);
+    expect(shouldSuggestAdvance(logs, ex, 0, 6)).toBe(false);
+  });
+
+  // ---- tenure gate (sessionsAtStep) ----
+  const maxed = [
+    makeLog('pushup', 1, 15, 0),
+    makeLog('pushup', 2, 15, 0),
+    makeLog('pushup', 3, 15, 0),
+  ];
+
+  it('false at the tenure boundary below the gate (5 sessions = no)', () => {
+    expect(shouldSuggestAdvance(maxed, ex, 0, 5)).toBe(false);
+  });
+
+  it('true at the tenure boundary on the gate (6 sessions = yes)', () => {
+    expect(shouldSuggestAdvance(maxed, ex, 0, 6)).toBe(true);
+  });
+
+  it('false with zero tenure even when reps are maxed', () => {
+    expect(shouldSuggestAdvance(maxed, ex, 0, 0)).toBe(false);
+  });
+
+  it('true with ample tenure', () => {
+    expect(shouldSuggestAdvance(maxed, ex, 0, 12)).toBe(true);
   });
 });
 

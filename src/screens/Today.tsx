@@ -434,8 +434,8 @@ function ExerciseCard({
   );
 
   const suggestAdvance = useMemo(
-    () => shouldSuggestAdvance(todayLogsArr, ex, stepIndex),
-    [todayLogsArr, ex, stepIndex],
+    () => shouldSuggestAdvance(todayLogsArr, ex, stepIndex, familiarity),
+    [todayLogsArr, ex, stepIndex, familiarity],
   );
 
   // Floor mode collapses non-main and only requires set 1 of mains; we still
@@ -660,7 +660,7 @@ function DoneBanner({ flex }: { flex: boolean }) {
       <span className="sub">
         {flex
           ? 'Recovery is where the muscle is built.'
-          : 'Logged. The work compounds.'}
+          : '~30g protein when the window opens'}
       </span>
     </div>
   );

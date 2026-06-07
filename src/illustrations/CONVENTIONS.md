@@ -149,8 +149,8 @@ groups.
 ## 7. Naming & exports
 
 - One file per exercise family: `src/illustrations/<exercise_key>.tsx`
-  (keys: pushup, pike_pushup, chair_dips, hollow_hold, squat, glute_bridge,
-  reverse_lunge, band_walks, row, band_pull_apart, superman_ytw, curls_plank).
+  (keys: pushup, pike_pushup, triceps_press, hollow_hold, squat, glute_bridge,
+  reverse_lunge, hinge_raises, row, band_pull_apart, lat_pulldown, curls_plank).
 - The file's **default export** is `VariationGuide[]` whose **length and order
   exactly match** that key's `path` array in `src/program.ts`. Index === step_index.
 - Name each Art function descriptively, e.g. `function DiamondPushupArt()`.
@@ -169,7 +169,7 @@ groups.
 - No jargon a beginner wouldn't know (no "scapular retraction", "posterior tilt").
 - Multi-move panels: the 3 cues cover the distinct movements, one each.
 
-## 9. Multi-move panels (band_walks, curls_plank)
+## 9. Multi-move panels (hinge_raises, curls_plank)
 
 These keys have a single path entry but show 2–3 movements. Draw **smaller
 side-by-side mini-figures** (scale the proportions down ~50%, keep them legible),

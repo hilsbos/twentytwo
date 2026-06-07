@@ -1,6 +1,10 @@
 import type { VariationGuide } from './types';
 
-// path: ['Feet on floor', 'Feet elevated', 'Wall handstand hold', 'Wall HSPU']
+// path: ['Feet on floor', 'Feet elevated', 'Deep pike, head to floor', 'Wall handstand hold', 'Wall HSPU']
+//
+// Index 2 ("Deep pike, head to floor") is a feet-elevated pike that lowers the
+// head ALL the way to the floor between the hands — deeper than index 1 (whose
+// crown stops in mid-air) and easier than index 3 (the inverted handstand).
 
 /**
  * Pike push-up, feet on floor.
@@ -26,49 +30,53 @@ function PikeFeetFloorArt() {
 
       {/* movement arrow: head travels down toward the floor (a -> b) */}
       <g opacity={0.6}>
-        <path d="M 150 56 L 150 86" strokeWidth={2} strokeDasharray="4 3" />
-        <path d="M 144 80 L 150 86 L 156 80" strokeWidth={2} />
+        <path d="M 150 58 L 150 88" strokeWidth={2} strokeDasharray="4 3" />
+        <path d="M 144 82 L 150 88 L 156 82" strokeWidth={2} />
       </g>
+
+      {/* Compact inverted-V to spec lengths (CONVENTIONS §3): torso 26, straight
+          arm 31, thigh+shin 18 each. Hip is the apex; back+arm sweeps down-right
+          to the hands on the floor, legs sweep down-left to the feet. */}
 
       {/* pose A — top: arms straight, head up, tall pike */}
       <g className="pose-a">
-        {/* hips at apex (110,42); torso/arms down to hands; legs down to feet */}
-        {/* arm: shoulder(122,62) straight down to hand(132,110) */}
-        <line x1={122} y1={62} x2={132} y2={110} />
-        {/* torso: hip(110,42) -> shoulder(122,62) */}
-        <line x1={110} y1={42} x2={122} y2={62} />
+        {/* torso: hip(106,66) -> shoulder(124,84) */}
+        <line x1={106} y1={66} x2={124} y2={84} />
+        {/* straight arm: shoulder(124,84) -> hand on floor(148,106) */}
+        <line x1={124} y1={84} x2={148} y2={106} />
         {/* neck + head, looking down between arms */}
-        <line x1={122} y1={62} x2={130} y2={66} />
-        <circle cx={136} cy={68} r={7} />
-        {/* legs: hip(110,42) -> knee(96,76) -> ankle(82,108) -> toe(73,108) */}
-        <line x1={110} y1={42} x2={96} y2={76} />
-        <line x1={96} y1={76} x2={82} y2={108} />
-        <line x1={82} y1={108} x2={73} y2={108} />
+        <line x1={124} y1={84} x2={129} y2={86} />
+        <circle cx={134} cy={89} r={7} />
+        {/* legs: hip(106,66) -> knee(98,82) -> ankle(91,99) -> toe(82,99) */}
+        <line x1={106} y1={66} x2={98} y2={82} />
+        <line x1={98} y1={82} x2={91} y2={99} />
+        <line x1={91} y1={99} x2={82} y2={99} />
         {/* joint dots */}
-        <circle cx={110} cy={42} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={122} cy={62} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={96} cy={76} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={106} cy={66} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={124} cy={84} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={98} cy={82} r={2.5} fill="currentColor" stroke="none" />
       </g>
 
       {/* pose B — bottom: elbows bent, head lowered toward floor */}
       <g className="pose-b">
-        {/* arm: shoulder(118,72) -> elbow(134,84) -> hand(132,110) */}
-        <line x1={118} y1={72} x2={134} y2={84} />
-        <line x1={134} y1={84} x2={132} y2={110} />
-        {/* torso: hip(110,44) -> shoulder(118,72) (hips stay high) */}
-        <line x1={110} y1={44} x2={118} y2={72} />
+        {/* torso: hip(106,66) -> shoulder(126,82) */}
+        <line x1={106} y1={66} x2={126} y2={82} />
+        {/* upper arm(16): shoulder(126,82) -> elbow(138,92) */}
+        <line x1={126} y1={82} x2={138} y2={92} />
+        {/* forearm(15): elbow(138,92) -> hand on floor(146,106) */}
+        <line x1={138} y1={92} x2={146} y2={106} />
         {/* neck + head, lowered toward floor */}
-        <line x1={118} y1={72} x2={124} y2={82} />
-        <circle cx={128} cy={90} r={7} />
-        {/* legs unchanged */}
-        <line x1={110} y1={44} x2={96} y2={77} />
-        <line x1={96} y1={77} x2={82} y2={108} />
-        <line x1={82} y1={108} x2={73} y2={108} />
+        <line x1={126} y1={82} x2={131} y2={88} />
+        <circle cx={134} cy={95} r={7} />
+        {/* legs unchanged from pose A */}
+        <line x1={106} y1={66} x2={98} y2={82} />
+        <line x1={98} y1={82} x2={91} y2={99} />
+        <line x1={91} y1={99} x2={82} y2={99} />
         {/* joint dots */}
-        <circle cx={110} cy={44} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={118} cy={72} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={134} cy={84} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={96} cy={77} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={106} cy={66} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={126} cy={82} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={138} cy={92} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={98} cy={82} r={2.5} fill="currentColor" stroke="none" />
       </g>
     </svg>
   );
@@ -96,56 +104,144 @@ function PikeFeetElevatedArt() {
       <line x1={15} y1={110} x2={185} y2={110} opacity={0.25} strokeWidth={1.5} />
       {/* raised block under the feet (left, behind) */}
       <g opacity={0.5}>
-        <line x1={40} y1={78} x2={78} y2={78} />
-        <line x1={40} y1={78} x2={40} y2={110} />
-        <line x1={78} y1={78} x2={78} y2={110} />
+        <line x1={40} y1={74} x2={78} y2={74} />
+        <line x1={44} y1={74} x2={44} y2={110} />
+        <line x1={74} y1={74} x2={74} y2={110} />
       </g>
 
       {/* movement arrow: head travels straight down (a -> b) */}
       <g opacity={0.6}>
-        <path d="M 150 50 L 150 84" strokeWidth={2} strokeDasharray="4 3" />
-        <path d="M 144 78 L 150 84 L 156 78" strokeWidth={2} />
+        <path d="M 150 54 L 150 86" strokeWidth={2} strokeDasharray="4 3" />
+        <path d="M 144 80 L 150 86 L 156 80" strokeWidth={2} />
       </g>
 
-      {/* pose A — top: arms nearly vertical, feet up on block */}
+      {/* Compact pike to spec lengths (CONVENTIONS §3); feet raised on the block
+          make the press line steeper than index 0. */}
+
+      {/* pose A — top: arms straight, feet up on block, head off the floor */}
       <g className="pose-a">
-        {/* arm: shoulder(124,56) nearly straight down to hand(132,110) */}
-        <line x1={124} y1={56} x2={132} y2={110} />
-        {/* torso: hip(112,40) -> shoulder(124,56) */}
-        <line x1={112} y1={40} x2={124} y2={56} />
-        {/* neck + head */}
-        <line x1={124} y1={56} x2={132} y2={60} />
-        <circle cx={138} cy={62} r={7} />
-        {/* legs slope UP to the block: hip(112,40) -> knee(90,58) -> foot on block(60,75) */}
-        <line x1={112} y1={40} x2={90} y2={58} />
-        <line x1={90} y1={58} x2={60} y2={75} />
+        {/* torso(26): hip(108,58) -> shoulder(122,80) */}
+        <line x1={108} y1={58} x2={122} y2={80} />
+        {/* straight arm(31): shoulder(122,80) -> hand on floor(139,106) */}
+        <line x1={122} y1={80} x2={139} y2={106} />
+        {/* neck + head, looking down between arms */}
+        <line x1={122} y1={80} x2={127} y2={82} />
+        <circle cx={132} cy={85} r={7} />
+        {/* legs slope UP to the block: hip(108,58) -> knee(90,62) -> foot(74,69) */}
+        <line x1={108} y1={58} x2={90} y2={62} />
+        <line x1={90} y1={62} x2={74} y2={69} />
         {/* foot on block surface */}
-        <line x1={60} y1={75} x2={51} y2={75} />
+        <line x1={74} y1={69} x2={65} y2={69} />
         {/* joint dots */}
-        <circle cx={112} cy={40} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={124} cy={56} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={90} cy={58} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={108} cy={58} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={122} cy={80} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={90} cy={62} r={2.5} fill="currentColor" stroke="none" />
       </g>
 
-      {/* pose B — bottom: elbows bent, crown near floor */}
+      {/* pose B — bottom: elbows bent, crown lowered toward (not to) the floor */}
       <g className="pose-b">
-        {/* arm: shoulder(120,68) -> elbow(135,82) -> hand(132,110) */}
-        <line x1={120} y1={68} x2={135} y2={82} />
-        <line x1={135} y1={82} x2={132} y2={110} />
-        {/* torso: hip(112,42) -> shoulder(120,68) */}
-        <line x1={112} y1={42} x2={120} y2={68} />
-        {/* neck + head lowered toward floor */}
-        <line x1={120} y1={68} x2={126} y2={80} />
-        <circle cx={130} cy={90} r={7} />
+        {/* torso(26): hip(108,58) -> shoulder(124,80) */}
+        <line x1={108} y1={58} x2={124} y2={80} />
+        {/* upper arm(16): shoulder(124,80) -> elbow(135,91) */}
+        <line x1={124} y1={80} x2={135} y2={91} />
+        {/* forearm(15): elbow(135,91) -> hand on floor(139,106) */}
+        <line x1={135} y1={91} x2={139} y2={106} />
+        {/* neck + head lowered toward floor (crown still off the ground) */}
+        <line x1={124} y1={80} x2={129} y2={86} />
+        <circle cx={133} cy={92} r={7} />
         {/* legs unchanged, on block */}
-        <line x1={112} y1={42} x2={90} y2={59} />
-        <line x1={90} y1={59} x2={60} y2={75} />
-        <line x1={60} y1={75} x2={51} y2={75} />
+        <line x1={108} y1={58} x2={90} y2={62} />
+        <line x1={90} y1={62} x2={74} y2={69} />
+        <line x1={74} y1={69} x2={65} y2={69} />
         {/* joint dots */}
-        <circle cx={112} cy={42} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={120} cy={68} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={135} cy={82} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={90} cy={59} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={108} cy={58} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={124} cy={80} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={135} cy={91} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={90} cy={62} r={2.5} fill="currentColor" stroke="none" />
+      </g>
+    </svg>
+  );
+}
+
+/**
+ * Deep pike push-up, feet elevated, head to the FLOOR.
+ * Side profile. Same feet-up pike as index 1, but the bottom is much deeper: the
+ * crown of the head is lowered ALL the way to the floor between the hands. The
+ * press line is steep/near-vertical.
+ * pose-a = top (arms straight, head well off the floor).
+ * pose-b = bottom (elbows bent, crown resting ON the floor between the hands).
+ * Distinguishing feature vs index 1: the head actually reaches the ground.
+ */
+function PikeDeepHeadToFloorArt() {
+  return (
+    <svg
+      viewBox="0 0 200 120"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={3}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {/* ground */}
+      <line x1={15} y1={110} x2={185} y2={110} opacity={0.25} strokeWidth={1.5} />
+      {/* raised block under the feet (left, behind) */}
+      <g opacity={0.5}>
+        <line x1={40} y1={74} x2={78} y2={74} />
+        <line x1={44} y1={74} x2={44} y2={110} />
+        <line x1={74} y1={74} x2={74} y2={110} />
+      </g>
+
+      {/* movement arrow: head travels all the way DOWN to the floor (a -> b) */}
+      <g opacity={0.6}>
+        <path d="M 152 54 L 152 96" strokeWidth={2} strokeDasharray="4 3" />
+        <path d="M 146 90 L 152 96 L 158 90" strokeWidth={2} />
+      </g>
+
+      {/* Compact pike to spec lengths (CONVENTIONS §3); same feet-up start as
+          index 1, but pose B lowers the CROWN all the way to the floor. */}
+
+      {/* pose A — top: arms straight, feet up on block, head well clear */}
+      <g className="pose-a">
+        {/* torso(26): hip(108,58) -> shoulder(122,80) */}
+        <line x1={108} y1={58} x2={122} y2={80} />
+        {/* straight arm(31): shoulder(122,80) -> hand on floor(139,106) */}
+        <line x1={122} y1={80} x2={139} y2={106} />
+        {/* neck + head, looking down between arms, off the floor */}
+        <line x1={122} y1={80} x2={127} y2={82} />
+        <circle cx={132} cy={85} r={7} />
+        {/* legs slope UP to the block: hip(108,58) -> knee(90,62) -> foot(74,69) */}
+        <line x1={108} y1={58} x2={90} y2={62} />
+        <line x1={90} y1={62} x2={74} y2={69} />
+        <line x1={74} y1={69} x2={65} y2={69} />
+        {/* joint dots */}
+        <circle cx={108} cy={58} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={122} cy={80} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={90} cy={62} r={2.5} fill="currentColor" stroke="none" />
+      </g>
+
+      {/* pose B — bottom: elbows fully bent, CROWN ON THE FLOOR between the hands.
+          The planted hand sits close under the head (x≈134) so the crown reads as
+          pressing down at the hands, not behind them. */}
+      <g className="pose-b">
+        {/* torso(26): hip(110,58) -> shoulder(128,76) (deep fold, hips stay high) */}
+        <line x1={110} y1={58} x2={128} y2={76} />
+        {/* upper arm(16): shoulder(128,76) -> elbow(133,91) */}
+        <line x1={128} y1={76} x2={133} y2={91} />
+        {/* forearm(15) down to the planted hand: elbow(133,91) -> hand(134,107) */}
+        <line x1={133} y1={91} x2={134} y2={107} />
+        {/* neck + head, crown dropped onto the floor at the hands */}
+        <line x1={128} y1={76} x2={129} y2={84} />
+        <circle cx={129} cy={100} r={7} />
+        {/* legs slope up to block: hip(110,58) -> knee(92,61) -> foot(75,68) */}
+        <line x1={110} y1={58} x2={92} y2={61} />
+        <line x1={92} y1={61} x2={75} y2={68} />
+        <line x1={75} y1={68} x2={66} y2={68} />
+        {/* joint dots */}
+        <circle cx={110} cy={58} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={128} cy={76} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={133} cy={91} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={92} cy={61} r={2.5} fill="currentColor" stroke="none" />
       </g>
     </svg>
   );
@@ -303,9 +399,15 @@ function WallHspuArt() {
 }
 
 const guides: VariationGuide[] = [
+  // 0 Feet on floor
   { cues: ['Hips high, body inverted-V', 'Lower crown toward floor', 'Press the floor away'], Art: PikeFeetFloorArt },
+  // 1 Feet elevated
   { cues: ['Feet planted on the block', 'Lower crown toward floor', 'Press straight up tall'], Art: PikeFeetElevatedArt },
+  // 2 Deep pike, head to floor
+  { cues: ['Feet up, hips stacked tall', 'Lower crown to the floor', 'Press straight back up'], Art: PikeDeepHeadToFloorArt },
+  // 3 Wall handstand hold
   { cues: ['Walk hands to the wall', 'Stack hips over hands', 'Press the floor away'], Art: WallHandstandHoldArt },
+  // 4 Wall HSPU
   { cues: ['Heels resting on wall', 'Lower crown between hands', 'Press the floor away'], Art: WallHspuArt },
 ];
 export default guides;

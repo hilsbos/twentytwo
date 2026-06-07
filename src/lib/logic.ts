@@ -64,14 +64,21 @@ export function beatState(value: number, target: number | null): BeatState {
 
 /**
  * True when all of ex.sets sets are logged today at this stepIndex with
- * value >= range[1], and there is a next step to advance to.
+ * value >= range[1], there is a next step to advance to, AND the user has
+ * enough tenure at this step (sessionsAtStep >= 6, ~3 weeks at 2x/week).
+ *
+ * The tenure gate exists because tendon/connective tissue adapts 2-3 months
+ * slower than muscle; we hold a level until the joints have caught up even
+ * when the rep target is already met.
  */
 export function shouldSuggestAdvance(
   todayLogs: SetLog[],
   ex: Exercise,
   stepIndex: number,
+  sessionsAtStep: number,
 ): boolean {
   if (stepIndex >= ex.path.length - 1) return false;
+  if (sessionsAtStep < 6) return false;
 
   const max = ex.range[1];
   const logged = new Map<number, SetLog>();

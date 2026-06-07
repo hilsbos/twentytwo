@@ -1,6 +1,13 @@
 import type { VariationGuide } from './types';
 
-// path: ['Hands elevated', 'Standard', 'Diamond', 'Decline', 'Archer']
+// path: ['Hands elevated', 'Standard', 'Decline', 'Assisted archer', 'Archer']
+//
+// Diamond push-up moved OUT to triceps_press.tsx (it was a triceps detour sold
+// as a chest progression). "Assisted archer" is a NEW intermediate before the
+// full archer: the archer position with the extended-side hand resting on a
+// raised support so it shares load. It is fully drawn at index 3 below
+// (AssistedArcherPushupArt — real 2-pose art with the far hand propped on a
+// raised block to show the reduced load).
 
 /**
  * Hands-elevated push-up.
@@ -29,10 +36,11 @@ function HandsElevatedPushupArt() {
         <line x1={174} y1={84} x2={174} y2={110} />
       </g>
 
-      {/* movement arrow: chest travels down toward the edge (a -> b) */}
+      {/* movement arrow: chest travels down toward the edge (a -> b). Larger
+          drop so the start/end states read without relying on the figures. */}
       <g opacity={0.6}>
-        <path d="M 150 56 L 150 74 " strokeWidth={2} strokeDasharray="4 3" />
-        <path d="M 144 68 L 150 74 L 156 68" strokeWidth={2} />
+        <path d="M 150 54 L 150 78 " strokeWidth={2} strokeDasharray="4 3" />
+        <path d="M 144 72 L 150 78 L 156 72" strokeWidth={2} />
       </g>
 
       {/* pose A — top (arms straight). Hands on the edge top (y=84); body angled
@@ -55,24 +63,25 @@ function HandsElevatedPushupArt() {
         <circle cx={82} cy={80} r={2.5} fill="currentColor" stroke="none" />
       </g>
 
-      {/* pose B — bottom (elbow bent, chest lowered toward the edge) */}
+      {/* pose B — bottom (elbow bent deeper, chest dropped well below the edge so
+          the chest-drop reads as a clearly distinct end state). */}
       <g className="pose-b">
-        {/* arm: shoulder(148,70) -> elbow(162,76) -> hand on edge(152,84) */}
-        <line x1={148} y1={70} x2={163} y2={76} />
-        <line x1={163} y1={76} x2={152} y2={84} />
-        {/* body lowered, still head-up but flatter */}
-        <line x1={148} y1={70} x2={108} y2={78} />
-        <line x1={108} y1={78} x2={82} y2={88} />
-        <line x1={82} y1={88} x2={58} y2={98} />
-        <line x1={58} y1={98} x2={50} y2={106} />
+        {/* arm: shoulder(146,80) -> elbow(165,79) -> hand on edge(152,84) */}
+        <line x1={146} y1={80} x2={165} y2={79} />
+        <line x1={165} y1={79} x2={152} y2={84} />
+        {/* body lowered further, still head-up but flatter */}
+        <line x1={146} y1={80} x2={106} y2={86} />
+        <line x1={106} y1={86} x2={80} y2={95} />
+        <line x1={80} y1={95} x2={56} y2={104} />
+        <line x1={56} y1={104} x2={48} y2={110} />
         {/* neck + head */}
-        <line x1={148} y1={70} x2={159} y2={72} />
-        <circle cx={164} cy={75} r={7} />
+        <line x1={146} y1={80} x2={157} y2={81} />
+        <circle cx={162} cy={84} r={7} />
         {/* joint dots: shoulder, elbow, hip, knee */}
-        <circle cx={148} cy={70} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={163} cy={76} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={108} cy={78} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={82} cy={88} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={146} cy={80} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={165} cy={79} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={106} cy={86} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={80} cy={95} r={2.5} fill="currentColor" stroke="none" />
       </g>
     </svg>
   );
@@ -129,83 +138,6 @@ function StandardPushupArt() {
         <circle cx={150} cy={98} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={95} cy={96} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={70} cy={99} r={2.5} fill="currentColor" stroke="none" />
-      </g>
-    </svg>
-  );
-}
-
-/**
- * Diamond push-up.
- * Distinguishing feature: both HANDS meeting at a single point under the chest
- * (a narrow base). Side profile: one hand under the chest, elbows tuck close.
- * pose-a = top, pose-b = bottom (chest to the hands, elbows back along the ribs).
- */
-function DiamondPushupArt() {
-  return (
-    <svg
-      viewBox="0 0 200 120"
-      aria-hidden="true"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={3}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      {/* ground */}
-      <line x1={15} y1={110} x2={185} y2={110} opacity={0.25} strokeWidth={1.5} />
-
-      {/* diamond hands marker: a diamond at the single hand point under the
-          chest — the defining "hands together" feature. */}
-      <g opacity={0.55}>
-        <path d="M 114 110 L 124 102 L 134 110 L 124 118 Z" strokeWidth={2} />
-      </g>
-
-      {/* movement arrow: chest travels straight down to the hands (a -> b) */}
-      <g opacity={0.6}>
-        <path d="M 150 58 L 150 86" strokeWidth={2} strokeDasharray="4 3" />
-        <path d="M 144 80 L 150 86 L 156 80" strokeWidth={2} />
-      </g>
-
-      {/* pose A — top. Hands together at x=124 under the chest; arm reaches
-          forward-and-down to that single point (not under the shoulder). */}
-      <g className="pose-a">
-        {/* arm: shoulder(140,70) -> elbow(132,90) tucked -> hand(124,110) */}
-        <line x1={140} y1={70} x2={132} y2={90} />
-        <line x1={132} y1={90} x2={124} y2={110} />
-        {/* body plank: shoulder -> hip -> knee -> ankle -> toe */}
-        <line x1={140} y1={70} x2={95} y2={82} />
-        <line x1={95} y1={82} x2={70} y2={88} />
-        <line x1={70} y1={88} x2={48} y2={91} />
-        <line x1={48} y1={91} x2={40} y2={98} />
-        {/* neck + head */}
-        <line x1={140} y1={70} x2={150} y2={74} />
-        <circle cx={155} cy={78} r={7} />
-        {/* joint dots: shoulder, elbow, hip, knee */}
-        <circle cx={140} cy={70} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={132} cy={90} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={95} cy={82} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={70} cy={88} r={2.5} fill="currentColor" stroke="none" />
-      </g>
-
-      {/* pose B — bottom. Chest lowered to the hands; elbow tucks back (close to
-          the ribs, not flared) — the diamond signature. */}
-      <g className="pose-b">
-        {/* arm: shoulder(132,96) -> elbow(116,100) back -> hand(124,110) */}
-        <line x1={132} y1={96} x2={114} y2={100} />
-        <line x1={114} y1={100} x2={124} y2={110} />
-        {/* body plank lowered */}
-        <line x1={132} y1={96} x2={95} y2={98} />
-        <line x1={95} y1={98} x2={70} y2={100} />
-        <line x1={70} y1={100} x2={48} y2={101} />
-        <line x1={48} y1={101} x2={40} y2={106} />
-        {/* neck + head */}
-        <line x1={132} y1={96} x2={143} y2={97} />
-        <circle cx={149} cy={97} r={7} />
-        {/* joint dots */}
-        <circle cx={132} cy={96} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={114} cy={100} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={95} cy={98} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={70} cy={100} r={2.5} fill="currentColor" stroke="none" />
       </g>
     </svg>
   );
@@ -309,17 +241,18 @@ function ArcherPushupArt() {
       <line x1={15} y1={110} x2={185} y2={110} opacity={0.25} strokeWidth={1.5} />
 
       {/* movement arrow: working shoulder/chest sinks down & over the bent arm
-          (a -> b). Sits to the right of the head so it never merges with it. */}
+          (a -> b). Sits well to the right of (and below) the head so the
+          arrowhead never clusters with the head/shoulder junction. */}
       <g opacity={0.6}>
-        <path d="M 158 66 Q 152 80 150 92" strokeWidth={2} strokeDasharray="4 3" />
-        <path d="M 144 86 L 150 92 L 156 87" strokeWidth={2} />
+        <path d="M 162 74 Q 158 88 156 98" strokeWidth={2} strokeDasharray="4 3" />
+        <path d="M 150 92 L 156 98 L 162 93" strokeWidth={2} />
       </g>
 
       {/* pose A — top: a clearly FLAT, horizontal plank with the two support arms
           forming a WIDE base (near arm near-vertical to the floor, far arm reaching
           forward-and-out to a well-separated floor point). The head sits forward
-          (+x) of the shoulder and BELOW shoulder height, so the figure reads as a
-          wide-hand push-up top, not a tent peak. */}
+          (+x) of the shoulder and ABOVE the far-arm line, lifted clear of the
+          shoulder/arm junction so it reads as a separate element. */}
       <g className="pose-a">
         {/* near (working) arm: shoulder(124,76) near-vertical to hand(128,110) */}
         <line x1={124} y1={76} x2={128} y2={110} />
@@ -331,10 +264,11 @@ function ArcherPushupArt() {
         <line x1={90} y1={78} x2={64} y2={82} />
         <line x1={64} y1={82} x2={42} y2={86} />
         <line x1={42} y1={86} x2={32} y2={94} />
-        {/* neck + head: forward of the shoulder and slightly low (clear of the
-            reaching-arm line, so the silhouette stays legible) */}
-        <line x1={124} y1={76} x2={134} y2={78} />
-        <circle cx={140} cy={80} r={7} />
+        {/* neck + head: forward of the shoulder and LIFTED up (head bottom ~69,
+            well above the far-arm line which sits at y~88 here) so the head is a
+            clean, separate circle clear of the support-arm cluster */}
+        <line x1={124} y1={76} x2={138} y2={71} />
+        <circle cx={145} cy={69} r={7} />
         {/* joint dots: shoulder, hip, knee */}
         <circle cx={124} cy={76} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={90} cy={78} r={2.5} fill="currentColor" stroke="none" />
@@ -354,14 +288,105 @@ function ArcherPushupArt() {
         <line x1={90} y1={90} x2={64} y2={92} />
         <line x1={64} y1={92} x2={42} y2={94} />
         <line x1={42} y1={94} x2={32} y2={100} />
-        {/* neck + head, forward of the shoulder */}
-        <line x1={124} y1={96} x2={134} y2={97} />
-        <circle cx={140} cy={98} r={7} />
+        {/* neck + head, forward of the shoulder and lifted clear of the far arm */}
+        <line x1={124} y1={96} x2={137} y2={90} />
+        <circle cx={144} cy={88} r={7} />
         {/* joint dots */}
         <circle cx={124} cy={96} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={134} cy={102} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={90} cy={90} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={64} cy={92} r={2.5} fill="currentColor" stroke="none" />
+      </g>
+    </svg>
+  );
+}
+
+/**
+ * Assisted archer push-up.
+ * Distinguishing feature: the EXTENDED (far) arm's hand rests on a RAISED block
+ * instead of the floor, so that side carries less load — the intermediate before
+ * the full archer (where the far hand is flat on the floor). Same archer geometry
+ * as index 4, but the far hand is propped UP on a low support.
+ * pose-a = centered/top (both arms supporting, far hand on the block).
+ * pose-b = sunk over the bent working arm, far arm straight onto the block.
+ */
+function AssistedArcherPushupArt() {
+  return (
+    <svg
+      viewBox="0 0 200 120"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={3}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {/* ground */}
+      <line x1={15} y1={110} x2={185} y2={110} opacity={0.25} strokeWidth={1.5} />
+
+      {/* RAISED block under the FAR (extended) hand — the assist. Stands TALL
+          (top y=78, ~32px above the floor) so the propped far hand reads as
+          clearly high and unloaded — the at-a-glance difference from the full
+          archer, whose far hand is flat on the floor. Placed far right, clear of
+          the head. */}
+      <g opacity={0.5}>
+        <line x1={158} y1={78} x2={184} y2={78} />
+        <line x1={162} y1={78} x2={162} y2={110} />
+        <line x1={180} y1={78} x2={180} y2={110} />
+      </g>
+
+      {/* movement arrow: working shoulder/chest sinks down & over the bent arm
+          (a -> b). Sits left of the figure so it never merges with it. */}
+      <g opacity={0.6}>
+        <path d="M 108 64 Q 104 78 104 90" strokeWidth={2} strokeDasharray="4 3" />
+        <path d="M 98 84 L 104 90 L 110 85" strokeWidth={2} />
+      </g>
+
+      {/* pose A — top: flat plank, both arms supporting. Near (working) arm
+          near-vertical to the floor; far (extended) arm reaching forward-and-UP
+          to the TALL block top (170,78) — the far hand sits markedly higher than
+          the near hand, so the unloaded side reads instantly. Head lifted up and
+          forward, clear of the support-arm junction. */}
+      <g className="pose-a">
+        {/* near (working) arm: shoulder(118,72) near-vertical to hand(116,110) */}
+        <line x1={118} y1={72} x2={116} y2={110} />
+        {/* far (extended) arm: shoulder(118,72) forward & UP to hand ON TALL BLOCK(170,78) */}
+        <line x1={118} y1={72} x2={170} y2={78} />
+        {/* FLAT body plank: shoulder -> hip -> knee -> ankle -> toe (level torso) */}
+        <line x1={118} y1={72} x2={86} y2={74} />
+        <line x1={86} y1={74} x2={60} y2={78} />
+        <line x1={60} y1={78} x2={38} y2={82} />
+        <line x1={38} y1={82} x2={28} y2={90} />
+        {/* neck + head: forward of the shoulder and LIFTED clear of the far arm */}
+        <line x1={118} y1={72} x2={131} y2={66} />
+        <circle cx={138} cy={64} r={7} />
+        {/* joint dots: shoulder, hip, knee */}
+        <circle cx={118} cy={72} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={86} cy={74} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={60} cy={78} r={2.5} fill="currentColor" stroke="none" />
+      </g>
+
+      {/* pose B — body sunk over the bent WORKING arm; FAR arm dead-straight onto
+          the TALL block (the assist signature: the propped, still-high hand). */}
+      <g className="pose-b">
+        {/* working arm bends sharply: shoulder(118,94) -> elbow(126,102) -> hand(116,110) */}
+        <line x1={118} y1={94} x2={126} y2={102} />
+        <line x1={126} y1={102} x2={116} y2={110} />
+        {/* FAR arm dead-straight, reaching to the tall block top(170,78) — stays HIGH */}
+        <line x1={118} y1={94} x2={170} y2={78} />
+        {/* body plank lowered toward the working side, still level */}
+        <line x1={118} y1={94} x2={86} y2={88} />
+        <line x1={86} y1={88} x2={60} y2={90} />
+        <line x1={60} y1={90} x2={38} y2={92} />
+        <line x1={38} y1={92} x2={28} y2={100} />
+        {/* neck + head, forward of the shoulder and lifted clear of the far arm */}
+        <line x1={118} y1={94} x2={131} y2={88} />
+        <circle cx={138} cy={86} r={7} />
+        {/* joint dots */}
+        <circle cx={118} cy={94} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={126} cy={102} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={86} cy={88} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={60} cy={90} r={2.5} fill="currentColor" stroke="none" />
       </g>
     </svg>
   );
@@ -379,14 +404,14 @@ const guides: VariationGuide[] = [
     Art: StandardPushupArt,
   },
   {
-    // 2 Diamond
-    cues: ['Touch thumbs under chest', 'Graze chest to hands', 'Press the floor straight up'],
-    Art: DiamondPushupArt,
-  },
-  {
-    // 3 Decline
+    // 2 Decline
     cues: ['Plant feet on the block', 'Lower head past hands', 'Push the floor away'],
     Art: DeclinePushupArt,
+  },
+  {
+    // 3 Assisted archer
+    cues: ['Rest one hand on a book', 'Sink over the near hand', 'Press back up evenly'],
+    Art: AssistedArcherPushupArt,
   },
   {
     // 4 Archer

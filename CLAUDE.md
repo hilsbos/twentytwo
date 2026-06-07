@@ -1,55 +1,135 @@
-# Twenty-Two — Morning Calisthenics Project
+# Twenty-Two — Morning Calisthenics App
 
-Context handoff from a Claude.ai conversation. Read this first to continue the project.
+Project context handoff. Read this first to continue work.
 
 ## What this is
-A personal morning calisthenics program for a user starting from zero, designed to
-be runnable **anywhere** (home, hotel, travel) in **15–20 minutes a day**. The goal
-is general "great shape" — lean and defined, not bodybuilder mass. The user is also
-working toward a leaner body composition.
+A personal, phone-first **web app** for the Twenty-Two morning calisthenics
+program: Push / Legs / Pull on rotation, runnable anywhere (home, hotel, travel)
+in 15–20 min/day. Goal is general "great shape" — lean and defined, not mass —
+alongside a leaner body composition. Starting from zero, so habit-building matters
+as much as the program; the product spine is ADHD-first (opens on today's workout,
+one-tap logging, no breakable streaks).
 
-The current deliverable is `twenty-two-morning-calisthenics.html` — a self-contained,
-phone-friendly reference card (no build step, no dependencies; open it in a browser).
+The deliverable is the React app. `twenty-two-morning-calisthenics.html` at the
+repo root is the **original Claude.ai artifact** — a HISTORICAL reference only, no
+longer maintained or shipped.
 
-## Hard constraints (these drove the design)
-- **Starting fresh** — not currently training. Habit-building matters as much as the program.
-- **Daily, morning, fasted** — trains before the eating window opens (~8:30am). First
-  meal is a collagen smoothie.
-- **Equipment: bodyweight + ONE leg loop band only.** No pull-up bar, no long bands (yet).
-- **Time: 15–20 min/session**, with a 10-min "bad day" floor.
+## Stack & architecture
+- **React 19 + Vite + TypeScript**, static build. No router, no state lib, no CSS
+  framework — hand-rolled. Vite `base: './'`; all asset/manifest/icon paths are
+  relative so `dist/` can be dropped under any subpath.
+- **Supabase** (Postgres + magic-link auth + RLS) for accounts, logs, and the
+  social layer. Schema is `supabase/schema.sql` (idempotent, full RLS):
+  `profiles`, `sessions`, `set_logs`, `progression`.
+- Magic-link redirect uses `location.origin + location.pathname`, so every served
+  subpath must be allow-listed in Supabase Auth → Redirect URLs.
+- **Social layer is presence-only**: friends see each other's session presence and
+  rolling consistency, **never reps or numbers**.
+- Deploy target (later): **S3 + CloudFront** under a subpath (e.g. `/twenty-two/`).
+  Build, upload `dist/`, and add that exact subpath to Supabase Redirect URLs.
+
+### Layout
+```
+src/
+  program.ts        program config (rotation, exercises, progression paths) — v2
+  types.ts          shared contracts
+  lib/logic.ts      pure, unit-tested logic (dates, targets, consistency, level-up)
+  lib/supabase.ts   client init from env
+  lib/db.ts         typed data-access wrappers (no UI logic)
+  screens/          Auth / Today / Week
+  components/        FormSheet (form guide sheet)
+  illustrations/    per-exercise 2-pose SVGs + CONVENTIONS.md + registry test
+  App.tsx           two-screen shell + auth gate
+supabase/schema.sql, scripts/gen_icons.py, scripts/render-grid.tsx, docs/
+```
+
+## Equipment reality (drove program v2)
+- Bodyweight **+ leg loop band (~15–30 lb)** — the load tool (squats, bridges,
+  banded RDL, hinge).
+- **+ a long flat Theraband (~5–11 lb, light)** — NOT a load tool. Used for
+  face-pulls, lat pulldowns, and band triceps work where light tension + range is
+  the point. Anchored over the top of a door.
+- The old "ONE leg loop band only" constraint is **obsolete** — ignore it.
+- Still no pull-up bar. A doorway bar remains the top hardware upgrade (unlocks
+  dead hangs → negatives → first pull-up).
+
+## Program v2 (in src/program.ts) — what changed and why
+6 training mornings + 1 flex day, Push/Legs/Pull rotation, each muscle ~2×/week
+with 48–72h recovery. Each session: ~2-min warm-up + 3 main moves (3 sets, stop
+1–2 reps short of failure, 3-sec eccentric) + a core/finisher. Overload order:
+reps → harder variation → slower tempo.
+
+Changes from v1 and their rationale:
+- **Lat pulldown added** (band over the door) — was the single biggest gap: the
+  program had zero vertical pull.
+- **Chair dips removed → band triceps work** — dips put an untrained user's
+  anterior shoulder at risk; band pushdown/overhead extension train triceps without
+  that strain.
+- **Band walks cut → banded RDL + leg raises** — the hip hinge and hamstrings were
+  untrained; RDL loads them, leg raises cover anterior core.
+- **Row leads with under-table row** (lie under a sturdy table, chest to edge);
+  towel-around-a-door-handle is a travel **fallback** note, not the primary cue.
+- **Intermediate progression rungs added** to bridge big jumps: assisted archer
+  (push-up), deep pike (pike push-up), B-stance glute bridge.
+- **Level-up suggestions are tenure-gated**: only suggested after hitting top of
+  range AND `sessionsAtStep >= 6` per step (~3 wks at 2×/wk). Tendon adaptation
+  lags muscle by 2–3 months, so we don't push variations on rep performance alone.
+  (Logic: `shouldSuggestAdvance` in `lib/logic.ts`.)
+
+## Nutrition — the single highest-impact fix
+Add **~25–30 g complete protein (whey or plant blend)** when the eating window
+opens (~8:30am). The morning collagen smoothie is leucine-poor (~0.9 g vs the
+~2.5–3 g per-meal leucine threshold for muscle protein synthesis), so collagen
+stays only as a **tendon-support add-on**, not the protein source. Daily target
+**1.6–2.2 g/kg**. The app's completion banner reminds the user ("~30g protein when
+the window opens"; flex days show the recovery message instead).
+
+## App features
+- **Auth screen** — magic-link sign-in.
+- **Today screen** — opens here. Today's day-type from rotation, warm-up
+  (collapsed), exercise cards with one-tap set logging, floor mode, level-up
+  prompt (when gated conditions met), completion banner.
+- **Week screen** — rolling **7-day consistency** (count out of 7, no breakable
+  streak), plus **friends presence** (who trained, never reps).
+- **Form guides** — per-exercise sheets with cues, using **"learn, then fade"**:
+  the inline cue + form tag show while `familiarity < 3` distinct past sessions at
+  that step, then fade out once the move is learned. (`FormSheet`, `fetchFamiliarity`.)
+- **Floor mode** — the 10-min "bad day" floor; logs the session as
+  `floor_mode = true` so consistency still counts.
+
+## Illustration system
+Custom **2-pose animated SVGs**, one file per exercise key in `src/illustrations/`
+(default export = `VariationGuide[]` matching that key's `path` order). Two pose
+groups `pose-a`/`pose-b` crossfade via CSS. The spec is
+`src/illustrations/CONVENTIONS.md` — read it fully before drawing: fixed canvas
+(`viewBox 0 0 200 120`), one consistent ~70px side-profile figure, `currentColor`
+stroke, joint dots, one dashed movement arrow, 3 external-focus cues (≤6 words,
+setup→drive→finish). **Render-verify loop is mandatory**: render the SVG with
+headless Chrome, Read the PNG, and confirm the distinguishing feature is legible
+before shipping a panel. `pushup.tsx` and `squat.tsx` are the finished references;
+`scripts/render-grid.tsx` renders the full grid (`docs/exercise-guide-grid.png`).
+
+## User preferences (learned)
+- **NO day-color left stripe** on exercise cards. Keep the dark athletic theme
+  (Oswald + Hanken Grotesk, lime `#C8FA4B` accent on `#0E100D`).
 - Wants evidence-backed, specific, ranked recommendations — not generic advice.
 
-## Program structure (what's in the HTML)
-- 6 training mornings + 1 flex day, rotating **Push / Legs / Pull** so each muscle is
-  hit ~2×/week with 48–72h recovery (the reason daily training works here).
-- Each session: ~2-min warm-up + 3 main moves (3 sets, stop 1–2 reps short of failure,
-  3-sec eccentric) + a core/finisher.
-- Progressive overload without weights: reps first → harder variation → slower tempo.
-
-## Evidence basis (for reference)
-- Bodyweight near failure builds muscle comparable to weights when load is matched
-  (Kikuchi & Nakazato 2017; Schoenfeld 2021). Time-efficient protocols (15–20 min)
-  produce real strength/body-comp gains (2025 ACSM update).
-- Beginner timeline: feel stronger 2–3 wks (neural), visible definition 6–12 wks,
-  "great shape" over 3–6 months. Track reps, not the mirror, early on.
-
-## Known gap / top recommendation
-Pulling is under-served with current equipment (legs and pushing are fully covered).
-The single highest-leverage upgrade: a **doorway pull-up bar** or **long door-anchor
-resistance bands** (~$20–25, travel-packable). Once acquired, the pull day can add
-dead hangs → negatives → first pull-up.
+## Dev commands
+```bash
+npm install
+npm run dev       # http://localhost:5173
+npm run build     # tsc typecheck + vite build -> dist/
+npm run preview   # serve the production build
+npm test          # vitest run (pure-logic unit tests)
+python3 scripts/gen_icons.py   # regenerate PWA icons (stdlib-only)
+```
+Env: copy `.env.example` → `.env.local`, set `VITE_SUPABASE_URL` and
+`VITE_SUPABASE_ANON_KEY` (anon/publishable key only — never `service_role`).
 
 ## Backlog / next steps
-1. **Nutrition layer** — protein timing around the fasted morning window; the collagen
-   smoothie is an incomplete protein, so adding a complete protein (whey/plant blend)
-   would better support muscle building. Protein target ~1.6–2.2 g/kg.
-2. **Progress tracker** — simple way to log reps per exercise per day (the program's
-   progression rules depend on beating last week's numbers).
-3. **Pull-up progression module** — to slot in once a bar/bands are acquired.
-4. Optional: evolve the single HTML file into a small trackable web app.
-
-## Working notes
-- Keep the aesthetic of the HTML (dark athletic theme, Oswald + Hanken Grotesk, lime
-  accent) if extending it.
-- No localStorage was used in the original artifact (it ran in a sandbox); in a real
-  Claude Code project you're free to use localStorage/IndexedDB for the tracker.
+1. **S3 + CloudFront deployment** under the subpath — user will provide setup
+   details. Remember to allow-list the subpath in Supabase Redirect URLs.
+2. **Pull-up progression module** — slot in once a doorway bar is acquired
+   (dead hangs → negatives → first pull-up).
+3. **Deeper nutrition layer** — beyond the completion-banner reminder (protein
+   timing/tracking around the fasted window).
