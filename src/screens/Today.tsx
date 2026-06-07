@@ -12,12 +12,15 @@ import {
 import {
   fetchMyHistory,
   fetchProgression,
+  fetchFamiliarity,
   getOrCreateTodaySession,
   logSet as dbLogSet,
   markCompleted,
   setFloorMode as dbSetFloorMode,
   advanceStep as dbAdvanceStep,
 } from '../lib/db';
+import { guideFor } from '../illustrations';
+import FormSheet from '../components/FormSheet';
 
 export interface TodayProps {
   profile: Profile;
@@ -56,6 +59,8 @@ export default function Today({ profile }: TodayProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [history, setHistory] = useState<{ session: Session; logs: SetLog[] }[]>([]);
   const [progression, setProgression] = useState<Map<string, number>>(new Map());
+  // familiarity keyed `${exerciseKey}:${stepIndex}` -> distinct past session count
+  const [familiarity, setFamiliarity] = useState<Map<string, number>>(new Map());
   // today's logs keyed by `${exerciseKey}:${setNumber}`
   const [todayLogs, setTodayLogs] = useState<Map<string, SetLog>>(new Map());
 
@@ -65,6 +70,8 @@ export default function Today({ profile }: TodayProps) {
 
   const [warmupOpen, setWarmupOpen] = useState(false);
   const [retryHint, setRetryHint] = useState<string | null>(null);
+  // Currently open guide sheet (exercise key), or null when closed.
+  const [openGuideKey, setOpenGuideKey] = useState<string | null>(null);
 
   const loadedRef = useRef(false);
   // Memoizes an in-flight session-creation so concurrent fast taps share one call.
@@ -80,11 +87,18 @@ export default function Today({ profile }: TodayProps) {
           fetchProgression(),
         ]);
         if (!alive) return;
-        setHistory(hist);
-        setProgression(prog);
 
         // Adopt an existing session for today if present (don't create one).
         const existing = hist.find((h) => h.session.on_date === todayISO);
+
+        // Familiarity counts strictly PAST sessions: exclude today's session so
+        // a mid-session reload after logging doesn't fade a card one early.
+        const fam = await fetchFamiliarity(existing?.session.id);
+        if (!alive) return;
+        setHistory(hist);
+        setProgression(prog);
+        setFamiliarity(fam);
+
         if (existing) {
           setSession(existing.session);
           setFloorModeState(existing.session.floor_mode);
@@ -272,26 +286,50 @@ export default function Today({ profile }: TodayProps) {
           onLog={handleFlexLog}
         />
       ) : (
-        day.exercises.map((ex, i) => (
-          <ExerciseCard
-            key={ex.key}
-            ex={ex}
-            index={i + 1}
-            stepIndex={stepFor(ex)}
-            priorHistory={priorHistory}
-            todayISO={todayISO}
-            todayLogs={todayLogs}
-            todayLogsArr={todayLogsArr}
-            floorMode={floorMode}
-            onLog={handleLog}
-            onAdvance={handleAdvance}
-          />
-        ))
+        day.exercises.map((ex, i) => {
+          const step = stepFor(ex);
+          const fam = familiarity.get(`${ex.key}:${step}`) ?? 0;
+          return (
+            <ExerciseCard
+              key={ex.key}
+              ex={ex}
+              index={i + 1}
+              stepIndex={step}
+              familiarity={fam}
+              priorHistory={priorHistory}
+              todayISO={todayISO}
+              todayLogs={todayLogs}
+              todayLogsArr={todayLogsArr}
+              floorMode={floorMode}
+              onLog={handleLog}
+              onAdvance={handleAdvance}
+              onOpenGuide={() => setOpenGuideKey(ex.key)}
+            />
+          );
+        })
       )}
 
       {retryHint && <p className="err">{retryHint}</p>}
 
       {bannerShown && <DoneBanner flex={dayType === 'flex'} />}
+
+      {openGuideKey &&
+        (() => {
+          const ex = day.exercises.find((e) => e.key === openGuideKey);
+          if (!ex) return null;
+          const step = stepFor(ex);
+          const guide = guideFor(ex.key, step);
+          if (!guide) return null;
+          return (
+            <FormSheet
+              exerciseName={ex.name}
+              variationName={ex.path[step] ?? ex.name}
+              guide={guide}
+              note={ex.note}
+              onClose={() => setOpenGuideKey(null)}
+            />
+          );
+        })()}
     </div>
   );
 }
@@ -365,6 +403,7 @@ interface ExerciseCardProps {
   ex: Exercise;
   index: number;
   stepIndex: number;
+  familiarity: number;
   priorHistory: { session: Session; logs: SetLog[] }[];
   todayISO: string;
   todayLogs: Map<string, SetLog>;
@@ -372,12 +411,14 @@ interface ExerciseCardProps {
   floorMode: boolean;
   onLog: (ex: Exercise, setNumber: number, value: number) => void;
   onAdvance: (ex: Exercise) => void;
+  onOpenGuide: () => void;
 }
 
 function ExerciseCard({
   ex,
   index,
   stepIndex,
+  familiarity,
   priorHistory,
   todayISO,
   todayLogs,
@@ -385,6 +426,7 @@ function ExerciseCard({
   floorMode,
   onLog,
   onAdvance,
+  onOpenGuide,
 }: ExerciseCardProps) {
   const targets = useMemo(
     () => computeTargets(priorHistory, ex.key, stepIndex, todayISO),
@@ -409,18 +451,29 @@ function ExerciseCard({
     return known.join(' · ');
   }, [targets]);
 
+  const guide = guideFor(ex.key, stepIndex);
+  const learning = guide !== null && familiarity < 3;
+
   return (
     <div className="ex-card">
-      <div className="ex-top">
-        <div>
-          <span className="ex-num">{index}</span>
-          <span className="ex-name">{ex.name}</span>
+      <button
+        className="ex-head-btn"
+        type="button"
+        onClick={onOpenGuide}
+        aria-label={`How to do ${ex.name}`}
+      >
+        <div className="ex-top">
+          <div>
+            <span className="ex-num">{index}</span>
+            <span className="ex-name">{ex.name}</span>
+            {learning && <span className="form-tag">form</span>}
+          </div>
+          <span className="ex-sets">
+            {setsToShow}×{ex.range[0]}
+            {ex.range[1] !== ex.range[0] ? `–${ex.range[1]}` : ''} {unitLabel}
+          </span>
         </div>
-        <span className="ex-sets">
-          {setsToShow}×{ex.range[0]}
-          {ex.range[1] !== ex.range[0] ? `–${ex.range[1]}` : ''} {unitLabel}
-        </span>
-      </div>
+      </button>
 
       {/* progression path */}
       <div className="path">
@@ -435,6 +488,8 @@ function ExerciseCard({
       </div>
 
       {ex.note && <p className="ex-note">{ex.note}</p>}
+
+      {learning && guide && <p className="inline-cue">{guide.cues[0]}</p>}
 
       <p className="ex-target">
         {targetLine ? (

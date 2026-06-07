@@ -236,6 +236,56 @@ export async function fetchProgression(): Promise<Map<string, number>> {
   return map;
 }
 
+// ---------------------------------------------------------------------------
+// Familiarity ("learn, then fade" guides)
+// ---------------------------------------------------------------------------
+
+/**
+ * Distinct PAST sessions (all-time, own data) that contain at least one set_log
+ * for each (exercise_key, step_index). Keyed "exercise_key:step_index" so the UI
+ * can look up the count for an exercise at its CURRENT step. RLS already scopes
+ * set_logs to the owner; we group client-side. Each session is counted once per
+ * (key, step) even if it has several sets logged.
+ *
+ * `excludeSessionId` (today's session, if one already exists) is omitted from
+ * the count so the familiarity reflects strictly PAST sessions even on a
+ * mid-session page reload after logging.
+ */
+export async function fetchFamiliarity(
+  excludeSessionId?: string,
+): Promise<Map<string, number>> {
+  const { data: auth } = await supabase.auth.getUser();
+  const uid = auth.user?.id;
+  if (!uid) return new Map();
+
+  const { data, error } = await supabase
+    .from('set_logs')
+    .select('session_id, exercise_key, step_index')
+    .eq('user_id', uid);
+  if (error) throw error;
+
+  // key "exercise_key:step_index" -> set of distinct session ids
+  const sessionsByKeyStep = new Map<string, Set<string>>();
+  for (const row of (data ?? []) as {
+    session_id: string;
+    exercise_key: string;
+    step_index: number;
+  }[]) {
+    if (excludeSessionId && row.session_id === excludeSessionId) continue;
+    const k = `${row.exercise_key}:${row.step_index}`;
+    let set = sessionsByKeyStep.get(k);
+    if (!set) {
+      set = new Set<string>();
+      sessionsByKeyStep.set(k, set);
+    }
+    set.add(row.session_id);
+  }
+
+  const out = new Map<string, number>();
+  for (const [k, set] of sessionsByKeyStep) out.set(k, set.size);
+  return out;
+}
+
 export async function advanceStep(
   exerciseKey: string,
   fromIndex: number,

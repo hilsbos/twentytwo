@@ -294,16 +294,6 @@ a {
   position: relative;
   overflow: hidden;
 }
-.ex-card::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: var(--day, var(--accent));
-  opacity: 0.85;
-}
 .ex-top {
   display: flex;
   justify-content: space-between;
@@ -770,4 +760,222 @@ a {
   color: var(--muted);
   font-size: 14px;
   padding: 30px 0;
+}
+
+/* ---------------------------------------------------------------------------
+   "Learn, then fade" — form tag + inline cue on the exercise card
+   ------------------------------------------------------------------------- */
+
+/* small "form" tag next to the exercise name (advertises the guide sheet) */
+.form-tag {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin-left: 9px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  border: 1px solid var(--line2);
+  background: var(--surface2);
+  color: var(--day, var(--accent));
+  font-family: 'Oswald', sans-serif;
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+/* the single most-important cue, shown inline under the note while learning */
+.inline-cue {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.inline-cue::before {
+  content: '›';
+  color: var(--day, var(--accent));
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+/* the card header becomes a button (tap to open the sheet) ------------------ */
+.ex-head-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Form sheet (bottom sheet) + backdrop
+   ------------------------------------------------------------------------- */
+.form-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.62);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.18s ease;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.form-sheet {
+  width: 100%;
+  max-width: 560px;
+  background: var(--surface);
+  border: 1px solid var(--line2);
+  border-bottom: none;
+  border-radius: 18px 18px 0 0;
+  padding: 18px 18px calc(22px + env(safe-area-inset-bottom, 0px));
+  max-height: 88vh;
+  overflow-y: auto;
+  animation: sheetUp 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@keyframes sheetUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.form-sheet-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.form-sheet-kicker {
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 11px;
+  color: var(--faint);
+  font-weight: 500;
+}
+.form-sheet-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: var(--text);
+  margin-top: 3px;
+}
+.form-sheet-x {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+  border: 1px solid var(--line2);
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 24px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* illustration frame — the day accent drives currentColor for the figure */
+.guide-svg {
+  color: var(--day, var(--accent));
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  margin: 12px 0 4px;
+  padding: 8px;
+}
+.guide-svg svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* pose crossfade: pose-a (start) and pose-b (end) dissolve on a ~3.2s loop */
+.guide-svg .pose-a,
+.guide-svg .pose-b {
+  animation: poseCrossfade 3.2s ease-in-out infinite;
+}
+.guide-svg .pose-b {
+  animation-delay: -1.6s;
+}
+@keyframes poseCrossfade {
+  0% {
+    opacity: 1;
+  }
+  42% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  92% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* reduced motion: no crossfade — show the end pose solid, ghost the start */
+@media (prefers-reduced-motion: reduce) {
+  .guide-svg .pose-a,
+  .guide-svg .pose-b {
+    animation: none;
+  }
+  .guide-svg .pose-a {
+    opacity: 0.25;
+  }
+  .guide-svg .pose-b {
+    opacity: 1;
+  }
+}
+
+.form-sheet-cues {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.form-sheet-cues li {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  font-size: 14.5px;
+  color: var(--text);
+}
+.form-sheet-cues li::before {
+  content: '›';
+  color: var(--day, var(--accent));
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+.form-sheet-note {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--muted);
 }
