@@ -196,7 +196,7 @@ export default function Week({ profile, onSignOut }: WeekProps) {
         <button className="muted-link" onClick={onSignOut}>
           Sign out
         </button>
-        <span className="ver">Twenty-Two {APP_VERSION}</span>
+        <span className="ver">twentyTwo {APP_VERSION}</span>
       </footer>
     </div>
   );
