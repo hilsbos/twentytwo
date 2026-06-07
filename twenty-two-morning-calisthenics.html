@@ -9,7 +9,7 @@
     --bg:#0E100D; --surface:#181B15; --surface2:#21251D;
     --line:rgba(236,238,230,.09); --line2:rgba(236,238,230,.16);
     --text:#ECEEE6; --muted:#9AA08F; --faint:#6E7464;
-    --accent:#C8FA4B; --push:#C8FA4B; --legs:#F2B33D; --pull:#5DD3E0; --flex:#C9A0F0;
+    --accent:#C8FA4B; --push:#C8FA4B; --legs:#F2B33D; --pull:#5DD3E0; --core:#C9A0F0;
     --r:14px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -40,7 +40,7 @@
   .tab[data-type="push"][aria-selected="true"]{background:var(--push)}
   .tab[data-type="legs"][aria-selected="true"]{background:var(--legs)}
   .tab[data-type="pull"][aria-selected="true"]{background:var(--pull)}
-  .tab[data-type="flex"][aria-selected="true"]{background:var(--flex)}
+  .tab[data-type="core"][aria-selected="true"]{background:var(--core)}
 
   .panel{margin-top:22px}
   .panel[hidden]{display:none}
@@ -51,12 +51,12 @@
   .ex{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:15px 16px;margin-bottom:10px;position:relative;overflow:hidden}
   .ex::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);opacity:.85}
   .ex.p-push::before{background:var(--push)} .ex.p-legs::before{background:var(--legs)}
-  .ex.p-pull::before{background:var(--pull)} .ex.p-flex::before{background:var(--flex)}
+  .ex.p-pull::before{background:var(--pull)} .ex.p-core::before{background:var(--core)}
   .ex-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
   .ex-name{font-family:"Oswald";font-size:18px;font-weight:600;text-transform:uppercase;letter-spacing:.01em}
   .ex-num{font-family:"Oswald";color:var(--faint);font-size:15px;font-weight:500;margin-right:9px}
   .sets{font-family:"Oswald";font-size:15px;font-weight:600;color:var(--accent);white-space:nowrap;text-transform:uppercase;letter-spacing:.03em}
-  .ex.p-legs .sets{color:var(--legs)} .ex.p-pull .sets{color:var(--pull)} .ex.p-flex .sets{color:var(--flex)}
+  .ex.p-legs .sets{color:var(--legs)} .ex.p-pull .sets{color:var(--pull)} .ex.p-core .sets{color:var(--core)}
   .path{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:11px}
   .path .step{font-size:12px;color:var(--muted);background:var(--surface2);border:1px solid var(--line);padding:3px 8px;border-radius:7px;white-space:nowrap}
   .path .step.now{color:var(--text);border-color:var(--line2)}
@@ -99,7 +99,7 @@
       <button class="tab" data-type="push" data-day="3" role="tab" aria-selected="false"><div class="d">Thu</div><div class="t">Push</div></button>
       <button class="tab" data-type="legs" data-day="4" role="tab" aria-selected="false"><div class="d">Fri</div><div class="t">Legs</div></button>
       <button class="tab" data-type="pull" data-day="5" role="tab" aria-selected="false"><div class="d">Sat</div><div class="t">Pull</div></button>
-      <button class="tab" data-type="flex" data-day="6" role="tab" aria-selected="false"><div class="d">Sun</div><div class="t">Flex</div></button>
+      <button class="tab" data-type="core" data-day="6" role="tab" aria-selected="false"><div class="d">Sun</div><div class="t">Core</div></button>
     </div>
 
     <div class="warm" style="margin-top:20px">
@@ -177,13 +177,26 @@
         <div class="path"><span class="step">Curls 10–15</span><span class="arr">·</span><span class="step">Plank 30–60s</span></div></div>
     </div>
 
-    <!-- FLEX -->
-    <div class="panel" data-panel="flex" hidden>
-      <span class="ptag" style="background:var(--flex)"><span class="dot"></span>Flex day · yoga · mobility · rest</span>
-      <p class="focus">Your call. Slot a yoga session here, do an easy mobility flow, or take the day fully off. Recovery is when the muscle is actually built — not skippable, but flexible.</p>
-      <div class="ex p-flex"><div class="ex-top"><div><span class="ex-name">Pick one</span></div></div>
-        <div class="path"><span class="step">Full yoga session</span><span class="arr">·</span><span class="step">10-min mobility flow</span><span class="arr">·</span><span class="step">Walk + stretch</span><span class="arr">·</span><span class="step">Complete rest</span></div>
-        <p class="note">If you missed a day earlier in the week, this is your make-up slot.</p></div>
+    <!-- CORE -->
+    <div class="panel" data-panel="core" hidden>
+      <span class="ptag" style="background:var(--core)"><span class="dot"></span>Core day · trunk · 15–20 min</span>
+      <p class="focus">The day that ties the whole body together. Brace hard, resist the pull, breathe slow. Stop 1–2 reps short, lower for a 3-count, and own every position before you progress.</p>
+
+      <div class="ex p-core"><div class="ex-top"><div><span class="ex-num">01</span><span class="ex-name">Dead bug</span></div><span class="sets">3 × 8–12</span></div>
+        <div class="path"><span class="step now">Tabletop arms only</span><span class="arr">→</span><span class="step">Opposite arm + leg</span><span class="arr">→</span><span class="step">Heels to floor</span><span class="arr">→</span><span class="step">Band-press dead bug</span></div>
+        <p class="note">Anti-extension. Low back glued to the floor the whole time. Count per side.</p></div>
+
+      <div class="ex p-core"><div class="ex-top"><div><span class="ex-num">02</span><span class="ex-name">Band anti-rotation press</span></div><span class="sets">3 × 10–15</span></div>
+        <div class="path"><span class="step now">Tall-kneeling hold</span><span class="arr">→</span><span class="step">Tall-kneeling press</span><span class="arr">→</span><span class="step">Standing press</span><span class="arr">→</span><span class="step">Split-stance press</span></div>
+        <p class="note">Anchor the long band at chest height. Stand side-on; don't let it twist you. Count per side.</p></div>
+
+      <div class="ex p-core"><div class="ex-top"><div><span class="ex-num">03</span><span class="ex-name">Side plank</span></div><span class="sets">3 × 20–45s</span></div>
+        <div class="path"><span class="step now">Knees down</span><span class="arr">→</span><span class="step">Full, feet stacked</span><span class="arr">→</span><span class="step">Top arm reach</span><span class="arr">→</span><span class="step">Hip dips</span></div>
+        <p class="note">Anti-side-bend. Stack everything in one straight line, hips high. Hold per side.</p></div>
+
+      <div class="ex p-core"><div class="ex-top"><div><span class="ex-num">+</span><span class="ex-name">Hollow rock + V-tuck hold</span></div><span class="sets">3 × 20–40s</span></div>
+        <div class="path"><span class="step">Rock 8–12 in a dish</span><span class="arr">·</span><span class="step">V-tuck hold</span></div>
+        <p class="note">Finisher. Rock in a tight dish, then balance the V-tuck on your sit-bones. Low back rounds, not arched.</p></div>
     </div>
   </section>
 

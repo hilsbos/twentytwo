@@ -16,7 +16,7 @@
   --push: #c8fa4b;
   --legs: #f2b33d;
   --pull: #5dd3e0;
-  --flex: #c9a0f0;
+  --core: #c9a0f0;
   --bad: #e8775f;
   --r: 14px;
 }
@@ -79,8 +79,8 @@ a {
 .is-pull {
   --day: var(--pull);
 }
-.is-flex {
-  --day: var(--flex);
+.is-core {
+  --day: var(--core);
 }
 
 /* ---------------------------------------------------------------------------
@@ -271,7 +271,7 @@ a {
   font-size: 11px;
 }
 
-/* generic small chip (used in warm-up + flex options) ----------------------- */
+/* generic small chip (used in warm-up) -------------------------------------- */
 .chip {
   font-size: 12px;
   color: var(--muted);
@@ -575,7 +575,7 @@ a {
 }
 
 /* ---------------------------------------------------------------------------
-   Buttons (generic primary / ghost) — auth, flex log, etc.
+   Buttons (generic primary / ghost) — auth, etc.
    ------------------------------------------------------------------------- */
 .btn {
   display: inline-flex;

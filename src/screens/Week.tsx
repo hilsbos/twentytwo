@@ -136,7 +136,7 @@ export default function Week({ profile, onSignOut }: WeekProps) {
           {mine.count}
           <span className="slash"> / 7</span>
         </div>
-        <p className="cap">mornings in the last 7 days</p>
+        <p className="cap">mornings this week — 6 in a week is a full win</p>
       </section>
 
       <div className="week-dots">
@@ -186,7 +186,7 @@ export default function Week({ profile, onSignOut }: WeekProps) {
                   </div>
                 )}
               </div>
-              <span className="friend-count">{m.count}/7</span>
+              <span className="friend-count">{m.count}</span>
             </div>
           ))
         )}

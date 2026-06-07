@@ -4,8 +4,8 @@ Project context handoff. Read this first to continue work.
 
 ## What this is
 A personal, phone-first **web app** for the Twenty-Two morning calisthenics
-program: Push / Legs / Pull on rotation, runnable anywhere (home, hotel, travel)
-in 15–20 min/day. Goal is general "great shape" — lean and defined, not mass —
+program: a Push / Legs / Pull rotation Mon–Sat plus a programmed Sunday core day,
+runnable anywhere (home, hotel, travel) in 15–20 min/day. Goal is general "great shape" — lean and defined, not mass —
 alongside a leaner body composition. Starting from zero, so habit-building matters
 as much as the program; the product spine is ADHD-first (opens on today's workout,
 one-tap logging, no breakable streaks).
@@ -20,7 +20,10 @@ longer maintained or shipped.
   relative so `dist/` can be dropped under any subpath.
 - **Supabase** (Postgres + magic-link auth + RLS) for accounts, logs, and the
   social layer. Schema is `supabase/schema.sql` (idempotent, full RLS):
-  `profiles`, `sessions`, `set_logs`, `progression`.
+  `profiles`, `sessions`, `set_logs`, `progression`. `sessions.day_type` allows
+  `push`/`legs`/`pull`/`core`/`flex` — `core` is Sunday's programmed day; `flex`
+  is retained only for historical rows and is no longer written. Migration:
+  `supabase/migrations/2026-06-07_add_sunday_day.sql` (idempotent CHECK swap).
 - Magic-link redirect uses `location.origin + location.pathname`, so every served
   subpath must be allow-listed in Supabase Auth → Redirect URLs.
 - **Social layer is presence-only**: friends see each other's session presence and
@@ -54,10 +57,17 @@ supabase/schema.sql, scripts/gen_icons.py, scripts/render-grid.tsx, docs/
   dead hangs → negatives → first pull-up).
 
 ## Program v2 (in src/program.ts) — what changed and why
-6 training mornings + 1 flex day, Push/Legs/Pull rotation, each muscle ~2×/week
-with 48–72h recovery. Each session: ~2-min warm-up + 3 main moves (3 sets, stop
-1–2 reps short of failure, 3-sec eccentric) + a core/finisher. Overload order:
-reps → harder variation → slower tempo.
+**All 7 days are real programming.** Mon–Sat rotate Push/Legs/Pull (each muscle
+~2×/week with 48–72h recovery); **Sunday is a programmed `core` day** — dead bug,
+band anti-rotation (Pallof) press, side plank, + a hollow-rock/V-tuck finisher.
+The flex/rest day is gone. Sunday rounds out the week with dedicated trunk work
+(anti-extension, anti-rotation, anti-side-bend) the push/legs/pull split only
+brushes, and is the deliberately quiet **designated drop day** — so missing it
+still leaves 6 of 7 = a full win, and consistency never depends on a perfect 7.
+
+Each session: ~2-min warm-up + 3 main moves (3 sets, stop 1–2 reps short of
+failure, 3-sec eccentric) + a core/finisher. Overload order: reps → harder
+variation → slower tempo.
 
 Changes from v1 and their rationale:
 - **Lat pulldown added** (band over the door) — was the single biggest gap: the
@@ -81,8 +91,7 @@ Add **~25–30 g complete protein (whey or plant blend)** when the eating window
 opens (~8:30am). The morning collagen smoothie is leucine-poor (~0.9 g vs the
 ~2.5–3 g per-meal leucine threshold for muscle protein synthesis), so collagen
 stays only as a **tendon-support add-on**, not the protein source. Daily target
-**1.6–2.2 g/kg**. The app's completion banner reminds the user ("~30g protein when
-the window opens"; flex days show the recovery message instead).
+**1.6–2.2 g/kg**. The app's completion banner reminds the user ("~30g protein when the window opens").
 
 ## App features
 - **Auth screen** — magic-link sign-in.
@@ -90,7 +99,8 @@ the window opens"; flex days show the recovery message instead).
   (collapsed), exercise cards with one-tap set logging, floor mode, level-up
   prompt (when gated conditions met), completion banner.
 - **Week screen** — rolling **7-day consistency** (count out of 7, no breakable
-  streak), plus **friends presence** (who trained, never reps).
+  streak; Sunday is the designated drop day, so 6 of 7 is a full win), plus
+  **friends presence** (who trained, never reps).
 - **Form guides** — per-exercise sheets with cues, using **"learn, then fade"**:
   the inline cue + form tag show while `familiarity < 3` distinct past sessions at
   that step, then fade out once the move is learned. (`FormSheet`, `fetchFamiliarity`.)

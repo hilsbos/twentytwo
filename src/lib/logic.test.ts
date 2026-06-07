@@ -117,8 +117,8 @@ describe('dayTypeFor', () => {
     expect(dayTypeFor(new Date(2026, 5, 6))).toBe('pull'); // Sat
   });
 
-  it('Sunday is flex', () => {
-    expect(dayTypeFor(new Date(2026, 5, 7))).toBe('flex'); // Sun
+  it('Sunday is core', () => {
+    expect(dayTypeFor(new Date(2026, 5, 7))).toBe('core'); // Sun
   });
 });
 
@@ -495,9 +495,13 @@ describe('isSessionComplete', () => {
     expect(isSessionComplete(logs, day, true)).toBe(false);
   });
 
-  it('flex day (no exercises) is never complete', () => {
-    expect(isSessionComplete([], DAYS.flex, false)).toBe(false);
-    expect(isSessionComplete([], DAYS.flex, true)).toBe(false);
+  it('works against the real core-day config (full)', () => {
+    const core = DAYS.core;
+    const logs: SetLog[] = [];
+    for (const ex of core.exercises.filter((e) => e.main)) {
+      for (let s = 1; s <= ex.sets; s++) logs.push(makeLog(ex.key, s, 10));
+    }
+    expect(isSessionComplete(logs, core, false)).toBe(true);
   });
 
   it('works against the real push-day config (full)', () => {

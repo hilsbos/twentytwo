@@ -8,7 +8,7 @@ export const ROTATION: DayType[] = [
   'push',
   'legs',
   'pull',
-  'flex',
+  'core',
 ];
 
 /** Shown collapsed/small on Today — ~2 min, every day. */
@@ -18,14 +18,6 @@ export const WARMUP: string[] = [
   '10 bodyweight squats',
   '10 scapular push-ups',
   'wrist + ankle rolls',
-];
-
-/** Flex-day options (no logged exercises; one "Log today" button). */
-export const FLEX_OPTIONS: string[] = [
-  'Full yoga session',
-  '10-min mobility flow',
-  'Walk + stretch',
-  'Complete rest',
 ];
 
 const PUSH: Exercise[] = [
@@ -157,6 +149,49 @@ const PULL: Exercise[] = [
   },
 ];
 
+const CORE: Exercise[] = [
+  {
+    key: 'dead_bug',
+    name: 'Dead bug',
+    sets: 3,
+    unit: 'reps',
+    range: [8, 12],
+    path: ['Tabletop arms only', 'Opposite arm + leg', 'Heels to floor', 'Band-press dead bug'],
+    note: 'Anti-extension. Low back glued to the floor the whole time - if it lifts, regress a step. Count per side.',
+    main: true,
+  },
+  {
+    key: 'pallof_press',
+    name: 'Band anti-rotation press',
+    sets: 3,
+    unit: 'reps',
+    range: [10, 15],
+    path: ['Tall-kneeling hold', 'Tall-kneeling press', 'Standing press', 'Split-stance press'],
+    note: 'Anchor the long band at chest height in a door. Stand side-on so it tries to twist you - don\'t let it. Count per side.',
+    main: true,
+  },
+  {
+    key: 'side_plank',
+    name: 'Side plank',
+    sets: 3,
+    unit: 'secs',
+    range: [20, 45],
+    path: ['Knees down', 'Full, feet stacked', 'Top arm reach', 'Hip dips'],
+    note: 'Anti-side-bend. Stack everything in one straight line, hips high. Hold per side - swap when you finish the set.',
+    main: true,
+  },
+  {
+    key: 'v_tuck_hold',
+    name: 'Hollow rock + V-tuck hold',
+    sets: 3,
+    unit: 'secs',
+    range: [20, 40],
+    path: ['Hollow rock + tuck hold'],
+    note: 'Finisher. Rock 8-12 in a tight dish, then hold the V-tuck balanced on your sit-bones. Low back rounds, not arched.',
+    main: false,
+  },
+];
+
 export const DAYS: Record<DayType, Day> = {
   push: {
     type: 'push',
@@ -179,12 +214,12 @@ export const DAYS: Record<DayType, Day> = {
       'The one day that needs a setup. Anchor the long band over the top of a door for the lat work and face-pulls; lie under a sturdy table for rows. A doorway bar is still the upgrade that unlocks pull-ups. This is what builds a complete, upright physique.',
     exercises: PULL,
   },
-  flex: {
-    type: 'flex',
-    title: 'Flex day',
+  core: {
+    type: 'core',
+    title: 'Core day',
     focus:
-      'Your call. Slot a yoga session here, do an easy mobility flow, or take the day fully off. Recovery is when the muscle is actually built — not skippable, but flexible.',
-    exercises: [],
+      'The day that ties the whole body together. Brace hard, resist the pull, breathe slow. Stop 1-2 reps short, lower for a 3-count, and own every position before you progress.',
+    exercises: CORE,
   },
 };
 

@@ -1,4 +1,4 @@
-export type DayType = 'push' | 'legs' | 'pull' | 'flex';
+export type DayType = 'push' | 'legs' | 'pull' | 'core';
 export type Unit = 'reps' | 'secs';
 
 export interface Exercise {

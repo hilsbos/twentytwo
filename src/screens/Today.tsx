@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Day, Exercise, Profile, Session, SetLog } from '../types';
-import { dayConfig, WARMUP, FLEX_OPTIONS } from '../program';
+import { dayConfig, WARMUP } from '../program';
 import {
   dayTypeFor,
   localDateISO,
@@ -30,7 +30,7 @@ const DAY_CLASS: Record<string, string> = {
   push: 'is-push',
   legs: 'is-legs',
   pull: 'is-pull',
-  flex: 'is-flex',
+  core: 'is-core',
 };
 
 const WEEKDAY = [
@@ -249,69 +249,41 @@ export default function Today({ profile }: TodayProps) {
     }
   }
 
-  // ---- flex day "log today" ----
-  async function handleFlexLog() {
-    setRetryHint(null);
-    try {
-      const s = await ensureSession();
-      const ts = new Date().toISOString();
-      setCompletedAt(ts);
-      setBannerShown(true);
-      await markCompleted(s.id);
-    } catch {
-      setCompletedAt(null);
-      setBannerShown(false);
-      setRetryHint('Could not log today — try again.');
-    }
-  }
-
   const dayClass = DAY_CLASS[dayType] ?? 'is-push';
 
   return (
     <div className={`wrap ${dayClass}`}>
       <DayHeader day={day} date={today} />
 
-      {dayType !== 'flex' && (
-        <FloorToggle on={floorMode} onToggle={toggleFloor} />
-      )}
+      <FloorToggle on={floorMode} onToggle={toggleFloor} />
 
-      {dayType !== 'flex' && (
-        <Warmup open={warmupOpen} onToggle={() => setWarmupOpen((o) => !o)} />
-      )}
+      <Warmup open={warmupOpen} onToggle={() => setWarmupOpen((o) => !o)} />
 
-      {dayType === 'flex' ? (
-        <FlexCard
-          day={day}
-          logged={!!completedAt}
-          onLog={handleFlexLog}
-        />
-      ) : (
-        day.exercises.map((ex, i) => {
-          const step = stepFor(ex);
-          const fam = familiarity.get(`${ex.key}:${step}`) ?? 0;
-          return (
-            <ExerciseCard
-              key={ex.key}
-              ex={ex}
-              index={i + 1}
-              stepIndex={step}
-              familiarity={fam}
-              priorHistory={priorHistory}
-              todayISO={todayISO}
-              todayLogs={todayLogs}
-              todayLogsArr={todayLogsArr}
-              floorMode={floorMode}
-              onLog={handleLog}
-              onAdvance={handleAdvance}
-              onOpenGuide={() => setOpenGuideKey(ex.key)}
-            />
-          );
-        })
-      )}
+      {day.exercises.map((ex, i) => {
+        const step = stepFor(ex);
+        const fam = familiarity.get(`${ex.key}:${step}`) ?? 0;
+        return (
+          <ExerciseCard
+            key={ex.key}
+            ex={ex}
+            index={i + 1}
+            stepIndex={step}
+            familiarity={fam}
+            priorHistory={priorHistory}
+            todayISO={todayISO}
+            todayLogs={todayLogs}
+            todayLogsArr={todayLogsArr}
+            floorMode={floorMode}
+            onLog={handleLog}
+            onAdvance={handleAdvance}
+            onOpenGuide={() => setOpenGuideKey(ex.key)}
+          />
+        );
+      })}
 
       {retryHint && <p className="err">{retryHint}</p>}
 
-      {bannerShown && <DoneBanner flex={dayType === 'flex'} />}
+      {bannerShown && <DoneBanner />}
 
       {openGuideKey &&
         (() => {
@@ -615,53 +587,13 @@ function SetChip({
 }
 
 // ===========================================================================
-// Flex day card
-// ===========================================================================
-function FlexCard({
-  day,
-  logged,
-  onLog,
-}: {
-  day: Day;
-  logged: boolean;
-  onLog: () => void;
-}) {
-  return (
-    <div className="ex-card">
-      <div className="ex-top">
-        <div>
-          <span className="ex-name">Your call</span>
-        </div>
-      </div>
-      <div className="path">
-        {FLEX_OPTIONS.map((o, i) => (
-          <span className="chip" key={i}>
-            {o}
-          </span>
-        ))}
-      </div>
-      <p className="ex-note">{day.focus}</p>
-      <div className="set-row">
-        <button className="btn" type="button" onClick={onLog} disabled={logged}>
-          {logged ? 'Logged — recover well' : 'Log today'}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ===========================================================================
 // Completion banner
 // ===========================================================================
-function DoneBanner({ flex }: { flex: boolean }) {
+function DoneBanner() {
   return (
     <div className="done-banner">
       Done — see you tomorrow
-      <span className="sub">
-        {flex
-          ? 'Recovery is where the muscle is built.'
-          : '~30g protein when the window opens'}
-      </span>
+      <span className="sub">~30g protein when the window opens</span>
     </div>
   );
 }

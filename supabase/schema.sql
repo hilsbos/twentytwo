@@ -17,7 +17,9 @@ create table if not exists public.sessions (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles (id) on delete cascade,
   on_date date not null,
-  day_type text not null check (day_type in ('push', 'legs', 'pull', 'flex')),
+  -- 'flex' is retained only for historical rows written before Sunday became a
+  -- programmed 'core' day; the app no longer writes it.
+  day_type text not null check (day_type in ('push', 'legs', 'pull', 'flex', 'core')),
   floor_mode boolean not null default false,
   completed_at timestamptz,
   created_at timestamptz not null default now(),
