@@ -28,8 +28,8 @@ longer maintained or shipped.
   subpath must be allow-listed in Supabase Auth → Redirect URLs.
 - **Social layer is presence-only**: friends see each other's session presence and
   rolling consistency, **never reps or numbers**.
-- Deploy target (later): **S3 + CloudFront** under a subpath (e.g. `/twenty-two/`).
-  Build, upload `dist/`, and add that exact subpath to Supabase Redirect URLs.
+- **Deployed at https://shushu.be/twentytwo/** — `./deploy.sh` (scoped IAM
+  profile `twentytwo-deploy`). Full infra details + rollback: `docs/infra.md`.
 
 ### Layout
 ```
@@ -137,8 +137,9 @@ Env: copy `.env.example` → `.env.local`, set `VITE_SUPABASE_URL` and
 `VITE_SUPABASE_ANON_KEY` (anon/publishable key only — never `service_role`).
 
 ## Backlog / next steps
-1. **S3 + CloudFront deployment** under the subpath — user will provide setup
-   details. Remember to allow-list the subpath in Supabase Redirect URLs.
+1. **Program View** — chosen package from `docs/program-view-proposal.md`
+   (deferred pieces: Week Simulator needs ~4-6 weeks of logs; muscle map
+   authoring batched with the next program change).
 2. **Pull-up progression module** — slot in once a doorway bar is acquired
    (dead hangs → negatives → first pull-up).
 3. **Deeper nutrition layer** — beyond the completion-banner reminder (protein
