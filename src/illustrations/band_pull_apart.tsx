@@ -7,11 +7,17 @@ import type { VariationGuide } from './types';
  * Standing, side profile facing right. Both arms reach forward, hands held a touch
  * BELOW shoulder height (in front of the chest, clear of the neck/head) holding a
  * loop band. Distinguishing feature: a loop band between the two hands that visibly
- * STRETCHES from a small relaxed oval into a wide taut lens as the arms sweep apart.
- * pose-a = arms forward together, band a small relaxed oval just ahead of the hands.
- * pose-b = arms swept back and open (rear-delt squeeze), band stretched into a wide
- *          loop spanning both hands — drawn as a lens bowing BELOW the hand line so
- *          it stays distinct from the arm strokes and never crosses the body.
+ * WIDENS from a short stretched loop into a wide taut lens as the arms sweep apart
+ * (a consistent band-like form whose ends track the hands — it does not "grow" from
+ * a one-hand oval).
+ * pose-a = arms forward together, band a SHORT stretched loop spanning the two
+ *          near-together hands — same lens construction as pose-b, just narrow.
+ * pose-b = arms swept back and open (rear-delt squeeze), band stretched into a WIDE
+ *          loop spanning both hands — the SAME lens form, only wider, so across the
+ *          crossfade the band stays band-like and only its width changes (its ends
+ *          track the hands) instead of "growing" from a one-hand oval into a lens.
+ *          The lens bows BELOW the hand line so it stays distinct from the arm
+ *          strokes and never crosses the body.
  */
 function LoopBandArmsOutArt() {
   return (
@@ -34,7 +40,7 @@ function LoopBandArmsOutArt() {
       </g>
 
       {/* pose A — both arms reaching forward together, hands just below shoulder
-          height (in front of the chest), band a small relaxed oval just ahead */}
+          height (in front of the chest), band a short stretched loop just ahead */}
       <g className="pose-a">
         {/* torso + neck + head */}
         <line x1={92} y1={42} x2={92} y2={70} />
@@ -47,16 +53,29 @@ function LoopBandArmsOutArt() {
         <line x1={92} y1={70} x2={98} y2={90} />
         <line x1={98} y1={90} x2={100} y2={108} />
         <line x1={100} y1={108} x2={111} y2={108} />
-        {/* BOTH arms reaching forward, hands together out front at chest height:
-            shoulder(92,46) -> elbow(111,50) -> hand(130,54) */}
+        {/* BOTH arms reaching forward, hands together out front at chest height.
+            FAR arm fully forward: shoulder(92,46) -> elbow(111,50) -> hand(130,54).
+            NEAR arm just behind it (hands close together, the "arms together"
+            start): shoulder(92,46) -> elbow(101,50) -> hand(112,54). The two hands
+            sit close so the band reads as a SHORT stretched loop, not an oval. */}
         <line x1={92} y1={46} x2={111} y2={50} />
         <line x1={111} y1={50} x2={130} y2={54} />
-        {/* loop band held at the hands — a small relaxed vertical oval just ahead */}
-        <ellipse cx={136} cy={56} rx={5} ry={8} opacity={0.5} strokeWidth={2} />
-        {/* joint dots: shoulder, hip, elbow */}
+        <line x1={92} y1={46} x2={101} y2={50} />
+        <line x1={101} y1={50} x2={112} y2={54} />
+        {/* loop band — a SHORT stretched lens between the two near-together hands
+            (112,54)<->(130,54), same two-arc construction as pose-b's wide lens,
+            bowing BELOW the hand line so it reads as a loop. Across the crossfade
+            only its WIDTH changes (ends track the hands). */}
+        <path
+          d="M 112 54 Q 121 59 130 54 Q 121 64 112 54 Z"
+          opacity={0.5}
+          strokeWidth={2}
+        />
+        {/* joint dots: shoulder, hip, both elbows */}
         <circle cx={92} cy={46} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={92} cy={70} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={111} cy={50} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={101} cy={50} r={2.5} fill="currentColor" stroke="none" />
       </g>
 
       {/* pose B — arms swept WIDE open at chest height. In profile the far arm
@@ -121,11 +140,22 @@ function AnchoredFacePullArt() {
       {/* ground */}
       <line x1={15} y1={110} x2={185} y2={110} opacity={0.25} strokeWidth={1.5} />
 
-      {/* DOOR / wall on the right with a face-height anchor point */}
+      {/* DOOR on the right. BAND-ANCHOR PATTERN (same door-detail glyph as
+          lat_pulldown): doorframe line + over-door bracket clamp at the door TOP
+          + a door-handle tick, so it reads as "band over a door", not an abstract
+          corner. The BAND ANCHOR itself stays at FACE HEIGHT (y=40) — distinct
+          from the overhead lat-pulldown anchor — preserving that praised read.
+          Thin opacity-0.5 static scenery. */}
       <g opacity={0.5}>
-        <line x1={182} y1={16} x2={182} y2={110} />
-        {/* anchor bracket at face height */}
-        <line x1={182} y1={40} x2={174} y2={40} />
+        {/* doorframe */}
+        <line x1={182} y1={18} x2={182} y2={110} />
+        {/* over-door bracket clamp (door-top identity glyph, matches lat_pulldown) */}
+        <path d="M 182 20 L 174 20 L 174 25" strokeWidth={2} />
+        <circle cx={170} cy={20} r={2} strokeWidth={2} />
+        {/* door handle */}
+        <line x1={187} y1={60} x2={187} y2={68} strokeWidth={2} />
+        {/* band anchor at FACE HEIGHT: short bracket off the frame + anchor ring */}
+        <line x1={182} y1={40} x2={174} y2={40} strokeWidth={2} />
         <circle cx={172} cy={40} r={2} strokeWidth={2} />
       </g>
 

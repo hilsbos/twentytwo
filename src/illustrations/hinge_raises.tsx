@@ -13,6 +13,17 @@ import type { VariationGuide } from './types';
 //           back is the signature (a rounded back would teach injury).
 //   RIGHT — Lying leg raises (side profile, supine on the ground). pose-a legs low
 //           near the floor, pose-b legs raised toward vertical.
+//
+// BAND LEGIBILITY (review 2.4): the band is the distinguishing feature and must
+// read as a band in BOTH poses, not just pose-b. Treatment:
+//   - the holding hand is offset well FORWARD of the leg so arm / band / shin are
+//     three visually separate strokes (the band no longer hides behind the leg);
+//   - the band is a heavier DASHED stroke (strokeWidth 2.5, dash 3/2.5, opacity
+//     0.7) so it never reads as a same-hue shadow or a second leg;
+//   - a small LOOP GLYPH (flattened ellipse) sits under the foot so "loop band
+//     under both feet" is unmistakable.
+// Small static "1" / "2" numerals convey the RDL-first-then-leg-raise order that
+// the cues' "Then" implies (review appendix #8).
 
 /**
  * Banded RDL + lying leg raises (multi-move finisher).
@@ -37,13 +48,19 @@ function HingeRaisesArt() {
       {/* ===== movement arrows (static scenery) ===== */}
       {/* LEFT — hinge: the chest/head travels down and forward in an arc (a -> b) */}
       <g opacity={0.6}>
-        <path d="M 72 72 Q 78 80 70 86" strokeWidth={2} strokeDasharray="4 3" />
-        <path d="M 64 83 L 70 86 L 72 79" strokeWidth={2} />
+        <path d="M 78 72 Q 84 80 76 86" strokeWidth={2} strokeDasharray="4 3" />
+        <path d="M 70 83 L 76 86 L 78 79" strokeWidth={2} />
       </g>
       {/* RIGHT — leg raise: the feet sweep up in an arc, low/out -> high/vertical */}
       <g opacity={0.6}>
         <path d="M 178 84 Q 172 68 160 64" strokeWidth={2} strokeDasharray="4 3" />
         <path d="M 158 70 L 160 64 L 166 67" strokeWidth={2} />
+      </g>
+
+      {/* order numerals: 1 = banded RDL, 2 = lying leg raise ("Then ...") */}
+      <g opacity={0.55} stroke="none" fill="currentColor" fontFamily="sans-serif" fontWeight={700} fontSize={11}>
+        <text x={30} y={50}>1</text>
+        <text x={118} y={50}>2</text>
       </g>
 
       {/* =================================================================
@@ -57,16 +74,19 @@ function HingeRaisesArt() {
         <line x1={45} y1={75} x2={45} y2={79} />
         <line x1={45} y1={79} x2={45} y2={92} />
         {/* arm hanging essentially STRAIGHT (relaxed top of the hinge), holding the
-            band. Nudged forward (+x) of the leg so arm, leg and band read as three
-            separate strokes rather than one vertical mass: shoulder(45,79) ->
-            hand(53,97) */}
-        <line x1={45} y1={79} x2={53} y2={97} />
+            band. Offset well FORWARD (+x) of the leg so arm, leg and band read as
+            three clearly separate strokes rather than one vertical mass:
+            shoulder(45,79) -> hand(62,96) */}
+        <line x1={45} y1={79} x2={62} y2={96} />
         {/* legs nearly straight (soft knees): hip(45,92) -> knee(45,101) -> ankle(45,110) -> toe */}
         <line x1={45} y1={92} x2={45} y2={101} />
         <line x1={45} y1={101} x2={45} y2={110} />
         <line x1={45} y1={110} x2={52} y2={110} />
-        {/* loop band: hand(53,97) down under the foot(45,110) — short / less stretched */}
-        <line x1={53} y1={97} x2={45} y2={110} opacity={0.5} strokeWidth={2} />
+        {/* loop band (heavier + dashed so it can't read as a shadow/second leg):
+            hand(62,96) down to the foot anchor(47,108) — short / less stretched */}
+        <line x1={62} y1={96} x2={47} y2={108} opacity={0.7} strokeWidth={2.5} strokeDasharray="3 2.5" />
+        {/* loop glyph under the foot: "band wraps under both feet" */}
+        <ellipse cx={46} cy={110} rx={6} ry={2.4} opacity={0.7} strokeWidth={2} />
         {/* joint dots: shoulder, hip, knee (elbow stays straight in a hinge) */}
         <circle cx={45} cy={79} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={45} cy={92} r={2.5} fill="currentColor" stroke="none" />
@@ -99,14 +119,17 @@ function HingeRaisesArt() {
         <line x1={60} y1={82} x2={65} y2={81} />
         {/* FLAT back (the signature): shoulder(60,82) -> hip(40,90) */}
         <line x1={60} y1={82} x2={40} y2={90} />
-        {/* arms hanging STRAIGHT DOWN from the shoulder (gravity), to the hand */}
-        <line x1={60} y1={82} x2={58} y2={101} />
+        {/* arms hanging STRAIGHT DOWN from the shoulder (gravity), to the hand,
+            kept forward of the band line so arm and band stay separate strokes */}
+        <line x1={60} y1={82} x2={62} y2={101} />
         {/* legs, hips pushed back with soft knees: hip(40,90) -> knee(44,100) -> ankle(48,110) -> toe */}
         <line x1={40} y1={90} x2={44} y2={100} />
         <line x1={44} y1={100} x2={48} y2={110} />
         <line x1={48} y1={110} x2={56} y2={110} />
-        {/* loop band STRETCHED: hand(58,101) down under the foot(48,110) */}
-        <line x1={58} y1={101} x2={48} y2={110} opacity={0.5} strokeWidth={2} />
+        {/* loop band STRETCHED (heavier + dashed): hand(62,101) -> foot anchor(49,108) */}
+        <line x1={62} y1={101} x2={49} y2={108} opacity={0.7} strokeWidth={2.5} strokeDasharray="3 2.5" />
+        {/* loop glyph under the foot */}
+        <ellipse cx={49} cy={110} rx={6} ry={2.4} opacity={0.7} strokeWidth={2} />
         {/* joint dots: shoulder, hip, knee */}
         <circle cx={60} cy={82} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={40} cy={90} r={2.5} fill="currentColor" stroke="none" />

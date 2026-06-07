@@ -99,6 +99,11 @@ export default function Today({ profile }: TodayProps) {
         setProgression(prog);
         setFamiliarity(fam);
 
+        // First-ever session (no prior days logged): open the warm-up by default
+        // so a first-timer doesn't skip it. Returning users keep it collapsed.
+        const hasPriorSession = hist.some((h) => h.session.on_date !== todayISO);
+        if (!hasPriorSession) setWarmupOpen(true);
+
         if (existing) {
           setSession(existing.session);
           setFloorModeState(existing.session.floor_mode);
@@ -334,7 +339,7 @@ function FloorToggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
       type="button"
     >
       <span className="ico">Bad day?</span>
-      <p>Floor: 1 round of the mains.</p>
+      <p>Do just 1 round of the main moves.</p>
       <span className="switch" aria-hidden="true" />
     </button>
   );
@@ -423,6 +428,10 @@ function ExerciseCard({
     return known.join(' · ');
   }, [targets]);
 
+  // No prior logged numbers at this level → this is the user's first time here,
+  // so logging "below target" is meaningless (there is no target to beat yet).
+  const firstTimeAtLevel = targetLine === null;
+
   const guide = guideFor(ex.key, stepIndex);
   const learning = guide !== null && familiarity < 3;
 
@@ -466,7 +475,7 @@ function ExerciseCard({
       <p className="ex-target">
         {targetLine ? (
           <>
-            beat <b>{targetLine}</b>
+            beat <b>{targetLine}</b> {unitLabel}
           </>
         ) : (
           'first time at this level'
@@ -478,12 +487,17 @@ function ExerciseCard({
         {Array.from({ length: setsToShow }, (_, i) => i + 1).map((setNumber) => {
           const log = todayLogs.get(`${ex.key}:${setNumber}`);
           const target = targets[setNumber - 1] ?? null;
-          const defaultVal = target ?? ex.range[0];
+          // Known target → start there; first time at a level → start mid-range
+          // (friendlier than anchoring to the bottom of the range).
+          const midRange = Math.round((ex.range[0] + ex.range[1]) / 2);
+          const defaultVal = target ?? midRange;
           return (
             <SetChip
               key={setNumber}
               setNumber={setNumber}
               unit={unitLabel}
+              showUnitOnValue={ex.unit === 'secs'}
+              firstTimeAtLevel={firstTimeAtLevel}
               loggedValue={log?.value ?? null}
               target={target}
               defaultValue={defaultVal}
@@ -513,6 +527,12 @@ function ExerciseCard({
 interface SetChipProps {
   setNumber: number;
   unit: string;
+  /** Show the unit next to the logged value (used for timed moves so a "34"
+   *  chip can't be mistaken for reps). */
+  showUnitOnValue?: boolean;
+  /** First time at this level: no prior target, so an under-range log is not a
+   *  failure and must read neutral, not celebratory. */
+  firstTimeAtLevel?: boolean;
   loggedValue: number | null;
   target: number | null;
   defaultValue: number;
@@ -522,6 +542,8 @@ interface SetChipProps {
 function SetChip({
   setNumber,
   unit,
+  showUnitOnValue = false,
+  firstTimeAtLevel = false,
   loggedValue,
   target,
   defaultValue,
@@ -568,17 +590,22 @@ function SetChip({
     );
   }
 
+  // First time at a level there is no target to beat, so a log just reads as
+  // "logged" (neutral) — never the celebratory beat/green of a real PR.
   const state =
     loggedValue === null
       ? 'fresh'
-      : target === null
+      : target === null || firstTimeAtLevel
         ? 'logged'
         : beatState(loggedValue, target);
 
   return (
     <button className={`set-chip ${state}`} type="button" onClick={start}>
       {loggedValue !== null ? (
-        <>{loggedValue}</>
+        <>
+          {loggedValue}
+          {showUnitOnValue && <span className="cu">{unit}</span>}
+        </>
       ) : (
         <span className="sn">Set {setNumber}</span>
       )}
@@ -593,7 +620,7 @@ function DoneBanner() {
   return (
     <div className="done-banner">
       Done — see you tomorrow
-      <span className="sub">~30g protein when the window opens</span>
+      <span className="sub">~30g protein with your first meal</span>
     </div>
   );
 }

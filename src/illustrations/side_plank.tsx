@@ -4,8 +4,19 @@ import type { VariationGuide } from './types';
 //
 // Anti-side-bend trunk hold on one forearm. Side-on view, figure faces right
 // (head to the right, feet to the left). The supporting forearm lies flat on the
-// ground and extends FORWARD past the head; the upper arm rises 16px to a shoulder
-// stacked over the elbow; the body extends down-and-left as one near-straight line.
+// ground with the elbow planted UNDER the shoulder and the hand pointing back
+// toward the body (it does NOT extend past the head — head/limb clearance, Theme
+// E #18); the upper arm rises 16px to a shoulder stacked over the elbow; the body
+// extends down-and-left as one near-straight line.
+//
+// These are ISOMETRIC HOLDS: the three static variations (Knees down, Full, Top
+// arm reach) keep the body OFF the floor in BOTH poses (shallow hold -> settled
+// target, a small delta) and carry a HOLD/clock glyph instead of a directional
+// travel arrow — matching the praised forearm-plank hold treatment (curls_plank,
+// §4) and the cross-family hold pattern (hollow_hold / v_tuck_hold / pallof). Only
+// Hip dips (index 3) legitimately travels (hip dips down and drives back up) and
+// keeps its directional arrow.
+//
 // Across the family, pose-b is the braced "hips high, one straight line" position
 // that is the point of the move; the regressions/progressions change the legs
 // (knees down vs feet stacked) and the top arm.
@@ -37,24 +48,29 @@ function KneesDownSidePlankArt() {
       {/* ground */}
       <line x1={15} y1={110} x2={185} y2={110} opacity={0.25} strokeWidth={1.5} />
 
-      {/* movement arrow: the hip lifts up off the floor (a -> b) */}
-      <g opacity={0.6}>
-        <path d="M 104 106 L 104 88" strokeWidth={2} strokeDasharray="4 3" />
-        <path d="M 99 93 L 104 88 L 109 93" strokeWidth={2} />
+      {/* HOLD glyph (static scenery): a small clock marks this as an isometric hold
+          you keep STILL — same glyph as the praised forearm plank in curls_plank.
+          No big directional travel arrow: pose-a -> pose-b is only a small settle. */}
+      <g opacity={0.5}>
+        <circle cx={40} cy={30} r={6} strokeWidth={1.5} />
+        <path d="M 40 30 L 40 26" strokeWidth={1.5} />
+        <path d="M 40 30 L 43 32" strokeWidth={1.5} />
       </g>
 
-      {/* pose A — hips sagging low (start). Supporting forearm flat on the ground
-          extending forward; shoulder stacked over the elbow; the SHORT lever ends
-          at the bent knee on the floor with the shin folded back & up; hip droops. */}
+      {/* pose A — hips already OFF the floor in a shallow hold (start). Supporting
+          forearm flat on the ground, planted UNDER the shoulder, hand pointing back
+          toward the body (NOT past the head); the SHORT lever ends at the bent knee
+          on the floor with the shin folded back & up; hip sits a touch lower. */}
       <g className="pose-a">
-        {/* supporting forearm flat, forward of the head: elbow(124,110) -> wrist(139,110) */}
-        <line x1={124} y1={110} x2={139} y2={110} />
+        {/* supporting forearm flat, hand back toward the body (clear of the head):
+            elbow(124,110) -> wrist(112,110) */}
+        <line x1={124} y1={110} x2={112} y2={110} />
         {/* upper arm rising to a stacked shoulder: elbow(124,110) -> shoulder(126,94) */}
         <line x1={124} y1={110} x2={126} y2={94} />
-        {/* torso to hip — hip SAGS low (close to floor) */}
-        <line x1={126} y1={94} x2={101} y2={107} />
-        {/* THIGH from the low hip to the knee resting ON the floor */}
-        <line x1={101} y1={107} x2={85} y2={110} />
+        {/* torso to hip — hip OFF the floor, only a touch lower than the held target */}
+        <line x1={126} y1={94} x2={101} y2={106} />
+        {/* THIGH from the hip to the knee resting ON the floor */}
+        <line x1={101} y1={106} x2={85} y2={110} />
         {/* SHIN folded back & up behind the knee (foot in the air), len ~18 */}
         <line x1={85} y1={110} x2={71} y2={99} />
         {/* neck + head, stacked over the shoulder, looking right */}
@@ -63,15 +79,17 @@ function KneesDownSidePlankArt() {
         {/* joint dots: shoulder, elbow, hip, knee */}
         <circle cx={126} cy={94} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={124} cy={110} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={101} cy={107} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={101} cy={106} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={85} cy={110} r={2.5} fill="currentColor" stroke="none" />
       </g>
 
-      {/* pose B — hips lifted so shoulder->hip->knee is one straight line; shin
-          still folded back behind the knee on the floor. */}
+      {/* pose B — hips settled UP a touch into the knee-to-shoulder line (the held
+          target); shin still folded back behind the knee on the floor. Small delta
+          from pose-a so the crossfade reads as 'bracing harder', not a rep. */}
       <g className="pose-b">
-        {/* supporting forearm flat, forward of the head: elbow(124,110) -> wrist(139,110) */}
-        <line x1={124} y1={110} x2={139} y2={110} />
+        {/* supporting forearm flat, hand back toward the body (clear of the head):
+            elbow(124,110) -> wrist(112,110) */}
+        <line x1={124} y1={110} x2={112} y2={110} />
         {/* upper arm rising to a stacked shoulder: elbow(124,110) -> shoulder(126,94) */}
         <line x1={124} y1={110} x2={126} y2={94} />
         {/* torso to LIFTED hip, continuing toward the knee in a straight line */}
@@ -113,23 +131,28 @@ function FullSidePlankArt() {
       {/* ground */}
       <line x1={15} y1={110} x2={185} y2={110} opacity={0.25} strokeWidth={1.5} />
 
-      {/* movement arrow: the hip drives UP into the straight line (a -> b) */}
-      <g opacity={0.6}>
-        <path d="M 101 106 L 101 86" strokeWidth={2} strokeDasharray="4 3" />
-        <path d="M 96 91 L 101 86 L 106 91" strokeWidth={2} />
+      {/* HOLD glyph (static scenery): a small clock marks this as an isometric hold
+          you keep STILL — same glyph as the praised forearm plank in curls_plank.
+          No big directional travel arrow: pose-a -> pose-b is only a small settle. */}
+      <g opacity={0.5}>
+        <circle cx={40} cy={30} r={6} strokeWidth={1.5} />
+        <path d="M 40 30 L 40 26" strokeWidth={1.5} />
+        <path d="M 40 30 L 43 32" strokeWidth={1.5} />
       </g>
 
-      {/* pose A — hips low (start). Straight legs, feet stacked on the floor,
-          but the hip sags so the body is bent at the hip. */}
+      {/* pose A — body already OFF the floor in a shallow hold (start). Straight
+          legs, feet stacked on the floor; the hip sits just slightly below the
+          fully-straight line (a looser version of the same held shape). */}
       <g className="pose-a">
-        {/* supporting forearm flat, forward of the head: elbow(124,110) -> wrist(139,110) */}
-        <line x1={124} y1={110} x2={139} y2={110} />
+        {/* supporting forearm flat, hand back toward the body (clear of the head):
+            elbow(124,110) -> wrist(112,110) */}
+        <line x1={124} y1={110} x2={112} y2={110} />
         {/* upper arm rising to a stacked shoulder: elbow(124,110) -> shoulder(126,94) */}
         <line x1={124} y1={110} x2={126} y2={94} />
-        {/* torso to SAGGING hip near the floor */}
-        <line x1={126} y1={94} x2={101} y2={108} />
+        {/* torso to hip — OFF the floor, only a touch lower than the held target */}
+        <line x1={126} y1={94} x2={101} y2={104} />
         {/* straight legs from hip to stacked feet on the ground */}
-        <line x1={101} y1={108} x2={66} y2={108} />
+        <line x1={101} y1={104} x2={66} y2={108} />
         {/* small foot at the stacked-feet end */}
         <line x1={66} y1={108} x2={58} y2={110} />
         {/* neck + head, stacked over the shoulder, looking right */}
@@ -138,13 +161,15 @@ function FullSidePlankArt() {
         {/* joint dots: shoulder, elbow, hip */}
         <circle cx={126} cy={94} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={124} cy={110} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={101} cy={108} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={101} cy={104} r={2.5} fill="currentColor" stroke="none" />
       </g>
 
-      {/* pose B — hips driven up to a straight head-to-feet line. */}
+      {/* pose B — body settled UP a touch into the perfectly straight head-to-feet
+          line (the held target). Small delta from pose-a: a brace, not a rep. */}
       <g className="pose-b">
-        {/* supporting forearm flat, forward of the head: elbow(124,110) -> wrist(139,110) */}
-        <line x1={124} y1={110} x2={139} y2={110} />
+        {/* supporting forearm flat, hand back toward the body (clear of the head):
+            elbow(124,110) -> wrist(112,110) */}
+        <line x1={124} y1={110} x2={112} y2={110} />
         {/* upper arm rising to a stacked shoulder: elbow(124,110) -> shoulder(126,94) */}
         <line x1={124} y1={110} x2={126} y2={94} />
         {/* one straight line: shoulder -> hip -> stacked feet */}
@@ -184,17 +209,22 @@ function TopArmReachSidePlankArt() {
       {/* ground */}
       <line x1={15} y1={110} x2={185} y2={110} opacity={0.25} strokeWidth={1.5} />
 
-      {/* movement arrow: the top hand travels UP toward the ceiling (a -> b) */}
-      <g opacity={0.6}>
-        <path d="M 113 78 L 113 50" strokeWidth={2} strokeDasharray="4 3" />
-        <path d="M 108 55 L 113 50 L 118 55" strokeWidth={2} />
+      {/* HOLD glyph (static scenery): a small clock marks this as an isometric hold
+          you keep STILL — same glyph as the praised forearm plank in curls_plank.
+          The body is held off the floor in BOTH poses; only the top arm reaches
+          (its raised pose is the distinguishing feature), so no body travel arrow. */}
+      <g opacity={0.5}>
+        <circle cx={40} cy={30} r={6} strokeWidth={1.5} />
+        <path d="M 40 30 L 40 26" strokeWidth={1.5} />
+        <path d="M 40 30 L 43 32" strokeWidth={1.5} />
       </g>
 
       {/* shared full side-plank body (hips high) in BOTH poses; only the top arm
           changes. pose-a top arm resting ALONG the body line toward the hip. */}
       <g className="pose-a">
-        {/* supporting forearm flat, forward of the head: elbow(124,110) -> wrist(139,110) */}
-        <line x1={124} y1={110} x2={139} y2={110} />
+        {/* supporting forearm flat, hand back toward the body (clear of the head):
+            elbow(124,110) -> wrist(112,110) */}
+        <line x1={124} y1={110} x2={112} y2={110} />
         {/* upper arm rising to a stacked shoulder: elbow(124,110) -> shoulder(126,94) */}
         <line x1={124} y1={110} x2={126} y2={94} />
         {/* straight body: shoulder -> hip -> stacked feet */}
@@ -216,8 +246,9 @@ function TopArmReachSidePlankArt() {
 
       {/* pose B — same body, TOP arm reaching straight up to the ceiling. */}
       <g className="pose-b">
-        {/* supporting forearm flat, forward of the head: elbow(124,110) -> wrist(139,110) */}
-        <line x1={124} y1={110} x2={139} y2={110} />
+        {/* supporting forearm flat, hand back toward the body (clear of the head):
+            elbow(124,110) -> wrist(112,110) */}
+        <line x1={124} y1={110} x2={112} y2={110} />
         {/* upper arm rising to a stacked shoulder: elbow(124,110) -> shoulder(126,94) */}
         <line x1={124} y1={110} x2={126} y2={94} />
         {/* straight body: shoulder -> hip -> stacked feet */}
@@ -268,8 +299,9 @@ function HipDipsSidePlankArt() {
 
       {/* pose A — hips lifted, straight line (the top of the dip). */}
       <g className="pose-a">
-        {/* supporting forearm flat, forward of the head: elbow(124,110) -> wrist(139,110) */}
-        <line x1={124} y1={110} x2={139} y2={110} />
+        {/* supporting forearm flat, hand back toward the body (clear of the head):
+            elbow(124,110) -> wrist(112,110) */}
+        <line x1={124} y1={110} x2={112} y2={110} />
         {/* upper arm rising to a stacked shoulder: elbow(124,110) -> shoulder(126,94) */}
         <line x1={124} y1={110} x2={126} y2={94} />
         {/* one straight line: shoulder -> hip -> stacked feet */}
@@ -288,8 +320,9 @@ function HipDipsSidePlankArt() {
       {/* pose B — hip DIPPED down to the floor, body bent into a clear V at the
           hip (hip well below the shoulder->feet line). */}
       <g className="pose-b">
-        {/* supporting forearm flat, forward of the head: elbow(124,110) -> wrist(139,110) */}
-        <line x1={124} y1={110} x2={139} y2={110} />
+        {/* supporting forearm flat, hand back toward the body (clear of the head):
+            elbow(124,110) -> wrist(112,110) */}
+        <line x1={124} y1={110} x2={112} y2={110} />
         {/* upper arm rising to a stacked shoulder: elbow(124,110) -> shoulder(126,94) */}
         <line x1={124} y1={110} x2={126} y2={94} />
         {/* torso drops to a LOW hip near the floor */}

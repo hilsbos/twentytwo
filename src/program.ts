@@ -16,7 +16,7 @@ export const WARMUP: string[] = [
   '20 arm circles',
   '15 leg swings / side',
   '10 bodyweight squats',
-  '10 scapular push-ups',
+  '10 shoulder-blade push-ups',
   'wrist + ankle rolls',
 ];
 
@@ -28,7 +28,7 @@ const PUSH: Exercise[] = [
     unit: 'reps',
     range: [8, 15],
     path: ['Hands elevated', 'Standard', 'Decline', 'Assisted archer', 'Archer'],
-    note: 'Hit the top of your range for 3 sets → move to the next variation. 3-second descent.',
+    note: 'Hit the top of your range for 3 sets → move to the next variation. Lower for a 3-count (count three seconds on the way down).',
     main: true,
   },
   {
@@ -58,7 +58,7 @@ const PUSH: Exercise[] = [
     unit: 'secs',
     range: [20, 40],
     path: ['Tuck', 'One leg out', 'Full hollow'],
-    note: 'Core finisher. If your low back lifts off the floor, regress a step.',
+    note: 'Core finisher. Hold the dish shape still — don\'t pulse up and down. If your low back lifts off the floor, regress a step.',
     main: false,
   },
 ];
@@ -101,7 +101,7 @@ const LEGS: Exercise[] = [
     unit: 'reps',
     range: [12, 15],
     path: ['Banded RDL + lying leg raises'],
-    note: 'Loop band under both feet, hinge at the hips, soft knees - hamstrings load, back stays long. Then 15 lying leg raises.',
+    note: 'Loop band under both feet, hinge at the hips (push your hips back like you\'re closing a car door with your butt), soft knees - hamstrings load, back stays long. Then 15 lying leg raises.',
     main: false,
   },
 ];
@@ -197,7 +197,7 @@ export const DAYS: Record<DayType, Day> = {
     type: 'push',
     title: 'Push day',
     focus:
-      'Pressing strength and a fuller chest and shoulders. The band triceps press now replaces dips. Pause 1–2 reps short of failure on every set; lower for a 3-count.',
+      'Pressing strength and a fuller chest and shoulders. The band triceps press now replaces dips. Stop each set when you think you have about 2 clean reps left in the tank — don\'t grind to total exhaustion. Lower for a 3-count (count three seconds on the way down).',
     exercises: PUSH,
   },
   legs: {
@@ -218,7 +218,7 @@ export const DAYS: Record<DayType, Day> = {
     type: 'core',
     title: 'Core day',
     focus:
-      'The day that ties the whole body together. Brace hard, resist the pull, breathe slow. Stop 1-2 reps short, lower for a 3-count, and own every position before you progress.',
+      'The day that ties the whole body together. Brace hard (tighten your stomach like you\'re about to take a punch), resist the pull, breathe slow. Stop each set with about 2 clean reps left in the tank, lower for a 3-count, and own every position before you progress.',
     exercises: CORE,
   },
 };

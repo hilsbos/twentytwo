@@ -15,17 +15,81 @@ import type { VariationGuide } from './types';
 //   3 Split-stance PRESS   — staggered split stance, arms press straight out.
 // Shared tall-kneeling base matches lat_pulldown's convention (hip y=72,
 // shoulder y=46, head y=32, thigh hip->knee(96,92), shin back to ankle on floor).
+//
+// Because the rotation axis points INTO the page, a pure side profile cannot show
+// "don't let it twist you." Every panel therefore carries a small overhead
+// COMPANION INSET (top-left) — a top-down body with a dominant crossed-out TURNING
+// arrow and the band pulling away on a diagonal — drawn by AntiRotationInset(). This
+// is the visual support the three anti-rotation cues previously lacked.
+
+/**
+ * Overhead anti-rotation INSET (shared static scenery, identical in all 4 panels).
+ * The side-profile stance figure cannot show the rotation axis (it points into the
+ * page), so a small top-down companion diagram carries the anti-rotation idea. The
+ * read must survive downscaling to a 390px phone card, so the layout is built around
+ * ONE dominant glyph instead of a cluster of competing marks:
+ *   - a big OPEN curved arrow (a horseshoe with a clear arrowhead at its right end)
+ *     sweeping over the top — this is the dominant shape and reads unmistakably as a
+ *     TURNING / rotation motion (not a closed ring, so it can't collapse into a
+ *     generic "no" circle),
+ *   - a SMALL X struck through the CROWN of that arc — "don't let this rotation
+ *     happen"; it crosses the arrow, never the head, so the curve stays legible,
+ *   - below the arc, the body seen FROM ABOVE (a square shoulder bar with the head
+ *     poking toward the viewer) — shoulders square = the trunk facing forward,
+ *   - one arm reaching out to the band, which runs DOWN-RIGHT to a side anchor. The
+ *     pull deliberately travels on a DIAGONAL (down-right) axis, NOT straight +x, so
+ *     it cannot visually rhyme with the main figure's rightward band/press; it reads
+ *     as a sideways tug the square trunk must resist, not "another forward press."
+ * Lives in the top-left corner, outside both pose groups (never flickers).
+ */
+function AntiRotationInset() {
+  return (
+    <g aria-hidden="true">
+      {/* inset frame */}
+      <rect x={12} y={14} width={74} height={60} rx={4} opacity={0.3} strokeWidth={1.2} />
+
+      {/* DOMINANT twist arc: an open curved arrow over the top with the arrowhead at
+          its right end — reads as a turning/rotation motion at any scale */}
+      <g opacity={0.95}>
+        <path d="M 28 46 A 17 15 0 1 1 62 44" strokeWidth={2.6} />
+        <path d="M 56.5 38.5 L 62.5 44 L 64.5 36.5" strokeWidth={2.6} />
+      </g>
+
+      {/* small X struck through the CROWN of the arc — "don't let it rotate"; it
+          crosses the arrow (not the head below) so the curve stays readable */}
+      <g opacity={0.95}>
+        <path d="M 38 22 L 50 33" strokeWidth={2} />
+        <path d="M 50 22 L 38 33" strokeWidth={2} />
+      </g>
+
+      {/* body FROM ABOVE: square shoulder bar (trunk facing forward) + head toward
+          the viewer below it */}
+      <line x1={33} y1={52} x2={57} y2={52} strokeWidth={3.6} />
+      <line x1={45} y1={52} x2={45} y2={58} strokeWidth={2.4} />
+      <circle cx={45} cy={62} r={4.2} />
+
+      {/* one arm reaches to the band; the band pulls DOWN-RIGHT to a side anchor —
+          a diagonal axis distinct from the main figure's straight-right press */}
+      <line x1={57} y1={52} x2={63} y2={59} strokeWidth={2.6} />
+      <line x1={63} y1={59} x2={72} y2={67} opacity={0.55} strokeWidth={2} strokeDasharray="3 2" />
+      <circle cx={74} cy={69} r={1.8} strokeWidth={1.2} />
+    </g>
+  );
+}
 
 /**
  * Tall-kneeling hold — index 0.
  * Distinguishing feature: TALL-KNEELING base (both shins on the floor) with a
  * horizontal band from a chest-height door anchor (right) to both hands held
- * AT THE CHEST. The trunk stays SQUARE and braced in both poses — it does NOT
- * lean toward the anchor (that lean is the fault the drill prevents). The only
- * change a->b is the band drawing taut as the hands settle a hair toward the
- * anchor; the dashed arrow is the band TENSION the braced trunk resists, pointing
- * toward the anchor (the same direction the band pulls). Net body travel is ~zero
- * and square, so the arrow no longer contradicts a torso swing.
+ * AT THE CHEST. This is an ISOMETRIC HOLD, so it follows the shared hold pattern:
+ *   - pose-a = getting into the braced position (hands a hair closer to the chest,
+ *     band a touch slacker),
+ *   - pose-b = the held target (hands settled a hair forward, band taut),
+ *   - the delta a->b is tiny (a gentle settle/brace), never a traveling rep.
+ * A "hold" CLOCK glyph (matching the praised forearm-plank marker) replaces the old
+ * directional arrow; the anti-rotation action is carried entirely by the overhead
+ * inset, so no body-action arrow is needed. The trunk stays SQUARE in both poses —
+ * it does NOT lean toward the anchor (that lean is the fault the drill prevents).
  */
 function TallKneelingHoldArt() {
   return (
@@ -48,17 +112,19 @@ function TallKneelingHoldArt() {
         <circle cx={166} cy={66} r={2} strokeWidth={2} />
       </g>
 
-      {/* tension cue: the band PULLS toward the anchor (the twist the SQUARE,
-          braced trunk resists). This is band tension, not body travel — net body
-          travel a->b is ~zero and square, so it cannot contradict a torso swing.
-          Sits above the band line, pointing toward the anchor (+x). */}
+      {/* overhead anti-rotation inset (shared) */}
+      <AntiRotationInset />
+
+      {/* HOLD signal: a clock glyph (not a travel arrow) marks the static hold,
+          sitting in open space between the trunk and the band. */}
       <g opacity={0.6}>
-        <path d="M 130 52 L 150 52" strokeWidth={2} strokeDasharray="4 3" />
-        <path d="M 144 47 L 150 52 L 144 57" strokeWidth={2} />
+        <circle cx={124} cy={48} r={6} strokeWidth={1.5} />
+        <path d="M 124 48 L 124 44" strokeWidth={1.5} />
+        <path d="M 124 48 L 127 50" strokeWidth={1.5} />
       </g>
 
-      {/* pose A — SQUARE and braced, band a hair slack (hands settled back toward
-          the chest). The trunk is fully vertical; no lean toward the anchor. */}
+      {/* pose A — SQUARE and braced, getting into the hold (hands a hair closer to
+          the chest, band a touch slacker). The trunk is fully vertical; no lean. */}
       <g className="pose-a">
         {/* torso upright: hip(96,72) -> shoulder(96,46); neck + head */}
         <line x1={96} y1={46} x2={96} y2={72} />
@@ -81,8 +147,8 @@ function TallKneelingHoldArt() {
         <circle cx={96} cy={92} r={2.5} fill="currentColor" stroke="none" />
       </g>
 
-      {/* pose B — still SQUARE and upright; band drawn taut as the hands hold the
-          line a touch nearer the anchor (the only a->b change). No lean. */}
+      {/* pose B — HELD TARGET, still SQUARE and upright; hands settled a hair
+          forward so the band draws taut (the only, tiny a->b change). No lean. */}
       <g className="pose-b">
         {/* torso upright (same base as pose-a): hip(96,72) -> shoulder(96,46) */}
         <line x1={96} y1={46} x2={96} y2={72} />
@@ -93,11 +159,11 @@ function TallKneelingHoldArt() {
         <line x1={96} y1={92} x2={80} y2={108} />
         <line x1={80} y1={108} x2={92} y2={108} />
         {/* arms hold the band at the chest, hands a hair forward (band taut):
-            shoulder(96,46) -> elbow(104,59) -> hand(114,66) */}
+            shoulder(96,46) -> elbow(104,59) -> hand(116,66) */}
         <line x1={96} y1={46} x2={104} y2={59} />
-        <line x1={104} y1={59} x2={114} y2={66} />
+        <line x1={104} y1={59} x2={116} y2={66} />
         {/* band taut to the anchor */}
-        <line x1={114} y1={66} x2={166} y2={66} opacity={0.5} strokeWidth={2} />
+        <line x1={116} y1={66} x2={166} y2={66} opacity={0.5} strokeWidth={2} />
         {/* joint dots */}
         <circle cx={96} cy={46} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={96} cy={72} r={2.5} fill="currentColor" stroke="none" />
@@ -135,6 +201,9 @@ function TallKneelingPressArt() {
         <line x1={178} y1={66} x2={168} y2={66} />
         <circle cx={166} cy={66} r={2} strokeWidth={2} />
       </g>
+
+      {/* overhead anti-rotation inset (shared) */}
+      <AntiRotationInset />
 
       {/* movement arrow: hands press straight FORWARD (a -> b) */}
       <g opacity={0.6}>
@@ -216,6 +285,9 @@ function StandingPressArt() {
         <line x1={178} y1={58} x2={168} y2={58} />
         <circle cx={166} cy={58} r={2} strokeWidth={2} />
       </g>
+
+      {/* overhead anti-rotation inset (shared) */}
+      <AntiRotationInset />
 
       {/* movement arrow: hands press straight FORWARD (a -> b) */}
       <g opacity={0.6}>
@@ -299,6 +371,9 @@ function SplitStancePressArt() {
         <line x1={178} y1={58} x2={168} y2={58} />
         <circle cx={166} cy={58} r={2} strokeWidth={2} />
       </g>
+
+      {/* overhead anti-rotation inset (shared) */}
+      <AntiRotationInset />
 
       {/* movement arrow: hands press straight FORWARD (a -> b) */}
       <g opacity={0.6}>

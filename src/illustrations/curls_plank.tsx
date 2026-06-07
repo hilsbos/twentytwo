@@ -4,10 +4,14 @@ import type { VariationGuide } from './types';
 //
 // One panel, two mini-figures (~50% scale per §9), each a 2-pose animated figure
 // inside the SAME pose-a / pose-b groups:
-//   LEFT  — Towel/band curls (side profile, faces +x). A band runs from under the
-//           foot up to the hand; the upper arm stays pinned at the side while the
-//           forearm sweeps. pose-a = forearm hanging low (extended), pose-b =
-//           forearm curled up to the shoulder. The curling forearm is the signature.
+//   LEFT  — Band curls (side profile, faces +x). A DASHED resistance band runs from
+//           a loop under the foot up to the curling hand; the band is offset forward
+//           of the body so band / forearm / shin stay three distinct strokes (the
+//           band reads as the implement, not a shadow). The upper arm stays pinned at
+//           the side while the forearm sweeps through a wide arc. pose-a = forearm
+//           reaching low/forward (band long, extended), pose-b = forearm curled all
+//           the way up to the shoulder (band short). The curling forearm + dashed
+//           band + foot loop are the signature.
 //   RIGHT — Front plank (side profile, faces +x). Body RIGID and near-HORIZONTAL:
 //           shoulder, hip and knee held within ~1-2px of one height just above the
 //           ground (slight natural sag), heels tucked down to the floor at the far
@@ -39,33 +43,36 @@ function CurlsPlankArt() {
       </g>
 
       {/* ===== movement arrows (static scenery) ===== */}
-      {/* LEFT — curl: the hand sweeps up in an arc toward the shoulder */}
+      {/* LEFT — curl: the hand sweeps up in a wide arc toward the shoulder */}
       <g opacity={0.6}>
-        <path d="M 61 94 Q 68 84 59 78" strokeWidth={2} strokeDasharray="4 3" />
-        <path d="M 54 80 L 59 78 L 61 83" strokeWidth={2} />
+        <path d="M 66 97 Q 73 84 58 75" strokeWidth={2} strokeDasharray="4 3" />
+        <path d="M 53 77 L 58 75 L 60 80" strokeWidth={2} />
       </g>
 
       {/* =================================================================
           POSE A — curl forearm DOWN (extended); plank held rigid
           ================================================================= */}
       <g className="pose-a">
-        {/* ---- LEFT: towel/band curl (~50% scale), forearm hanging LOW ---- */}
+        {/* ---- LEFT: band curl (~50% scale), forearm reaching LOW/FORWARD ---- */}
         {/* head + torso (standing, side profile): shoulder(45,79) -> hip(45,92) */}
         <circle cx={45} cy={71} r={4} />
         <line x1={45} y1={75} x2={45} y2={92} />
-        {/* upper arm pinned at the side: shoulder(45,79) -> elbow(47,88) */}
-        <line x1={45} y1={79} x2={47} y2={88} />
-        {/* forearm hanging down/forward: elbow(47,88) -> hand(55,98) */}
-        <line x1={47} y1={88} x2={55} y2={98} />
+        {/* upper arm pinned at the side: shoulder(45,79) -> elbow(46,87) */}
+        <line x1={45} y1={79} x2={46} y2={87} />
+        {/* forearm reaching down/forward (band long): elbow(46,87) -> hand(62,100) */}
+        <line x1={46} y1={87} x2={62} y2={100} />
         {/* legs (standing): hip -> knee -> ankle -> toe */}
         <line x1={45} y1={92} x2={45} y2={101} />
         <line x1={45} y1={101} x2={45} y2={110} />
-        <line x1={45} y1={110} x2={52} y2={110} />
-        {/* band from the hand down to under the foot (anchored, stretched) */}
-        <line x1={55} y1={98} x2={50} y2={110} opacity={0.5} />
+        <line x1={45} y1={110} x2={53} y2={110} />
+        {/* band: DASHED + heavier, hand(62,100) down to the foot loop (offset
+            forward of the body so it stays a separate stroke from arm + shin) */}
+        <line x1={62} y1={100} x2={53} y2={109} opacity={0.55} strokeWidth={2.5} strokeDasharray="3 2.5" />
+        {/* loop glyph at the foot anchor (the band runs under the foot) */}
+        <ellipse cx={53} cy={110} rx={4} ry={2} opacity={0.55} strokeWidth={1.5} />
         {/* joint dots: shoulder, elbow, hip */}
         <circle cx={45} cy={79} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={47} cy={88} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={46} cy={87} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={45} cy={92} r={2.5} fill="currentColor" stroke="none" />
 
         {/* ---- RIGHT: front plank on the FOREARM (~50% scale) ----
@@ -96,22 +103,25 @@ function CurlsPlankArt() {
           POSE B — curl forearm UP (curled to shoulder); plank still rigid
           ================================================================= */}
       <g className="pose-b">
-        {/* ---- LEFT: towel/band curl (~50% scale), forearm CURLED UP ---- */}
+        {/* ---- LEFT: band curl (~50% scale), forearm CURLED UP to shoulder ---- */}
         <circle cx={45} cy={71} r={4} />
         <line x1={45} y1={75} x2={45} y2={92} />
-        {/* upper arm still pinned: shoulder(45,79) -> elbow(47,88) */}
-        <line x1={45} y1={79} x2={47} y2={88} />
-        {/* forearm curled up toward the shoulder: elbow(47,88) -> hand(51,79) */}
-        <line x1={47} y1={88} x2={51} y2={79} />
+        {/* upper arm still pinned: shoulder(45,79) -> elbow(46,87) */}
+        <line x1={45} y1={79} x2={46} y2={87} />
+        {/* forearm curled up to the shoulder: elbow(46,87) -> hand(52,76) */}
+        <line x1={46} y1={87} x2={52} y2={76} />
         {/* legs (standing) */}
         <line x1={45} y1={92} x2={45} y2={101} />
         <line x1={45} y1={101} x2={45} y2={110} />
-        <line x1={45} y1={110} x2={52} y2={110} />
-        {/* band from the hand down to under the foot (still anchored) */}
-        <line x1={51} y1={79} x2={50} y2={110} opacity={0.5} />
+        <line x1={45} y1={110} x2={53} y2={110} />
+        {/* band: DASHED + heavier, hand(52,76) down to the foot loop (offset
+            forward so it stays clear of the body line in this pose too) */}
+        <line x1={52} y1={76} x2={53} y2={109} opacity={0.55} strokeWidth={2.5} strokeDasharray="3 2.5" />
+        {/* loop glyph at the foot anchor */}
+        <ellipse cx={53} cy={110} rx={4} ry={2} opacity={0.55} strokeWidth={1.5} />
         {/* joint dots: shoulder, elbow, hip */}
         <circle cx={45} cy={79} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={47} cy={88} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={46} cy={87} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={45} cy={92} r={2.5} fill="currentColor" stroke="none" />
 
         {/* ---- RIGHT: front plank (held — same rigid, level shape) ---- */}

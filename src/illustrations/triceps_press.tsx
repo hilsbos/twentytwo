@@ -249,11 +249,13 @@ function DiamondPushupArt() {
         {/* arm: shoulder(140,70) -> elbow(132,90) tucked -> hand(124,110) */}
         <line x1={140} y1={70} x2={132} y2={90} />
         <line x1={132} y1={90} x2={124} y2={110} />
-        {/* body plank: shoulder -> hip -> knee -> ankle -> toe */}
+        {/* body plank: shoulder -> hip -> knee -> ankle, then a FOOT TICK (toes
+            tucked, ~9px down to the floor) so the leg reads as a leg with a foot,
+            not a sphinx-taper (Theme E foot-tick pattern). */}
         <line x1={140} y1={70} x2={95} y2={82} />
         <line x1={95} y1={82} x2={70} y2={88} />
-        <line x1={70} y1={88} x2={48} y2={91} />
-        <line x1={48} y1={91} x2={40} y2={98} />
+        <line x1={70} y1={88} x2={50} y2={90} />
+        <line x1={50} y1={90} x2={47} y2={99} />
         {/* neck + head */}
         <line x1={140} y1={70} x2={150} y2={74} />
         <circle cx={155} cy={78} r={7} />
@@ -270,11 +272,11 @@ function DiamondPushupArt() {
         {/* arm: shoulder(132,96) -> elbow(116,100) back -> hand(124,110) */}
         <line x1={132} y1={96} x2={114} y2={100} />
         <line x1={114} y1={100} x2={124} y2={110} />
-        {/* body plank lowered */}
+        {/* body plank lowered; same FOOT TICK (toes tucked to the floor) as pose-a */}
         <line x1={132} y1={96} x2={95} y2={98} />
         <line x1={95} y1={98} x2={70} y2={100} />
-        <line x1={70} y1={100} x2={48} y2={101} />
-        <line x1={48} y1={101} x2={40} y2={106} />
+        <line x1={70} y1={100} x2={50} y2={101} />
+        <line x1={50} y1={101} x2={47} y2={109} />
         {/* neck + head */}
         <line x1={132} y1={96} x2={143} y2={97} />
         <circle cx={149} cy={97} r={7} />

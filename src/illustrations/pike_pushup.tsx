@@ -38,15 +38,18 @@ function PikeFeetFloorArt() {
           arm 31, thigh+shin 18 each. Hip is the apex; back+arm sweeps down-right
           to the hands on the floor, legs sweep down-left to the feet. */}
 
-      {/* pose A — top: arms straight, head up, tall pike */}
+      {/* pose A — top: arms straight, head hanging DOWN between the arms.
+          The head drops into the open interior of the pike (clear of the
+          straight-arm line by ~8px) so it reads as the head pointing toward the
+          floor between the hands, not as a bead threaded on the arm (§2.7). */}
       <g className="pose-a">
         {/* torso: hip(106,66) -> shoulder(124,84) */}
         <line x1={106} y1={66} x2={124} y2={84} />
-        {/* straight arm: shoulder(124,84) -> hand on floor(148,106) */}
-        <line x1={124} y1={84} x2={148} y2={106} />
-        {/* neck + head, looking down between arms */}
-        <line x1={124} y1={84} x2={129} y2={86} />
-        <circle cx={134} cy={89} r={7} />
+        {/* straight arm: shoulder(124,84) -> hand on floor(150,104) */}
+        <line x1={124} y1={84} x2={150} y2={104} />
+        {/* neck dropping the head DOWN into the interior, clear of the arm line */}
+        <line x1={124} y1={84} x2={127} y2={92} />
+        <circle cx={129} cy={98} r={7} />
         {/* legs: hip(106,66) -> knee(98,82) -> ankle(91,99) -> toe(82,99) */}
         <line x1={106} y1={66} x2={98} y2={82} />
         <line x1={98} y1={82} x2={91} y2={99} />
@@ -57,7 +60,9 @@ function PikeFeetFloorArt() {
         <circle cx={98} cy={82} r={2.5} fill="currentColor" stroke="none" />
       </g>
 
-      {/* pose B — bottom: elbows bent, head lowered toward floor */}
+      {/* pose B — bottom: elbows bent, head lowered toward floor. Head hangs
+          DOWN into the interior, clear of the bent-elbow dot by ~9px so head and
+          arm don't fuse into one blob (§2.7). */}
       <g className="pose-b">
         {/* torso: hip(106,66) -> shoulder(126,82) */}
         <line x1={106} y1={66} x2={126} y2={82} />
@@ -65,9 +70,9 @@ function PikeFeetFloorArt() {
         <line x1={126} y1={82} x2={138} y2={92} />
         {/* forearm(15): elbow(138,92) -> hand on floor(146,106) */}
         <line x1={138} y1={92} x2={146} y2={106} />
-        {/* neck + head, lowered toward floor */}
-        <line x1={126} y1={82} x2={131} y2={88} />
-        <circle cx={134} cy={95} r={7} />
+        {/* neck dropping the head DOWN into the interior, clear of the elbow */}
+        <line x1={126} y1={82} x2={128} y2={90} />
+        <circle cx={130} cy={99} r={7} />
         {/* legs unchanged from pose A */}
         <line x1={106} y1={66} x2={98} y2={82} />
         <line x1={98} y1={82} x2={91} y2={99} />
@@ -250,11 +255,11 @@ function PikeDeepHeadToFloorArt() {
 /**
  * Wall handstand HOLD.
  * Side profile, figure fully INVERTED and vertical, hands on the floor, heels
- * resting against a wall behind. This is an isometric hold, so the two poses are
- * a small balance sway (body shifts slightly toward/away from the wall) — arms
- * stay straight throughout.
- * Distinguishing feature: a complete upside-down, near-vertical body stacked over
- * the hands, heels on the wall.
+ * resting against a wall behind. This is an ISOMETRIC HOLD, so the two poses are
+ * near-identical: a held stacked inverted shape that only settles a touch tighter
+ * (shallow -> settled), arms straight throughout. A clock glyph (not a travel
+ * arrow) signals "hold still", matching the praised forearm-plank treatment
+ * (Theme B / appendix #2).
  */
 function WallHandstandHoldArt() {
   return (
@@ -272,51 +277,56 @@ function WallHandstandHoldArt() {
       {/* wall on the right */}
       <line x1={170} y1={20} x2={170} y2={110} opacity={0.5} />
 
-      {/* movement arrow: gentle balance sway toward the wall (a -> b) */}
-      <g opacity={0.6}>
-        <path d="M 126 28 L 142 28" strokeWidth={2} strokeDasharray="4 3" />
-        <path d="M 136 23 L 142 28 L 136 33" strokeWidth={2} />
+      {/* "hold" clock glyph (static scenery) — signals an isometric hold, NOT
+          directional travel (matches the praised forearm-plank glyph). */}
+      <g opacity={0.5}>
+        <circle cx={40} cy={30} r={6} strokeWidth={1.5} />
+        <path d="M 40 30 L 40 26" strokeWidth={1.5} />
+        <path d="M 40 30 L 43 32" strokeWidth={1.5} />
       </g>
 
-      {/* pose A — tall locked handstand, body vertical, slight lean off the wall.
-          Shoulders stacked high; head held neutral well clear of the floor. */}
+      {/* pose A — stacked inverted hold, body near-vertical over the hands,
+          heels just shy of the wall. The head hangs DOWN to the left, clear of
+          the straight pressing arm. */}
       <g className="pose-a">
-        {/* arm straight: hand on floor(144,108) up to shoulder(143,76) */}
-        <line x1={144} y1={108} x2={143} y2={76} />
-        {/* torso up: shoulder(143,76) -> hip(141,50) */}
-        <line x1={143} y1={76} x2={141} y2={50} />
-        {/* leg up, slight lean off the wall: hip(141,50) -> knee(143,32) -> ankle(147,20) */}
-        <line x1={141} y1={50} x2={143} y2={32} />
-        <line x1={143} y1={32} x2={147} y2={20} />
-        {/* foot, just shy of the wall */}
-        <line x1={147} y1={20} x2={157} y2={20} />
-        {/* neck + head below shoulders (inverted), held high above the floor */}
-        <line x1={143} y1={76} x2={148} y2={81} />
-        <circle cx={152} cy={85} r={7} />
+        {/* arm straight: hand on floor(148,108) up to shoulder(148,76) */}
+        <line x1={148} y1={108} x2={148} y2={76} />
+        {/* torso up, near-vertical: shoulder(148,76) -> hip(149,50) */}
+        <line x1={148} y1={76} x2={149} y2={50} />
+        {/* legs near-vertical, heel just shy of the wall: hip(149,50) -> knee(150,32) -> heel(152,20) */}
+        <line x1={149} y1={50} x2={150} y2={32} />
+        <line x1={150} y1={32} x2={152} y2={20} />
+        {/* foot tick: heels reaching to rest on the wall */}
+        <line x1={152} y1={20} x2={168} y2={20} />
+        {/* neck + head below shoulders (inverted), hanging to the LEFT clear of the arm */}
+        <line x1={148} y1={76} x2={143} y2={81} />
+        <circle cx={140} cy={86} r={7} />
         {/* joint dots: shoulder, hip, knee */}
-        <circle cx={143} cy={76} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={141} cy={50} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={143} cy={32} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={148} cy={76} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={149} cy={50} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={150} cy={32} r={2.5} fill="currentColor" stroke="none" />
       </g>
 
-      {/* pose B — same tall hold, swayed toward the wall (heels on wall) */}
+      {/* pose B — same hold, settled a touch tighter: fully stacked vertical,
+          heels nestled to the wall. Delta from pose-a is only 1-2px so the
+          crossfade reads as "holding still / bracing", not travel. */}
       <g className="pose-b">
-        {/* arm straight: hand(144,108) up to shoulder(147,76) */}
-        <line x1={144} y1={108} x2={147} y2={76} />
-        {/* torso: shoulder(147,76) -> hip(151,50) */}
-        <line x1={147} y1={76} x2={151} y2={50} />
-        {/* leg leaning to wall: hip(151,50) -> knee(157,34) -> heel(166,22) on wall */}
-        <line x1={151} y1={50} x2={157} y2={34} />
-        <line x1={157} y1={34} x2={166} y2={22} />
-        {/* toes up the wall */}
-        <line x1={166} y1={22} x2={168} y2={32} />
-        {/* neck + head, held high above the floor */}
-        <line x1={147} y1={76} x2={152} y2={81} />
-        <circle cx={156} cy={85} r={7} />
-        {/* joint dots */}
-        <circle cx={147} cy={76} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={151} cy={50} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={157} cy={34} r={2.5} fill="currentColor" stroke="none" />
+        {/* arm straight: hand(148,108) up to shoulder(149,76) */}
+        <line x1={148} y1={108} x2={149} y2={76} />
+        {/* torso fully vertical: shoulder(149,76) -> hip(150,50) */}
+        <line x1={149} y1={76} x2={150} y2={50} />
+        {/* legs vertical, heel touching the wall: hip(150,50) -> knee(151,32) -> heel(154,20) */}
+        <line x1={150} y1={50} x2={151} y2={32} />
+        <line x1={151} y1={32} x2={154} y2={20} />
+        {/* foot tick: heels resting on the wall */}
+        <line x1={154} y1={20} x2={169} y2={20} />
+        {/* neck + head, hanging to the LEFT clear of the arm */}
+        <line x1={149} y1={76} x2={144} y2={81} />
+        <circle cx={141} cy={86} r={7} />
+        {/* joint dots: shoulder, hip, knee */}
+        <circle cx={149} cy={76} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={150} cy={50} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={151} cy={32} r={2.5} fill="currentColor" stroke="none" />
       </g>
     </svg>
   );

@@ -16,10 +16,13 @@ import type { VariationGuide } from './types';
 /**
  * Tall-kneeling pulldown.
  * Side profile, facing right toward a DOOR with a band anchored over its TOP
- * (high, overhead-right). The figure is TALL-KNEELING (both knees down, hips
- * stacked over the knees, torso upright). Distinguishing feature: tall-kneeling
+ * (high, overhead-right). The figure is TALL-KNEELING: BOTH knees on the floor,
+ * thighs vertical, SHINS LAID FLAT along the ground (a clear right angle at the
+ * knee), hips LOW so the figure reads distinctly SHORTER than the standing
+ * variations (CONVENTIONS §10). Distinguishing feature: that flat-shin kneeling
  * base under a high door-top anchor, both arms reaching UP to the band then
- * pulling it DOWN to the chest, elbows driving down and back.
+ * pulling it DOWN to the chest, elbows driving down and back. Only the arms +
+ * band move a -> b; the kneeling base is identical in both poses.
  * pose-a = both arms reaching up to the high anchor (band long).
  * pose-b = band pulled down to the chest, elbows low and back (band short).
  */
@@ -37,65 +40,74 @@ function TallKneelingPulldownArt() {
       {/* ground */}
       <line x1={15} y1={110} x2={185} y2={110} opacity={0.25} strokeWidth={1.5} />
 
-      {/* DOOR on the right with the band anchored over its TOP (high/overhead) */}
+      {/* DOOR on the right with the band anchored over its TOP (high/overhead).
+          BAND-ANCHOR PATTERN: doorframe line + over-door bracket clamp (an
+          L-hook reaching over the top edge) + a small door-handle tick, so the
+          high anchor reads as "band clamped over a door", not an abstract
+          corner. Thin opacity-0.5 static scenery. Glyph matches band_pull_apart. */}
       <g opacity={0.5}>
         <line x1={178} y1={18} x2={178} y2={110} />
-        {/* anchor bracket over the top of the door */}
-        <line x1={178} y1={20} x2={168} y2={20} />
+        {/* over-door bracket: reaches over the top edge and hooks down */}
+        <path d="M 178 20 L 170 20 L 170 25" strokeWidth={2} />
         <circle cx={166} cy={20} r={2} strokeWidth={2} />
+        {/* door handle */}
+        <line x1={183} y1={60} x2={183} y2={68} strokeWidth={2} />
       </g>
 
       {/* movement arrow: hands travel DOWN to the chest (a -> b) */}
       <g opacity={0.6}>
-        <path d="M 134 36 L 134 64" strokeWidth={2} strokeDasharray="4 3" />
-        <path d="M 128 58 L 134 64 L 140 58" strokeWidth={2} />
+        <path d="M 134 52 L 134 76" strokeWidth={2} strokeDasharray="4 3" />
+        <path d="M 128 70 L 134 76 L 140 70" strokeWidth={2} />
       </g>
 
       {/* pose A — tall-kneeling, both arms reaching UP to the high anchor */}
       <g className="pose-a">
-        {/* torso upright: hip(96,72) -> shoulder(96,46); neck + head */}
-        <line x1={96} y1={46} x2={96} y2={72} />
-        <line x1={96} y1={39} x2={96} y2={46} />
-        <circle cx={96} cy={32} r={7} />
-        {/* TALL-KNEELING: thigh vertical hip(96,72)->knee(96,92), shin back to
-            ankle on floor, toes tucked */}
-        <line x1={96} y1={72} x2={96} y2={92} />
-        <line x1={96} y1={92} x2={80} y2={108} />
-        <line x1={80} y1={108} x2={92} y2={108} />
+        {/* torso upright, hips LOW: hip(92,88) -> shoulder(92,62); neck + head */}
+        <line x1={92} y1={62} x2={92} y2={88} />
+        <line x1={92} y1={55} x2={92} y2={62} />
+        <circle cx={92} cy={48} r={7} />
+        {/* TALL-KNEELING: thigh VERTICAL hip(92,88)->knee(92,106) on the floor,
+            then SHIN LAID FLAT back along the ground knee(92,106)->ankle(74,106)
+            with a foot tick to(66,106) — a clear right angle at the knee, both
+            shins on the floor, figure reads SHORTER than standing */}
+        <line x1={92} y1={88} x2={92} y2={106} />
+        <line x1={92} y1={106} x2={74} y2={106} />
+        <line x1={74} y1={106} x2={66} y2={106} />
         {/* both arms reaching UP toward the high anchor:
-            shoulder(96,46) -> elbow(112,38) -> hand(128,30) */}
-        <line x1={96} y1={46} x2={112} y2={38} />
-        <line x1={112} y1={38} x2={128} y2={30} />
-        {/* band: hands(128,30) -> anchor(166,20) */}
-        <line x1={128} y1={30} x2={166} y2={20} opacity={0.5} strokeWidth={2} />
-        {/* joint dots: shoulder, hip, elbow, knee */}
-        <circle cx={96} cy={46} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={96} cy={72} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={112} cy={38} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={96} cy={92} r={2.5} fill="currentColor" stroke="none" />
+            shoulder(92,62) -> elbow(108,54) -> hand(124,46) */}
+        <line x1={92} y1={62} x2={108} y2={54} />
+        <line x1={108} y1={54} x2={124} y2={46} />
+        {/* band (faded + dashed so it can't read as a limb):
+            hands(124,46) -> anchor(166,20) */}
+        <line x1={124} y1={46} x2={166} y2={20} opacity={0.45} strokeWidth={2} strokeDasharray="5 3" />
+        {/* joint dots: shoulder, hip, elbow, knee-on-floor */}
+        <circle cx={92} cy={62} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={92} cy={88} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={108} cy={54} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={92} cy={106} r={2.5} fill="currentColor" stroke="none" />
       </g>
 
       {/* pose B — band pulled DOWN to the chest, elbows low & back */}
       <g className="pose-b">
-        {/* torso upright (same base): hip(96,72) -> shoulder(96,46); neck + head */}
-        <line x1={96} y1={46} x2={96} y2={72} />
-        <line x1={96} y1={39} x2={96} y2={46} />
-        <circle cx={96} cy={32} r={7} />
-        {/* TALL-KNEELING base unchanged */}
-        <line x1={96} y1={72} x2={96} y2={92} />
-        <line x1={96} y1={92} x2={80} y2={108} />
-        <line x1={80} y1={108} x2={92} y2={108} />
+        {/* torso upright (same low base): hip(92,88) -> shoulder(92,62); head */}
+        <line x1={92} y1={62} x2={92} y2={88} />
+        <line x1={92} y1={55} x2={92} y2={62} />
+        <circle cx={92} cy={48} r={7} />
+        {/* TALL-KNEELING base unchanged (flat shins on the floor) */}
+        <line x1={92} y1={88} x2={92} y2={106} />
+        <line x1={92} y1={106} x2={74} y2={106} />
+        <line x1={74} y1={106} x2={66} y2={106} />
         {/* arms pulled DOWN (upper 16, forearm 15): elbow driven low & back,
-            hands at the chest: shoulder(96,46) -> elbow(86,58) -> hand(100,54) */}
-        <line x1={96} y1={46} x2={86} y2={58} />
-        <line x1={86} y1={58} x2={100} y2={54} />
-        {/* band stretched: hands(100,54) -> anchor(166,20) */}
-        <line x1={100} y1={54} x2={166} y2={20} opacity={0.5} strokeWidth={2} />
-        {/* joint dots: shoulder, hip, elbow, knee */}
-        <circle cx={96} cy={46} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={96} cy={72} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={86} cy={58} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={96} cy={92} r={2.5} fill="currentColor" stroke="none" />
+            hands at the chest: shoulder(92,62) -> elbow(82,74) -> hand(98,70) */}
+        <line x1={92} y1={62} x2={82} y2={74} />
+        <line x1={82} y1={74} x2={98} y2={70} />
+        {/* band stretched (faded + dashed): hands(98,70) -> anchor(166,20) */}
+        <line x1={98} y1={70} x2={166} y2={20} opacity={0.45} strokeWidth={2} strokeDasharray="5 3" />
+        {/* joint dots: shoulder, hip, elbow, knee-on-floor */}
+        <circle cx={92} cy={62} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={92} cy={88} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={82} cy={74} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={92} cy={106} r={2.5} fill="currentColor" stroke="none" />
       </g>
     </svg>
   );
@@ -108,7 +120,11 @@ function TallKneelingPulldownArt() {
  * throughout, sweeping the band in a long arc from high overhead down to the
  * hips (the elbow never bends).
  * pose-a = straight arms reaching high up to the anchor (band overhead).
- * pose-b = straight arms swept down to the hips (band pulled low).
+ * pose-b = straight arms swept down-FORWARD to the thighs (band pulled low).
+ *   The pose-b hand ends LOW AND FORWARD so the arm is one long straight
+ *   segment; the band leaves the hand at a steep up-angle (and is faded/dashed)
+ *   so it can NOT fold into a "bent-elbow" V with the arm (supports cue 3
+ *   "Keep the elbows straight").
  */
 function StraightArmPulldownArt() {
   return (
@@ -124,18 +140,21 @@ function StraightArmPulldownArt() {
       {/* ground */}
       <line x1={15} y1={110} x2={185} y2={110} opacity={0.25} strokeWidth={1.5} />
 
-      {/* DOOR on the right with the band anchored over its TOP (high/overhead) */}
+      {/* DOOR on the right with the band anchored over its TOP (high/overhead).
+          BAND-ANCHOR PATTERN (same glyph as the other variations + band_pull_apart):
+          doorframe line + over-door bracket clamp + door-handle tick. */}
       <g opacity={0.5}>
         <line x1={178} y1={18} x2={178} y2={110} />
-        {/* anchor bracket over the top of the door */}
-        <line x1={178} y1={20} x2={168} y2={20} />
+        <path d="M 178 20 L 170 20 L 170 25" strokeWidth={2} />
         <circle cx={166} cy={20} r={2} strokeWidth={2} />
+        <line x1={183} y1={60} x2={183} y2={68} strokeWidth={2} />
       </g>
 
-      {/* movement arrow: straight arm sweeps DOWN in an arc (a -> b) */}
+      {/* movement arrow: straight arm sweeps DOWN in an arc (a -> b). Routed on
+          the LEFT side of the arm path so it does not sit in the arm/band valley. */}
       <g opacity={0.6}>
-        <path d="M 138 34 Q 140 56 124 72" strokeWidth={2} strokeDasharray="4 3" />
-        <path d="M 117 67 L 124 72 L 126 64" strokeWidth={2} />
+        <path d="M 130 40 Q 134 58 128 74" strokeWidth={2} strokeDasharray="4 3" />
+        <path d="M 121 70 L 128 74 L 132 67" strokeWidth={2} />
       </g>
 
       {/* pose A — standing, STRAIGHT arm reaching high up to the anchor */}
@@ -154,14 +173,15 @@ function StraightArmPulldownArt() {
         {/* STRAIGHT arm reaching UP toward the anchor (no elbow bend; full
             extended-arm length ~31px): shoulder(92,48) -> hand(118,31) */}
         <line x1={92} y1={48} x2={118} y2={31} />
-        {/* band: hand(118,31) -> anchor(166,20) */}
-        <line x1={118} y1={31} x2={166} y2={20} opacity={0.5} strokeWidth={2} />
+        {/* band (faded + dashed so it can't read as a forearm):
+            hand(118,31) -> anchor(166,20) */}
+        <line x1={118} y1={31} x2={166} y2={20} opacity={0.3} strokeWidth={2} strokeDasharray="5 3" />
         {/* joint dots: shoulder, hip (no elbow dot — arm is straight) */}
         <circle cx={92} cy={48} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={92} cy={72} r={2.5} fill="currentColor" stroke="none" />
       </g>
 
-      {/* pose B — STRAIGHT arm swept DOWN to the hips (band pulled low) */}
+      {/* pose B — STRAIGHT arm swept DOWN to the thighs (band pulled low) */}
       <g className="pose-b">
         {/* torso + neck + head */}
         <line x1={92} y1={44} x2={92} y2={72} />
@@ -174,12 +194,14 @@ function StraightArmPulldownArt() {
         <line x1={92} y1={72} x2={98} y2={90} />
         <line x1={98} y1={90} x2={100} y2={108} />
         <line x1={100} y1={108} x2={111} y2={108} />
-        {/* STRAIGHT arm swept down-forward to the hip (one straight segment ~31px,
-            kept well off the torso so the locked elbow reads):
-            shoulder(92,48) -> hand(113,71) */}
-        <line x1={92} y1={48} x2={113} y2={71} />
-        {/* band stretched: hand(113,71) -> anchor(166,20) */}
-        <line x1={113} y1={71} x2={166} y2={20} opacity={0.5} strokeWidth={2} />
+        {/* STRAIGHT arm swept down-FORWARD as ONE long straight segment (~33px),
+            hand ends LOW + FORWARD (x=120) so it does NOT vertex with the band
+            at the hip: shoulder(92,48) -> hand(120,66) */}
+        <line x1={92} y1={48} x2={120} y2={66} />
+        {/* band leaves the hand at a STEEP UP angle (clearly different from the
+            arm) and is faded + dashed so it can't read as a bent forearm:
+            hand(120,66) -> anchor(166,20) */}
+        <line x1={120} y1={66} x2={166} y2={20} opacity={0.3} strokeWidth={2} strokeDasharray="5 3" />
         {/* joint dots: shoulder, hip (no elbow dot — arm is straight) */}
         <circle cx={92} cy={48} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={92} cy={72} r={2.5} fill="currentColor" stroke="none" />
@@ -211,12 +233,14 @@ function OneArmPulldownArt() {
       {/* ground */}
       <line x1={15} y1={110} x2={185} y2={110} opacity={0.25} strokeWidth={1.5} />
 
-      {/* DOOR on the right with the band anchored over its TOP (high/overhead) */}
+      {/* DOOR on the right with the band anchored over its TOP (high/overhead).
+          BAND-ANCHOR PATTERN (same glyph as the other variations + band_pull_apart):
+          doorframe line + over-door bracket clamp + door-handle tick. */}
       <g opacity={0.5}>
         <line x1={178} y1={18} x2={178} y2={110} />
-        {/* anchor bracket over the top of the door */}
-        <line x1={178} y1={20} x2={168} y2={20} />
+        <path d="M 178 20 L 170 20 L 170 25" strokeWidth={2} />
         <circle cx={166} cy={20} r={2} strokeWidth={2} />
+        <line x1={183} y1={60} x2={183} y2={68} strokeWidth={2} />
       </g>
 
       {/* movement arrow: the single hand travels DOWN to the side (a -> b) */}
@@ -248,8 +272,9 @@ function OneArmPulldownArt() {
             shoulder(90,46) -> elbow(105,40) -> hand(118,33) */}
         <line x1={90} y1={46} x2={105} y2={40} />
         <line x1={105} y1={40} x2={118} y2={33} />
-        {/* band: working hand(118,33) -> anchor(166,20) */}
-        <line x1={118} y1={33} x2={166} y2={20} opacity={0.5} strokeWidth={2} />
+        {/* band (faded + dashed so it can't read as a limb):
+            working hand(118,33) -> anchor(166,20) */}
+        <line x1={118} y1={33} x2={166} y2={20} opacity={0.45} strokeWidth={2} strokeDasharray="5 3" />
         {/* joint dots: shoulder, hip, working elbow, planted rear knee */}
         <circle cx={90} cy={46} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={90} cy={72} r={2.5} fill="currentColor" stroke="none" />
@@ -276,8 +301,8 @@ function OneArmPulldownArt() {
             hand at the side: shoulder(90,46) -> elbow(82,60) -> hand(97,58) */}
         <line x1={90} y1={46} x2={82} y2={60} />
         <line x1={82} y1={60} x2={97} y2={58} />
-        {/* band stretched: working hand(97,58) -> anchor(166,20) */}
-        <line x1={97} y1={58} x2={166} y2={20} opacity={0.5} strokeWidth={2} />
+        {/* band stretched (faded + dashed): working hand(97,58) -> anchor(166,20) */}
+        <line x1={97} y1={58} x2={166} y2={20} opacity={0.45} strokeWidth={2} strokeDasharray="5 3" />
         {/* joint dots: shoulder, hip, working elbow, planted rear knee */}
         <circle cx={90} cy={46} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={90} cy={72} r={2.5} fill="currentColor" stroke="none" />

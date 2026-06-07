@@ -170,10 +170,18 @@ function OppositeArmLegDeadBugArt() {
 
 /**
  * Index 2 "Heels to floor".
- * Arms stay held STILL and vertical; one knee lowers from 90/90 so the HEEL taps
- * the floor, then returns. pose A = knee up (heel high, 90/90); pose B = leg
- * lowered, heel tapping the ground line. Distinguishing feature: the near-floor
- * heel tap with the arms parked vertical.
+ * Arms stay held STILL and vertical; one knee lowers from 90/90 so the HEEL
+ * reaches DOWN and OUT to tap the floor, then returns. pose A = knee up tight
+ * (heel high, 90/90 tabletop riser); pose B = the same leg unfolded long & low
+ * so the heel taps the ground line well to the right. Distinguishing feature:
+ * the near-floor heel tap with the arms parked vertical.
+ *
+ * Pose-delta is deliberately WIDENED and SEPARATED in space (the tucked riser of
+ * pose-a vs the long low reach of pose-b occupy different ground): the two leg
+ * positions no longer overlay into a zigzag at the crossfade midpoint, and the
+ * reduced-motion ghost reads as "knee was up, heel now taps down". A clear knee
+ * bend (knee dot up at y=96) is kept in pose-b so it never reads as the fully
+ * straight extension of the "Opposite arm + leg" sibling.
  */
 function HeelTapDeadBugArt() {
   return (
@@ -189,11 +197,11 @@ function HeelTapDeadBugArt() {
       {/* ground */}
       <line x1={15} y1={110} x2={185} y2={110} opacity={0.25} strokeWidth={1.5} />
 
-      {/* movement arrow: the heel dips DOWN to tap the floor (a -> b), placed out
-          to the right past the foot */}
+      {/* movement arrow: the heel arcs DOWN & OUT to tap the floor (a -> b),
+          tracing the unfolding leg's heel path toward the ground */}
       <g opacity={0.6}>
-        <path d="M 154 88 L 154 106" strokeWidth={2} strokeDasharray="4 3" />
-        <path d="M 148 100 L 154 106 L 160 100" strokeWidth={2} />
+        <path d="M 138 86 Q 150 98 158 106" strokeWidth={2} strokeDasharray="4 3" />
+        <path d="M 151 105 L 158 106 L 156 99" strokeWidth={2} />
       </g>
 
       {/* pose A — knee up at 90/90, heel high; arms vertical */}
@@ -215,7 +223,11 @@ function HeelTapDeadBugArt() {
         <circle cx={116} cy={84} r={2.5} fill="currentColor" stroke="none" />
       </g>
 
-      {/* pose B — leg lowered, heel tapping the floor; arms STILL vertical */}
+      {/* pose B — leg unfolded long & low, heel tapping the floor well to the
+          right; arms STILL vertical. The knee keeps a clear bend (dot up at
+          y=96) so it's a heel-tap, not a full leg extension. The whole leg sits
+          OUT past pose-a's tucked riser, so the two leg poses don't overlay into
+          a zigzag during the crossfade. */}
       <g className="pose-b">
         {/* torso + neck + head */}
         <line x1={90} y1={102} x2={116} y2={102} />
@@ -224,16 +236,15 @@ function HeelTapDeadBugArt() {
         {/* arms vertical UP (unchanged) */}
         <line x1={90} y1={102} x2={90} y2={86} />
         <line x1={90} y1={86} x2={90} y2={71} />
-        {/* leg lowered as a UNIT — the knee stays flexed ~90, the whole bent leg
-            drops so only the heel dips to the floor (NOT a leg extension):
-            hip(116,102) -> knee(134,94) -> ankle/heel on floor(140,109) */}
-        <line x1={116} y1={102} x2={134} y2={94} />
-        <line x1={134} y1={94} x2={140} y2={109} />
+        {/* leg unfolded out & down, heel tapping the floor (knee still bent):
+            hip(116,102) -> knee(138,96) -> ankle/heel on floor(152,108) */}
+        <line x1={116} y1={102} x2={138} y2={96} />
+        <line x1={138} y1={96} x2={152} y2={108} />
         {/* joint dots */}
         <circle cx={90} cy={102} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={90} cy={86} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={116} cy={102} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={134} cy={94} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={138} cy={96} r={2.5} fill="currentColor" stroke="none" />
       </g>
     </svg>
   );

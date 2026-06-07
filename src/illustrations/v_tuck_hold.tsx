@@ -11,10 +11,16 @@ import type { VariationGuide } from './types';
 //           lifted HIGH); pose-b = rocked FORWARD toward the feet (head-end lifted
 //           HIGH, legs down to the floor). The head and feet clearly swap heights
 //           between poses; the dynamic see-saw rock is the left signature.
-//   RIGHT  — V-tuck hold balanced on the sit-bones (side profile, faces +x), raised
-//           clearly OFF the floor. Torso up-and-back, tucked knees up-and-forward,
-//           forming a V. pose-a = a looser/lower V; pose-b = a markedly tighter,
-//           taller, more-upright V (torso more vertical, knees pulled higher).
+//   RIGHT  — V-tuck HOLD balanced on the sit-bones (side profile, faces +x), raised
+//           clearly OFF the floor in BOTH poses (this family is the reference model
+//           for the isometric-hold treatment — §2.1). Torso up-and-back, tucked knees
+//           up-and-forward, forming a V. pose-a = a looser / more-OPEN V (torso leaned
+//           back a little, knees a touch lower); pose-b = a clearly TIGHTER, taller,
+//           more-upright V (torso near-vertical, knees pulled high & close). The delta
+//           is now perceptible (was only a few px — appendix #16) but reads as the same
+//           held shape settling tighter, not a rep that travels. Because it is a HOLD,
+//           the right mini carries the praised "hold" CLOCK glyph (matching the
+//           curls_plank plank, §4) instead of a directional travel arrow.
 //           A knees-tucked V balanced OFF the floor is the right signature.
 // Cues are FINAL (from the approved design): one per movement (§8/§9).
 
@@ -40,10 +46,13 @@ function HollowRockVTuckArt() {
         <path d="M 30 84 Q 52 70 76 84" strokeWidth={2} strokeDasharray="4 3" />
         <path d="M 70 78 L 76 84 L 69 87" strokeWidth={2} />
       </g>
-      {/* RIGHT mini: tuck-up arrow at the shins (V pulled tighter/taller) */}
-      <g opacity={0.6}>
-        <path d="M 170 92 L 170 74" strokeWidth={2} strokeDasharray="4 3" />
-        <path d="M 165 79 L 170 74 L 175 79" strokeWidth={2} />
+      {/* RIGHT mini: "hold" clock marker (this is an isometric hold, not a rep —
+          so it carries the same clock glyph praised on the curls_plank plank, NOT a
+          directional travel arrow). */}
+      <g opacity={0.5}>
+        <circle cx={176} cy={70} r={6} strokeWidth={1.5} />
+        <path d="M 176 70 L 176 66" strokeWidth={1.5} />
+        <path d="M 176 70 L 179 72" strokeWidth={1.5} />
       </g>
 
       {/* =================================================================
@@ -75,22 +84,24 @@ function HollowRockVTuckArt() {
              upper arm 8, forearm 7.5, head r3.5) balanced on the sit-bones, raised
              clearly OFF the floor. Looser, lower V. Torso up-and-back to the right,
              tucked knees up-and-forward to the left. Balance point ~ hip(150,100). ---- */}
-        {/* torso: hip(150,100) -> shoulder(159,91) (len ~13) */}
-        <line x1={150} y1={100} x2={159} y2={91} />
+        {/* torso a looser, MORE-OPEN V (still clearly a held V off the floor):
+            hip(150,100) -> shoulder(157,89) (len ~13). Chest well up but leaned back
+            a little more than pose-b's near-vertical torso. */}
+        <line x1={150} y1={100} x2={157} y2={89} />
         {/* neck + head */}
-        <line x1={159} y1={91} x2={161} y2={88} />
-        <circle cx={163} cy={86} r={3.5} />
+        <line x1={157} y1={89} x2={159} y2={86} />
+        <circle cx={161} cy={84} r={3.5} />
         {/* arms reaching forward toward the shins (upper arm 8, forearm 7.5) */}
-        <line x1={159} y1={91} x2={151} y2={92} />
-        <line x1={151} y1={92} x2={144} y2={93} />
-        {/* tucked leg: hip(150,100) -> knee(141,94) [thigh 9] -> shin folded back to
-            foot(148,98) [shin ~8] */}
-        <line x1={150} y1={100} x2={141} y2={94} />
-        <line x1={141} y1={94} x2={148} y2={98} />
+        <line x1={157} y1={89} x2={149} y2={90} />
+        <line x1={149} y1={90} x2={142} y2={91} />
+        {/* tucked leg held a touch LOWER / more open than pose-b: hip(150,100) ->
+            knee(141,93) [thigh ~9] -> shin folded back to foot(148,97) [shin ~8] */}
+        <line x1={150} y1={100} x2={141} y2={93} />
+        <line x1={141} y1={93} x2={148} y2={97} />
         {/* joint dots: shoulder, hip, knee */}
-        <circle cx={159} cy={91} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={157} cy={89} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={150} cy={100} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={141} cy={94} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={141} cy={93} r={2.5} fill="currentColor" stroke="none" />
       </g>
 
       {/* =================================================================
@@ -121,22 +132,23 @@ function HollowRockVTuckArt() {
              vertical, knees pulled clearly higher/closer, a taller V. Same ~50% scale
              (torso 13, thigh 9, upper arm 8, forearm 7.5). Still raised off the floor.
              Balance point ~ hip(150,100). ---- */}
-        {/* torso: hip(150,100) -> shoulder(154,87) (clearly more upright/vertical, ~13) */}
-        <line x1={150} y1={100} x2={154} y2={87} />
-        {/* neck + head */}
-        <line x1={154} y1={87} x2={156} y2={84} />
-        <circle cx={158} cy={82} r={3.5} />
+        {/* torso pulled clearly MORE UPRIGHT/VERTICAL (a tighter, taller V): hip(150,100)
+            -> shoulder(152,86) (len ~14). Shoulder rises high and close to vertical. */}
+        <line x1={150} y1={100} x2={152} y2={86} />
+        {/* neck + head, lifted high */}
+        <line x1={152} y1={86} x2={153} y2={83} />
+        <circle cx={154} cy={81} r={3.5} />
         {/* arms toward the shins (upper arm 8, forearm 7.5) */}
-        <line x1={154} y1={87} x2={146} y2={87} />
-        <line x1={146} y1={87} x2={139} y2={86} />
-        {/* tucked leg pulled higher/closer: hip(150,100) -> knee(142,88) [thigh ~9]
-            -> foot(149,92) [shin ~8] */}
-        <line x1={150} y1={100} x2={142} y2={88} />
-        <line x1={142} y1={88} x2={149} y2={92} />
+        <line x1={152} y1={86} x2={144} y2={86} />
+        <line x1={144} y1={86} x2={137} y2={85} />
+        {/* tucked leg pulled clearly HIGHER & CLOSER: hip(150,100) -> knee(143,85)
+            [thigh ~9] -> foot(150,89) [shin ~8] */}
+        <line x1={150} y1={100} x2={143} y2={85} />
+        <line x1={143} y1={85} x2={150} y2={89} />
         {/* joint dots: shoulder, hip, knee */}
-        <circle cx={154} cy={87} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={152} cy={86} r={2.5} fill="currentColor" stroke="none" />
         <circle cx={150} cy={100} r={2.5} fill="currentColor" stroke="none" />
-        <circle cx={142} cy={88} r={2.5} fill="currentColor" stroke="none" />
+        <circle cx={143} cy={85} r={2.5} fill="currentColor" stroke="none" />
       </g>
     </svg>
   );

@@ -432,10 +432,18 @@ a {
   color: var(--muted);
 }
 .set-chip.logged {
-  /* logged, no target to compare against (first time at this level) */
-  background: var(--day, var(--accent));
-  color: var(--bg);
-  border-color: transparent;
+  /* logged, no target to compare against (first time at this level).
+     Neutral on purpose: with nothing to beat yet, an under-range first log must
+     not read as a celebratory PR. Reserve the lime fill for a real "beat". */
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--line2);
+}
+.set-chip .cu {
+  /* unit shown next to a logged value (timed moves) so "34" can't read as reps */
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.7;
 }
 .set-chip.under {
   /* logged, below last time */
@@ -944,13 +952,18 @@ a {
   height: auto;
 }
 
-/* pose crossfade: pose-a (start) and pose-b (end) dissolve on a ~3.2s loop */
+/* pose crossfade: pose-a (start) and pose-b (end) dissolve on a ~4.2s loop.
+   Loop lengthened from 3.2s so each pose dwells ~1.75s (more time to read the 3
+   cues) and the brief mid-crossfade double-exposure is a smaller fraction of the
+   cycle. The keyframe percentages are unchanged, so the complementary dissolve
+   math (opacities sum to ~1.0, no blank/double-bright frame) is preserved; the
+   -2.1s delay stays exactly half the duration. */
 .guide-svg .pose-a,
 .guide-svg .pose-b {
-  animation: poseCrossfade 3.2s ease-in-out infinite;
+  animation: poseCrossfade 4.2s ease-in-out infinite;
 }
 .guide-svg .pose-b {
-  animation-delay: -1.6s;
+  animation-delay: -2.1s;
 }
 @keyframes poseCrossfade {
   0% {
