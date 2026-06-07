@@ -9,6 +9,19 @@ import Week from './screens/Week';
 type Phase = 'loading' | 'auth' | 'app';
 type Screen = 'today' | 'week';
 
+function BrandBar() {
+  return (
+    <div className="brandbar">
+      <span className="mark" aria-hidden="true">
+        22
+      </span>
+      <span className="name">
+        Twenty&nbsp;<span className="two">Two</span>
+      </span>
+    </div>
+  );
+}
+
 export default function App() {
   const [phase, setPhase] = useState<Phase>('loading');
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -71,14 +84,11 @@ export default function App() {
   }
 
   if (phase === 'loading') {
+    // Same slim bar the signed-in app shows, so the daily open doesn't flash
+    // a big header before settling.
     return (
       <div className="wrap">
-        <header className="app-header">
-          <div className="kicker">Morning protocol · bodyweight</div>
-          <h1 className="wordmark">
-            Twenty<span className="twenty">Two</span>
-          </h1>
-        </header>
+        <BrandBar />
       </div>
     );
   }
@@ -89,6 +99,9 @@ export default function App() {
 
   return (
     <>
+      <header className="wrap">
+        <BrandBar />
+      </header>
       <nav className="wrap nav" role="tablist" aria-label="Sections">
         <button
           className="nav-tab"
