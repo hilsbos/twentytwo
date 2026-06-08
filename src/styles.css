@@ -810,22 +810,25 @@ a {
    ------------------------------------------------------------------------- */
 
 /* small "form" tag next to the exercise name (advertises the guide sheet) */
-.form-tag {
-  display: inline-flex;
-  align-items: center;
-  vertical-align: middle;
-  margin-left: 9px;
-  padding: 2px 7px;
-  border-radius: 6px;
+/* "Form" button: lives in the set row, pushed to the lower-right corner of the
+   card next to the set chips. Always present (one obvious affordance for the
+   guide, since the header is no longer tappable). */
+.form-btn {
+  margin-left: auto;
+  min-height: 44px;
+  padding: 8px 14px;
+  border-radius: 10px;
   border: 1px solid var(--line2);
   background: var(--surface2);
   color: var(--day, var(--accent));
   font-family: 'Oswald', sans-serif;
-  font-size: 10.5px;
+  font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* the single most-important cue, shown inline under the note while learning */
@@ -843,16 +846,6 @@ a {
   font-family: 'Oswald', sans-serif;
   font-weight: 700;
   flex: 0 0 auto;
-}
-
-/* the card header becomes a button (tap to open the sheet) ------------------ */
-.ex-head-btn {
-  display: block;
-  width: 100%;
-  text-align: left;
-  background: none;
-  border: none;
-  padding: 0;
 }
 
 /* ---------------------------------------------------------------------------

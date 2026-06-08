@@ -437,24 +437,16 @@ function ExerciseCard({
 
   return (
     <div className="ex-card">
-      <button
-        className="ex-head-btn"
-        type="button"
-        onClick={onOpenGuide}
-        aria-label={`How to do ${ex.name}`}
-      >
-        <div className="ex-top">
-          <div>
-            <span className="ex-num">{index}</span>
-            <span className="ex-name">{ex.name}</span>
-            {learning && <span className="form-tag">form</span>}
-          </div>
-          <span className="ex-sets">
-            {setsToShow}×{ex.range[0]}
-            {ex.range[1] !== ex.range[0] ? `–${ex.range[1]}` : ''} {unitLabel}
-          </span>
+      <div className="ex-top">
+        <div>
+          <span className="ex-num">{index}</span>
+          <span className="ex-name">{ex.name}</span>
         </div>
-      </button>
+        <span className="ex-sets">
+          {setsToShow}×{ex.range[0]}
+          {ex.range[1] !== ex.range[0] ? `–${ex.range[1]}` : ''} {unitLabel}
+        </span>
+      </div>
 
       {/* progression path */}
       <div className="path">
@@ -505,6 +497,16 @@ function ExerciseCard({
             />
           );
         })}
+        {guide && (
+          <button
+            type="button"
+            className="form-btn"
+            onClick={onOpenGuide}
+            aria-label={`How to do ${ex.name}`}
+          >
+            Form
+          </button>
+        )}
       </div>
 
       {suggestAdvance && (
