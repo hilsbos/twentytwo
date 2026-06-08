@@ -447,16 +447,44 @@ describe('consistency7', () => {
 describe('isSessionComplete', () => {
   const day = makeDay(); // mains: m1(3 sets), m2(2 sets); finisher: fin(3 sets)
 
-  it('full: complete when every MAIN has all its sets, ignoring finishers', () => {
+  it('full: complete only when every exercise — mains AND the finisher — is fully logged', () => {
     const logs = [
       makeLog('m1', 1, 1),
       makeLog('m1', 2, 1),
       makeLog('m1', 3, 1),
       makeLog('m2', 1, 1),
       makeLog('m2', 2, 1),
-      // finisher fin not logged at all — should not matter
+      makeLog('fin', 1, 1),
+      makeLog('fin', 2, 1),
+      makeLog('fin', 3, 1),
     ];
     expect(isSessionComplete(logs, day, false)).toBe(true);
+  });
+
+  it('full: incomplete when only the mains are done but the finisher is unstarted', () => {
+    const logs = [
+      makeLog('m1', 1, 1),
+      makeLog('m1', 2, 1),
+      makeLog('m1', 3, 1),
+      makeLog('m2', 1, 1),
+      makeLog('m2', 2, 1),
+      // finisher fin not logged — the day is NOT done yet
+    ];
+    expect(isSessionComplete(logs, day, false)).toBe(false);
+  });
+
+  it('full: incomplete when the finisher is missing a set', () => {
+    const logs = [
+      makeLog('m1', 1, 1),
+      makeLog('m1', 2, 1),
+      makeLog('m1', 3, 1),
+      makeLog('m2', 1, 1),
+      makeLog('m2', 2, 1),
+      makeLog('fin', 1, 1),
+      makeLog('fin', 2, 1),
+      // fin set 3 missing
+    ];
+    expect(isSessionComplete(logs, day, false)).toBe(false);
   });
 
   it('full: incomplete when a main is missing a set', () => {
@@ -498,16 +526,25 @@ describe('isSessionComplete', () => {
   it('works against the real core-day config (full)', () => {
     const core = DAYS.core;
     const logs: SetLog[] = [];
-    for (const ex of core.exercises.filter((e) => e.main)) {
+    for (const ex of core.exercises) {
       for (let s = 1; s <= ex.sets; s++) logs.push(makeLog(ex.key, s, 10));
     }
     expect(isSessionComplete(logs, core, false)).toBe(true);
   });
 
+  it('real core-day config is incomplete until the finisher is logged', () => {
+    const core = DAYS.core;
+    const logs: SetLog[] = [];
+    for (const ex of core.exercises.filter((e) => e.main)) {
+      for (let s = 1; s <= ex.sets; s++) logs.push(makeLog(ex.key, s, 10));
+    }
+    expect(isSessionComplete(logs, core, false)).toBe(false);
+  });
+
   it('works against the real push-day config (full)', () => {
     const push = DAYS.push;
     const logs: SetLog[] = [];
-    for (const ex of push.exercises.filter((e) => e.main)) {
+    for (const ex of push.exercises) {
       for (let s = 1; s <= ex.sets; s++) logs.push(makeLog(ex.key, s, 10));
     }
     expect(isSessionComplete(logs, push, false)).toBe(true);

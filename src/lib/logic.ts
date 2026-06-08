@@ -129,19 +129,28 @@ export function isSessionComplete(
   day: Day,
   floorMode: boolean,
 ): boolean {
-  const mains = day.exercises.filter((e) => e.main);
-  if (mains.length === 0) return false;
+  // Floor mode (the "bad day" floor): one set of each MAIN move is a full win;
+  // the finisher is intentionally not required.
+  if (floorMode) {
+    const mains = day.exercises.filter((e) => e.main);
+    if (mains.length === 0) return false;
+    for (const ex of mains) {
+      const logged = logs.some((l) => l.exercise_key === ex.key);
+      if (!logged) return false;
+    }
+    return true;
+  }
 
-  for (const ex of mains) {
+  // Full session: every exercise — the main moves AND the core/finisher — must
+  // have all its sets logged before we call the day done. The finisher is real
+  // programming, so the banner must not fire while a card is still unstarted.
+  if (day.exercises.length === 0) return false;
+  for (const ex of day.exercises) {
     const setNums = new Set(
       logs.filter((l) => l.exercise_key === ex.key).map((l) => l.set_number),
     );
-    if (floorMode) {
-      if (setNums.size < 1) return false;
-    } else {
-      for (let s = 1; s <= ex.sets; s++) {
-        if (!setNums.has(s)) return false;
-      }
+    for (let s = 1; s <= ex.sets; s++) {
+      if (!setNums.has(s)) return false;
     }
   }
   return true;
