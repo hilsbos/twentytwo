@@ -1103,19 +1103,6 @@ a {
 /* ---------------------------------------------------------------------------
    Completion-banner extras: protein "why", tomorrow whisper, recap variant
    ------------------------------------------------------------------------- */
-.done-banner .sub .why {
-  opacity: 0.82;
-}
-.done-banner .whisper {
-  display: block;
-  font-family: 'Hanken Grotesk', sans-serif;
-  text-transform: none;
-  letter-spacing: 0;
-  font-weight: 500;
-  font-size: 12px;
-  opacity: 0.62;
-  margin-top: 4px;
-}
 .done-banner.is-recap {
   display: block;
   width: 100%;

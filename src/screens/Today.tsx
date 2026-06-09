@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { Day, DayType, Exercise, Profile, Session, SetLog } from '../types';
+import type { Day, Exercise, Profile, Session, SetLog } from '../types';
 import { dayConfig, DAYS, WARMUP } from '../program';
 import {
   dayTypeFor,
@@ -7,7 +7,6 @@ import {
   targets as computeTargets,
   beatState,
   advanceState,
-  completionHourLocal,
   weekRecap,
   type WeekRecap,
   isSessionComplete,
@@ -280,8 +279,6 @@ export default function Today({ profile }: TodayProps) {
 
   // First session ever (no prior days logged) — show a one-line orientation.
   const firstEver = loaded && priorHistory.length === 0;
-  // Tenure-fade signal for the banner's leucine "why" + tomorrow whisper detail.
-  const priorSessionsCount = priorHistory.length;
   // Floor day is "done" the moment completion fires in floor mode.
   const floorDone = floorMode && completedAt !== null;
   // Sunday recap is offered once the core day is complete and there's a week to show.
@@ -329,9 +326,6 @@ export default function Today({ profile }: TodayProps) {
       {bannerShown && (
         <DoneBanner
           floorMode={floorMode}
-          completedAt={completedAt}
-          priorSessionsCount={priorSessionsCount}
-          today={today}
           recap={recap}
           onOpenRecap={() => setRecapOpen(true)}
         />
@@ -744,14 +738,6 @@ function SetChip({
 // Completion banner
 // ===========================================================================
 
-/** Short muscle-group phrase per day-type, for the "tomorrow" whisper. */
-const DAY_MUSCLES: Record<DayType, string> = {
-  push: 'chest & shoulders',
-  legs: 'lower body',
-  pull: 'back & arms',
-  core: 'trunk & core',
-};
-
 /** exercise_key -> display name, built once from the program. */
 const EXERCISE_NAMES: Record<string, string> = Object.fromEntries(
   Object.values(DAYS).flatMap((d) => d.exercises.map((e) => [e.key, e.name])),
@@ -759,23 +745,12 @@ const EXERCISE_NAMES: Record<string, string> = Object.fromEntries(
 
 interface DoneBannerProps {
   floorMode: boolean;
-  completedAt: string | null;
-  /** Distinct prior sessions — fades the leucine "why" and the whisper detail as tenure grows. */
-  priorSessionsCount: number;
-  today: Date;
   /** Present only on a completed Sunday core day. */
   recap: WeekRecap | null;
   onOpenRecap: () => void;
 }
 
-function DoneBanner({
-  floorMode,
-  completedAt,
-  priorSessionsCount,
-  today,
-  recap,
-  onOpenRecap,
-}: DoneBannerProps) {
+function DoneBanner({ floorMode, recap, onOpenRecap }: DoneBannerProps) {
   // Sunday recap variant — the emotional "week came together" moment. Tap-to-open
   // (never auto) so the calm "done" feeling is preserved.
   if (recap) {
@@ -789,39 +764,11 @@ function DoneBanner({
     );
   }
 
-  // Protein timing keyed on when you ACTUALLY finished (local hour, UTC-safe) —
-  // no longer assumes everyone trains fasted before an 8:30 window.
-  const hour = completionHourLocal(completedAt);
-  const proteinWhen =
-    hour !== null && hour < 8
-      ? '~30g protein when your eating window opens (~8:30)'
-      : '~30g protein within the next couple hours';
-  const showWhy = priorSessionsCount < 3;
-
-  // Tomorrow whisper — what's next + why it's well placed; the reason fades after ~2 weeks.
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-  const tType = dayTypeFor(tomorrow);
-  const tTitle = dayConfig(tType).title;
-  const showReason = priorSessionsCount < 14;
-
+  // Deliberately one clean line — no clock math, no jargon.
   return (
     <div className="done-banner">
       {floorMode ? 'Done — floor logged, that counts' : 'Done — see you tomorrow'}
-      <span className="sub">
-        {proteinWhen}
-        {showWhy && (
-          <span className="why">
-            {' '}
-            · whey or a plant blend; the morning collagen is tendon support, not
-            protein
-          </span>
-        )}
-      </span>
-      <span className="whisper">
-        Tomorrow · {tTitle}
-        {showReason && ` — ${DAY_MUSCLES[tType]}, fresh while today recovers`}
-      </span>
+      <span className="sub">~30g protein with your first meal</span>
     </div>
   );
 }
