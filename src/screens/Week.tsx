@@ -132,7 +132,7 @@ export default function Week({ profile, onSignOut }: WeekProps) {
   return (
     <div className="wrap">
       <section className="consistency">
-        <div className="big">
+        <div className={`big${mine.count >= 6 ? ' is-win' : ''}`}>
           {mine.count}
           <span className="slash"> / 7</span>
         </div>

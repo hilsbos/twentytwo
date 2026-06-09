@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { Day, Exercise, Profile, Session, SetLog } from '../types';
-import { dayConfig, WARMUP } from '../program';
+import type { Day, DayType, Exercise, Profile, Session, SetLog } from '../types';
+import { dayConfig, DAYS, WARMUP } from '../program';
 import {
   dayTypeFor,
   localDateISO,
   targets as computeTargets,
   beatState,
-  shouldSuggestAdvance,
+  advanceState,
+  completionHourLocal,
+  weekRecap,
+  type WeekRecap,
   isSessionComplete,
 } from '../lib/logic';
 import {
@@ -19,7 +22,8 @@ import {
   setFloorMode as dbSetFloorMode,
   advanceStep as dbAdvanceStep,
 } from '../lib/db';
-import { guideFor } from '../illustrations';
+import { isGuidable, loadGuide } from '../illustrations';
+import type { VariationGuide } from '../illustrations';
 import FormSheet from '../components/FormSheet';
 
 export interface TodayProps {
@@ -70,8 +74,18 @@ export default function Today({ profile }: TodayProps) {
 
   const [warmupOpen, setWarmupOpen] = useState(false);
   const [retryHint, setRetryHint] = useState<string | null>(null);
-  // Currently open guide sheet (exercise key), or null when closed.
-  const [openGuideKey, setOpenGuideKey] = useState<string | null>(null);
+  // Currently open guide sheet (with its lazily-loaded art), or null when closed.
+  const [openSheet, setOpenSheet] = useState<{
+    ex: Exercise;
+    step: number;
+    guide: VariationGuide;
+  } | null>(null);
+  // Initial load finished — gates first-run-only UI so it doesn't flash early.
+  const [loaded, setLoaded] = useState(false);
+  // Sunday "the week came together" recap sheet.
+  const [recapOpen, setRecapOpen] = useState(false);
+  // First-ever-session onboarding line, dismissible.
+  const [onboardingDismissed, setOnboardingDismissed] = useState(false);
 
   const loadedRef = useRef(false);
   // Memoizes an in-flight session-creation so concurrent fast taps share one call.
@@ -120,6 +134,7 @@ export default function Today({ profile }: TodayProps) {
         setRetryHint('Could not load your history. Pull to refresh.');
       } finally {
         loadedRef.current = true;
+        if (alive) setLoaded(true);
       }
     })();
     return () => {
@@ -254,13 +269,36 @@ export default function Today({ profile }: TodayProps) {
     }
   }
 
+  // Open the form guide — loads the art chunk on first use, then shows the sheet.
+  async function openGuide(ex: Exercise) {
+    const step = stepFor(ex);
+    const guide = await loadGuide(ex.key, step);
+    if (guide) setOpenSheet({ ex, step, guide });
+  }
+
   const dayClass = DAY_CLASS[dayType] ?? 'is-push';
+
+  // First session ever (no prior days logged) — show a one-line orientation.
+  const firstEver = loaded && priorHistory.length === 0;
+  // Tenure-fade signal for the banner's leucine "why" + tomorrow whisper detail.
+  const priorSessionsCount = priorHistory.length;
+  // Floor day is "done" the moment completion fires in floor mode.
+  const floorDone = floorMode && completedAt !== null;
+  // Sunday recap is offered once the core day is complete and there's a week to show.
+  const recap = useMemo(
+    () => (dayType === 'core' && completedAt ? weekRecap(history, todayISO) : null),
+    [dayType, completedAt, history, todayISO],
+  );
 
   return (
     <div className={`wrap ${dayClass}`}>
       <DayHeader day={day} date={today} />
 
-      <FloorToggle on={floorMode} onToggle={toggleFloor} />
+      {firstEver && !onboardingDismissed && (
+        <OnboardingNote onDismiss={() => setOnboardingDismissed(true)} />
+      )}
+
+      <FloorToggle on={floorMode} done={floorDone} onToggle={toggleFloor} />
 
       <Warmup open={warmupOpen} onToggle={() => setWarmupOpen((o) => !o)} />
 
@@ -281,32 +319,37 @@ export default function Today({ profile }: TodayProps) {
             floorMode={floorMode}
             onLog={handleLog}
             onAdvance={handleAdvance}
-            onOpenGuide={() => setOpenGuideKey(ex.key)}
+            onOpenGuide={() => openGuide(ex)}
           />
         );
       })}
 
       {retryHint && <p className="err">{retryHint}</p>}
 
-      {bannerShown && <DoneBanner />}
+      {bannerShown && (
+        <DoneBanner
+          floorMode={floorMode}
+          completedAt={completedAt}
+          priorSessionsCount={priorSessionsCount}
+          today={today}
+          recap={recap}
+          onOpenRecap={() => setRecapOpen(true)}
+        />
+      )}
 
-      {openGuideKey &&
-        (() => {
-          const ex = day.exercises.find((e) => e.key === openGuideKey);
-          if (!ex) return null;
-          const step = stepFor(ex);
-          const guide = guideFor(ex.key, step);
-          if (!guide) return null;
-          return (
-            <FormSheet
-              exerciseName={ex.name}
-              variationName={ex.path[step] ?? ex.name}
-              guide={guide}
-              note={ex.note}
-              onClose={() => setOpenGuideKey(null)}
-            />
-          );
-        })()}
+      {recapOpen && recap && (
+        <RecapSheet recap={recap} onClose={() => setRecapOpen(false)} />
+      )}
+
+      {openSheet && (
+        <FormSheet
+          exerciseName={openSheet.ex.name}
+          variationName={openSheet.ex.path[openSheet.step] ?? openSheet.ex.name}
+          guide={openSheet.guide}
+          note={openSheet.ex.note}
+          onClose={() => setOpenSheet(null)}
+        />
+      )}
     </div>
   );
 }
@@ -330,7 +373,28 @@ function DayHeader({ day, date }: { day: Day; date: Date }) {
 // ===========================================================================
 // Floor-mode toggle
 // ===========================================================================
-function FloorToggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+function FloorToggle({
+  on,
+  done,
+  onToggle,
+}: {
+  on: boolean;
+  done: boolean;
+  onToggle: () => void;
+}) {
+  // Once a floor session is complete, the toggle becomes a clear "this counted"
+  // confirmation — the escape hatch is a believed, valid win, not a half-effort.
+  if (done) {
+    return (
+      <div className="floor-toggle is-done" aria-live="polite">
+        <span className="ico">Floor mode</span>
+        <p>One round logged — that's a full win. You're done.</p>
+        <span className="check" aria-hidden="true">
+          ✓
+        </span>
+      </div>
+    );
+  }
   return (
     <button
       className="floor-toggle"
@@ -338,10 +402,32 @@ function FloorToggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
       onClick={onToggle}
       type="button"
     >
-      <span className="ico">Bad day?</span>
-      <p>Do just 1 round of the main moves.</p>
+      <span className="ico">Low day?</span>
+      <p>One round of the main moves still counts as a win.</p>
       <span className="switch" aria-hidden="true" />
     </button>
+  );
+}
+
+// ===========================================================================
+// First-session orientation (shown once, dismissible)
+// ===========================================================================
+function OnboardingNote({ onDismiss }: { onDismiss: () => void }) {
+  return (
+    <div className="onboard-note" role="note">
+      <p>
+        Tap a set to log it. One round on a low day still counts — the streak
+        never breaks.
+      </p>
+      <button
+        type="button"
+        className="onboard-x"
+        aria-label="Dismiss"
+        onClick={onDismiss}
+      >
+        ×
+      </button>
+    </div>
   );
 }
 
@@ -410,8 +496,8 @@ function ExerciseCard({
     [priorHistory, ex.key, stepIndex, todayISO],
   );
 
-  const suggestAdvance = useMemo(
-    () => shouldSuggestAdvance(todayLogsArr, ex, stepIndex, familiarity),
+  const advance = useMemo(
+    () => advanceState(todayLogsArr, ex, stepIndex, familiarity),
     [todayLogsArr, ex, stepIndex, familiarity],
   );
 
@@ -432,8 +518,26 @@ function ExerciseCard({
   // so logging "below target" is meaningless (there is no target to beat yet).
   const firstTimeAtLevel = targetLine === null;
 
-  const guide = guideFor(ex.key, stepIndex);
-  const learning = guide !== null && familiarity < 3;
+  // Guidability is known synchronously (eager key set); the art + cues load lazily.
+  const guidable = isGuidable(ex.key) && stepIndex < ex.path.length;
+  const learning = guidable && familiarity < 3;
+
+  // While learning, pull just the first cue (loads the art chunk on demand and
+  // pops in shortly after — a progressive enhancement, never blocks the card).
+  const [firstCue, setFirstCue] = useState<string | null>(null);
+  useEffect(() => {
+    if (!learning) {
+      setFirstCue(null);
+      return;
+    }
+    let alive = true;
+    loadGuide(ex.key, stepIndex).then((g) => {
+      if (alive) setFirstCue(g?.cues[0] ?? null);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [learning, ex.key, stepIndex]);
 
   return (
     <div className="ex-card">
@@ -462,7 +566,7 @@ function ExerciseCard({
 
       {ex.note && <p className="ex-note">{ex.note}</p>}
 
-      {learning && guide && <p className="inline-cue">{guide.cues[0]}</p>}
+      {learning && firstCue && <p className="inline-cue">{firstCue}</p>}
 
       <p className="ex-target">
         {targetLine ? (
@@ -497,7 +601,7 @@ function ExerciseCard({
             />
           );
         })}
-        {guide && (
+        {guidable && (
           <button
             type="button"
             className="form-btn"
@@ -509,7 +613,7 @@ function ExerciseCard({
         )}
       </div>
 
-      {suggestAdvance && (
+      {advance === 'ready' && (
         <div className="levelup">
           <span className="lu-text">
             Level up: <b>{ex.path[stepIndex + 1]}</b> next time
@@ -518,6 +622,13 @@ function ExerciseCard({
             Level up
           </button>
         </div>
+      )}
+
+      {advance === 'gated' && (
+        <p className="tenure-gate">
+          Top of range — strength's there. Level-up opens after a bit more time
+          at this step, giving tendons time to catch up.
+        </p>
       )}
     </div>
   );
@@ -601,8 +712,22 @@ function SetChip({
         ? 'logged'
         : beatState(loggedValue, target);
 
+  // Screen-reader label carries the progress that's otherwise conveyed by color
+  // and chip position alone.
+  const ariaLabel =
+    loggedValue === null
+      ? `Set ${setNumber}, not logged — tap to log`
+      : `Set ${setNumber}, logged ${loggedValue} ${unit}` +
+        (target !== null && !firstTimeAtLevel ? `, last time ${target}` : '') +
+        ' — tap to edit';
+
   return (
-    <button className={`set-chip ${state}`} type="button" onClick={start}>
+    <button
+      className={`set-chip ${state}`}
+      type="button"
+      onClick={start}
+      aria-label={ariaLabel}
+    >
       {loggedValue !== null ? (
         <>
           {loggedValue}
@@ -618,11 +743,181 @@ function SetChip({
 // ===========================================================================
 // Completion banner
 // ===========================================================================
-function DoneBanner() {
+
+/** Short muscle-group phrase per day-type, for the "tomorrow" whisper. */
+const DAY_MUSCLES: Record<DayType, string> = {
+  push: 'chest & shoulders',
+  legs: 'lower body',
+  pull: 'back & arms',
+  core: 'trunk & core',
+};
+
+/** exercise_key -> display name, built once from the program. */
+const EXERCISE_NAMES: Record<string, string> = Object.fromEntries(
+  Object.values(DAYS).flatMap((d) => d.exercises.map((e) => [e.key, e.name])),
+);
+
+interface DoneBannerProps {
+  floorMode: boolean;
+  completedAt: string | null;
+  /** Distinct prior sessions — fades the leucine "why" and the whisper detail as tenure grows. */
+  priorSessionsCount: number;
+  today: Date;
+  /** Present only on a completed Sunday core day. */
+  recap: WeekRecap | null;
+  onOpenRecap: () => void;
+}
+
+function DoneBanner({
+  floorMode,
+  completedAt,
+  priorSessionsCount,
+  today,
+  recap,
+  onOpenRecap,
+}: DoneBannerProps) {
+  // Sunday recap variant — the emotional "week came together" moment. Tap-to-open
+  // (never auto) so the calm "done" feeling is preserved.
+  if (recap) {
+    return (
+      <button type="button" className="done-banner is-recap" onClick={onOpenRecap}>
+        The week came together
+        <span className="sub">
+          {recap.sessionsCount} of 7 mornings · tap to see your week
+        </span>
+      </button>
+    );
+  }
+
+  // Protein timing keyed on when you ACTUALLY finished (local hour, UTC-safe) —
+  // no longer assumes everyone trains fasted before an 8:30 window.
+  const hour = completionHourLocal(completedAt);
+  const proteinWhen =
+    hour !== null && hour < 8
+      ? '~30g protein when your eating window opens (~8:30)'
+      : '~30g protein within the next couple hours';
+  const showWhy = priorSessionsCount < 3;
+
+  // Tomorrow whisper — what's next + why it's well placed; the reason fades after ~2 weeks.
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  const tType = dayTypeFor(tomorrow);
+  const tTitle = dayConfig(tType).title;
+  const showReason = priorSessionsCount < 14;
+
   return (
     <div className="done-banner">
-      Done — see you tomorrow
-      <span className="sub">~30g protein with your first meal</span>
+      {floorMode ? 'Done — floor logged, that counts' : 'Done — see you tomorrow'}
+      <span className="sub">
+        {proteinWhen}
+        {showWhy && (
+          <span className="why">
+            {' '}
+            · whey or a plant blend; the morning collagen is tendon support, not
+            protein
+          </span>
+        )}
+      </span>
+      <span className="whisper">
+        Tomorrow · {tTitle}
+        {showReason && ` — ${DAY_MUSCLES[tType]}, fresh while today recovers`}
+      </span>
+    </div>
+  );
+}
+
+// ===========================================================================
+// Sunday recap sheet ("the week came together")
+// ===========================================================================
+/** One cell per planned (or extra) session: true = trained, false = missed. */
+function patternCells(trained: number, planned: number): boolean[] {
+  const total = Math.max(planned, trained);
+  return Array.from({ length: total }, (_, i) => i < trained);
+}
+
+function RecapSheet({
+  recap,
+  onClose,
+}: {
+  recap: WeekRecap;
+  onClose: () => void;
+}) {
+  // Body scroll lock + Escape to close (mirrors FormSheet).
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose();
+    }
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [onClose]);
+
+  // Cold-start: a brand-new user has no week to show — say so calmly rather than
+  // render a misleading near-empty visual (no science-faking).
+  const empty = recap.sessionsCount === 0;
+
+  return (
+    <div className="form-sheet-backdrop" onClick={onClose}>
+      <div
+        className="form-sheet recap-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Your week"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="form-sheet-head">
+          <div>
+            <div className="form-sheet-kicker">The week</div>
+            <h2 className="form-sheet-title">{recap.sessionsCount} of 7 mornings</h2>
+          </div>
+          <button
+            className="form-sheet-x"
+            type="button"
+            aria-label="Close"
+            onClick={onClose}
+          >
+            ×
+          </button>
+        </div>
+
+        {empty ? (
+          <p className="recap-empty">
+            Log a few sessions and your week will fill in here.
+          </p>
+        ) : (
+          <>
+            <ul className="recap-patterns">
+              {recap.patterns.map((p) => (
+                <li key={p.type}>
+                  <span className="rp-name">{p.type}</span>
+                  <span className="rp-marks">
+                    {patternCells(p.trained, p.planned).map((hit, i) => (
+                      <span key={i} className={hit ? 'rp-hit' : 'rp-miss'}>
+                        {hit ? '✓' : '·'}
+                      </span>
+                    ))}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p className="recap-stat">
+              <b>{recap.totalSets}</b> sets logged this week
+            </p>
+            {recap.levelUps.length > 0 && (
+              <p className="recap-stat recap-levelups">
+                Leveled up:{' '}
+                {recap.levelUps
+                  .map((l) => EXERCISE_NAMES[l.key] ?? l.key)
+                  .join(', ')}
+              </p>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

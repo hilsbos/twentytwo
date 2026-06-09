@@ -10,8 +10,9 @@
   --line: rgba(236, 238, 230, 0.09);
   --line2: rgba(236, 238, 230, 0.16);
   --text: #eceee6;
-  --muted: #9aa08f;
-  --faint: #6e7464;
+  --muted: #a3a896;
+  /* lifted from #6e7464 — the old faint failed AA for small text on --bg */
+  --faint: #868c79;
   --accent: #c8fa4b;
   --push: #c8fa4b;
   --legs: #f2b33d;
@@ -488,8 +489,8 @@ a {
   padding: 6px;
 }
 .stepper button.pm {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: 10px;
   border: 1px solid var(--line2);
   background: var(--surface);
@@ -520,7 +521,7 @@ a {
 }
 .stepper .confirm {
   min-width: 56px;
-  height: 44px;
+  height: 48px;
   border-radius: 10px;
   border: none;
   background: var(--accent);
@@ -686,6 +687,11 @@ a {
   font-size: clamp(56px, 22vw, 96px);
   font-weight: 700;
   line-height: 1;
+  /* Neutral below the weekly win threshold; turns lime once it's earned. */
+  color: var(--text);
+  transition: color 0.3s ease;
+}
+.consistency .big.is-win {
   color: var(--accent);
 }
 .consistency .big .slash {
@@ -1019,4 +1025,157 @@ a {
   border-top: 1px solid var(--line);
   font-size: 13px;
   color: var(--muted);
+}
+
+/* ---------------------------------------------------------------------------
+   First-session orientation note (dismissible)
+   ------------------------------------------------------------------------- */
+.onboard-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 14px 0 4px;
+  padding: 12px 14px;
+  border-radius: 11px;
+  background: var(--surface);
+  border: 1px solid var(--line2);
+}
+.onboard-note p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.onboard-note .onboard-x {
+  flex: 0 0 auto;
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  color: var(--faint);
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   Floor-mode "you're done" confirmation (replaces the toggle once complete)
+   ------------------------------------------------------------------------- */
+.floor-toggle.is-done {
+  border-style: solid;
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+}
+.floor-toggle.is-done .ico {
+  color: var(--accent);
+}
+.floor-toggle.is-done p {
+  color: var(--text);
+}
+.floor-toggle .check {
+  margin-left: auto;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 700;
+  font-size: 15px;
+  display: grid;
+  place-items: center;
+}
+
+/* ---------------------------------------------------------------------------
+   Tenure gate line (quiet hold message on a card when maxed-but-not-tenured)
+   ------------------------------------------------------------------------- */
+.tenure-gate {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------------------------
+   Completion-banner extras: protein "why", tomorrow whisper, recap variant
+   ------------------------------------------------------------------------- */
+.done-banner .sub .why {
+  opacity: 0.82;
+}
+.done-banner .whisper {
+  display: block;
+  font-family: 'Hanken Grotesk', sans-serif;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+  font-size: 12px;
+  opacity: 0.62;
+  margin-top: 4px;
+}
+.done-banner.is-recap {
+  display: block;
+  width: 100%;
+  border: none;
+  cursor: pointer;
+}
+
+/* ---------------------------------------------------------------------------
+   Sunday recap sheet
+   ------------------------------------------------------------------------- */
+.recap-empty {
+  color: var(--muted);
+  font-size: 14px;
+  padding: 8px 0 6px;
+}
+.recap-patterns {
+  list-style: none;
+  margin: 4px 0 18px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.recap-patterns li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.recap-patterns .rp-name {
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.recap-patterns .rp-marks {
+  font-size: 18px;
+  letter-spacing: 0.18em;
+}
+.recap-patterns .rp-hit {
+  color: var(--accent);
+}
+.recap-patterns .rp-miss {
+  color: var(--faint);
+}
+.recap-stat {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+.recap-stat b {
+  font-family: 'Oswald', sans-serif;
+  font-size: 18px;
+  color: var(--text);
+  margin-right: 4px;
+}
+.recap-levelups {
+  margin-top: 12px;
+  color: var(--accent);
 }
