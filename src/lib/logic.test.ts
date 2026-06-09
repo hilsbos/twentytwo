@@ -8,6 +8,9 @@ import {
   targets,
   beatState,
   shouldSuggestAdvance,
+  advanceState,
+  completionHourLocal,
+  weekRecap,
   consistency7,
   isSessionComplete,
 } from './logic';
@@ -372,6 +375,135 @@ describe('shouldSuggestAdvance', () => {
 
   it('true with ample tenure', () => {
     expect(shouldSuggestAdvance(maxed, ex, 0, 12)).toBe(true);
+  });
+});
+
+// ---------- advanceState (the gated/ready/none classifier) ----------
+
+describe('advanceState', () => {
+  const ex: Exercise = {
+    key: 'pushup',
+    name: 'Push-up',
+    sets: 3,
+    unit: 'reps',
+    range: [8, 15],
+    path: ['Hands elevated', 'Standard', 'Diamond'],
+    main: true,
+  };
+  const maxed = [
+    makeLog('pushup', 1, 15, 0),
+    makeLog('pushup', 2, 15, 0),
+    makeLog('pushup', 3, 15, 0),
+  ];
+
+  it("'ready' when maxed AND tenured", () => {
+    expect(advanceState(maxed, ex, 0, 6)).toBe('ready');
+  });
+
+  it("'gated' when maxed but not yet tenured — the visible hold", () => {
+    expect(advanceState(maxed, ex, 0, 0)).toBe('gated');
+    expect(advanceState(maxed, ex, 0, 5)).toBe('gated');
+  });
+
+  it("'none' when reps are not maxed, regardless of tenure", () => {
+    const under = [
+      makeLog('pushup', 1, 15, 0),
+      makeLog('pushup', 2, 14, 0),
+      makeLog('pushup', 3, 15, 0),
+    ];
+    expect(advanceState(under, ex, 0, 99)).toBe('none');
+  });
+
+  it("'none' on the last step even when maxed and tenured", () => {
+    const top = [
+      makeLog('pushup', 1, 15, 2),
+      makeLog('pushup', 2, 15, 2),
+      makeLog('pushup', 3, 15, 2),
+    ];
+    expect(advanceState(top, ex, 2, 99)).toBe('none');
+  });
+
+  it('agrees with shouldSuggestAdvance on the ready case', () => {
+    expect(shouldSuggestAdvance(maxed, ex, 0, 6)).toBe(
+      advanceState(maxed, ex, 0, 6) === 'ready',
+    );
+  });
+});
+
+// ---------- completionHourLocal ----------
+
+describe('completionHourLocal', () => {
+  it('returns null for null/invalid input', () => {
+    expect(completionHourLocal(null)).toBeNull();
+    expect(completionHourLocal('not-a-date')).toBeNull();
+  });
+
+  it('reads the LOCAL hour of a UTC timestamp (matches Date.getHours)', () => {
+    const iso = new Date(2026, 5, 8, 7, 15).toISOString(); // 7:15 local
+    expect(completionHourLocal(iso)).toBe(7);
+  });
+
+  it('reflects local time even for a late-evening session', () => {
+    const iso = new Date(2026, 5, 8, 22, 40).toISOString(); // 22:40 local
+    expect(completionHourLocal(iso)).toBe(22);
+  });
+});
+
+// ---------- weekRecap ----------
+
+describe('weekRecap', () => {
+  const today = '2026-06-07'; // a Sunday
+  const h = (
+    on_date: string,
+    day_type: Session['day_type'],
+    logs: SetLog[],
+    over: Partial<Session> = {},
+  ) => ({ session: makeSession(on_date, { day_type, ...over }), logs });
+
+  it('counts patterns hit vs planned, total sets, and sessions', () => {
+    const hist = [
+      h('2026-06-01', 'push', [makeLog('pushup', 1, 10), makeLog('pushup', 2, 10)]),
+      h('2026-06-02', 'legs', [makeLog('squat', 1, 12)]),
+      h('2026-06-04', 'push', [makeLog('pushup', 1, 11)]),
+      h('2026-06-07', 'core', [makeLog('dead_bug', 1, 10)]),
+    ];
+    const r = weekRecap(hist, today);
+    expect(r.sessionsCount).toBe(4);
+    expect(r.totalSets).toBe(5);
+    const push = r.patterns.find((p) => p.type === 'push')!;
+    expect(push.trained).toBe(2);
+    expect(push.planned).toBe(2);
+    const core = r.patterns.find((p) => p.type === 'core')!;
+    expect(core.trained).toBe(1);
+    expect(core.planned).toBe(1);
+  });
+
+  it('excludes sessions outside the rolling 7-day window', () => {
+    const hist = [
+      h('2026-05-20', 'push', [makeLog('pushup', 1, 10)]), // too old
+      h('2026-06-07', 'core', [makeLog('dead_bug', 1, 10)]),
+    ];
+    const r = weekRecap(hist, today);
+    expect(r.sessionsCount).toBe(1);
+    expect(r.totalSets).toBe(1);
+  });
+
+  it('detects a level-up when step_index rises within the window', () => {
+    const hist = [
+      h('2026-06-02', 'push', [makeLog('pushup', 1, 15, 0)]),
+      h('2026-06-05', 'push', [makeLog('pushup', 1, 8, 1)]), // advanced to step 1
+    ];
+    const r = weekRecap(hist, today);
+    expect(r.levelUps).toEqual([{ key: 'pushup', from: 0, to: 1 }]);
+  });
+
+  it('floor days still contribute their real set total (honest depth)', () => {
+    const hist = [
+      h('2026-06-07', 'core', [makeLog('dead_bug', 1, 10)], { floor_mode: true }),
+    ];
+    const r = weekRecap(hist, today);
+    expect(r.sessionsCount).toBe(1);
+    expect(r.totalSets).toBe(1);
   });
 });
 
