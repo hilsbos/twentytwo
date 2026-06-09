@@ -26,6 +26,9 @@ export default function App() {
   const [phase, setPhase] = useState<Phase>('loading');
   const [profile, setProfile] = useState<Profile | null>(null);
   const [screen, setScreen] = useState<Screen>('today'); // Today is ALWAYS initial
+  // If boot stalls (slow/hung auth fetch), surface a reload instead of staying
+  // on a silent black screen forever.
+  const [bootSlow, setBootSlow] = useState(false);
 
   // Resolve auth + profile on boot and whenever auth changes.
   useEffect(() => {
@@ -68,6 +71,17 @@ export default function App() {
     };
   }, []);
 
+  // Watchdog: if we're still resolving auth after 8s, something is wrong
+  // (hung token refresh, flaky network) — offer a reload rather than black.
+  useEffect(() => {
+    if (phase !== 'loading') {
+      setBootSlow(false);
+      return;
+    }
+    const t = setTimeout(() => setBootSlow(true), 8000);
+    return () => clearTimeout(t);
+  }, [phase]);
+
   function handleProfileReady(p: Profile) {
     setProfile(p);
     setScreen('today');
@@ -89,6 +103,22 @@ export default function App() {
     return (
       <div className="wrap">
         <BrandBar />
+        {bootSlow ? (
+          <div className="boot-slow" role="alert">
+            <p>Taking longer than usual to load.</p>
+            <button
+              type="button"
+              className="btn"
+              onClick={() => window.location.reload()}
+            >
+              Reload
+            </button>
+          </div>
+        ) : (
+          <p className="boot-hint" aria-live="polite">
+            Loading…
+          </p>
+        )}
       </div>
     );
   }

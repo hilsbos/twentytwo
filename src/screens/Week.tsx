@@ -53,6 +53,8 @@ export default function Week({ profile, onSignOut }: WeekProps) {
   const todayISO = localDateISO(new Date());
   const [crew, setCrew] = useState<CrewMember[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Gate the count so we never flash a misleading "0" before data arrives.
+  const [loaded, setLoaded] = useState(false);
 
   // My own consistency comes from presence sessions too (single fetch).
   const [mine, setMine] = useState<{
@@ -117,6 +119,7 @@ export default function Week({ profile, onSignOut }: WeekProps) {
 
         setCrew(members);
         setError(null);
+        setLoaded(true);
       } catch {
         if (!alive) return;
         setError('Could not load the crew. Pull to refresh.');
@@ -133,8 +136,8 @@ export default function Week({ profile, onSignOut }: WeekProps) {
   return (
     <div className="wrap">
       <section className="consistency">
-        <div className={`big${mine.count >= 6 ? ' is-win' : ''}`}>
-          {mine.count}
+        <div className={`big${loaded && mine.count >= 6 ? ' is-win' : ''}`}>
+          {loaded ? mine.count : '–'}
           <span className="slash"> / 7</span>
         </div>
         <p className="cap">mornings this week — 6 in a week is a full win</p>

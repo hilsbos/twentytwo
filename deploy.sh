@@ -11,9 +11,13 @@ DIST_ID=E2ZQARMMJVMNVU
 
 npm run build
 
-# Hashed assets: immutable, long cache. --delete prunes stale hashes.
+# Hashed assets: immutable, long cache. Do NOT --delete: pruning old hashes means
+# a cached/edge index.html that still references a previous build 404s its JS
+# chunk -> a permanent black screen. Old hashes are tiny; let them linger so stale
+# HTML degrades to "runs the old version" instead of breaking. Prune manually if
+# the assets/ prefix ever grows large.
 aws --profile "$PROFILE" s3 sync dist/assets/ "$BUCKET/assets/" \
-  --cache-control "public,max-age=31536000,immutable" --delete
+  --cache-control "public,max-age=31536000,immutable"
 
 # Icons: stable names, daily cache.
 aws --profile "$PROFILE" s3 sync dist/icons/ "$BUCKET/icons/" \

@@ -1028,6 +1028,36 @@ a {
 }
 
 /* ---------------------------------------------------------------------------
+   Boot / loading states
+   ------------------------------------------------------------------------- */
+.boot-hint {
+  margin-top: 28px;
+  color: var(--faint);
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  animation: bootpulse 1.4s ease-in-out infinite;
+}
+@keyframes bootpulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+.boot-slow {
+  margin-top: 28px;
+}
+.boot-slow p {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+/* ---------------------------------------------------------------------------
    Protein check (one-tap daily nutrition nudge, shown after completion)
    ------------------------------------------------------------------------- */
 .protein-check {
