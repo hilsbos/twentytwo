@@ -1,12 +1,21 @@
 import { describe, it, expect } from 'vitest';
 import { DAYS } from '../program';
 import type { Exercise } from '../types';
-import { GUIDES, guideFor } from './index';
+import { GUIDES, guideFor } from './all';
+import { GUIDABLE_KEYS, isGuidable } from './index';
 
 // Every guidable exercise key across the whole program (push/legs/pull).
 const exercises: Exercise[] = Object.values(DAYS).flatMap((d) => d.exercises);
 
 describe('illustration registry', () => {
+  it('the eager GUIDABLE_KEYS set stays in sync with the lazy GUIDES map', () => {
+    expect([...GUIDABLE_KEYS].sort()).toEqual(Object.keys(GUIDES).sort());
+    for (const key of Object.keys(GUIDES)) {
+      expect(isGuidable(key), `isGuidable("${key}")`).toBe(true);
+    }
+    expect(isGuidable('not_a_key')).toBe(false);
+  });
+
   it('covers every exercise key with a guides array of matching length', () => {
     for (const ex of exercises) {
       const guides = GUIDES[ex.key];

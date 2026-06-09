@@ -1,57 +1,58 @@
 import type { VariationGuide } from './types';
 
-import pushup from './pushup';
-import pike_pushup from './pike_pushup';
-import triceps_press from './triceps_press';
-import hollow_hold from './hollow_hold';
-import squat from './squat';
-import glute_bridge from './glute_bridge';
-import reverse_lunge from './reverse_lunge';
-import hinge_raises from './hinge_raises';
-import row from './row';
-import band_pull_apart from './band_pull_apart';
-import lat_pulldown from './lat_pulldown';
-import curls_plank from './curls_plank';
-import dead_bug from './dead_bug';
-import pallof_press from './pallof_press';
-import side_plank from './side_plank';
-import v_tuck_hold from './v_tuck_hold';
-
 export type { VariationGuide } from './types';
 
 /**
- * Every guidable exercise key -> its per-variation guides (index === step_index,
- * matching that key's `path` array in src/program.ts). Warm-up items are
- * intentionally absent (out of scope per the feature spec).
+ * The guidable exercise keys, kept EAGER (tiny) so cards can decide synchronously
+ * whether to show a Form button / inline cue without pulling in the heavy art.
+ * The registry test asserts this set stays in sync with the actual GUIDES map.
  */
-export const GUIDES: Record<string, VariationGuide[]> = {
-  pushup,
-  pike_pushup,
-  triceps_press,
-  hollow_hold,
-  squat,
-  glute_bridge,
-  reverse_lunge,
-  hinge_raises,
-  row,
-  band_pull_apart,
-  lat_pulldown,
-  curls_plank,
-  dead_bug,
-  pallof_press,
-  side_plank,
-  v_tuck_hold,
-};
+export const GUIDABLE_KEYS: readonly string[] = [
+  'pushup',
+  'pike_pushup',
+  'triceps_press',
+  'hollow_hold',
+  'squat',
+  'glute_bridge',
+  'reverse_lunge',
+  'hinge_raises',
+  'row',
+  'band_pull_apart',
+  'lat_pulldown',
+  'curls_plank',
+  'dead_bug',
+  'pallof_press',
+  'side_plank',
+  'v_tuck_hold',
+];
+
+const guidableSet = new Set(GUIDABLE_KEYS);
+
+/** Sync check: is there art for this key at all? (Step range is the caller's path length.) */
+export function isGuidable(exerciseKey: string): boolean {
+  return guidableSet.has(exerciseKey);
+}
+
+// The heavy art registry is loaded once, on demand (first form-sheet open).
+let cache: Record<string, VariationGuide[]> | null = null;
+
+async function loadGuides(): Promise<Record<string, VariationGuide[]>> {
+  if (!cache) {
+    const mod = await import('./all');
+    cache = mod.GUIDES;
+  }
+  return cache;
+}
 
 /**
- * Returns the guide for an exercise at a given step, or null if the key is not
- * guidable (warm-up) or the step is out of range.
+ * Async: resolves the guide for an exercise at a step, loading the art chunk on
+ * first use. Returns null if the key isn't guidable or the step is out of range.
  */
-export function guideFor(
+export async function loadGuide(
   exerciseKey: string,
   stepIndex: number,
-): VariationGuide | null {
-  const list = GUIDES[exerciseKey];
-  if (!list) return null;
-  return list[stepIndex] ?? null;
+): Promise<VariationGuide | null> {
+  if (!guidableSet.has(exerciseKey)) return null;
+  const guides = await loadGuides();
+  return guides[exerciseKey]?.[stepIndex] ?? null;
 }

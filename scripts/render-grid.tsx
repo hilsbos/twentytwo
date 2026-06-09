@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { createElement } from 'react';
 import { writeFileSync } from 'fs';
-import { GUIDES } from '../src/illustrations/index';
+import { GUIDES } from '../src/illustrations/all';
 import { ROTATION, dayConfig } from '../src/program';
 
 // Derive the guidable exercise order and step labels directly from program.ts,
