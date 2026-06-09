@@ -5,7 +5,9 @@ Project context handoff. Read this first to continue work.
 ## What this is
 A personal, phone-first **web app** for the Twenty-Two morning calisthenics
 program: a Push / Legs / Pull rotation Mon–Sat plus a programmed Sunday core day,
-runnable anywhere (home, hotel, travel) in 15–20 min/day. Goal is general "great shape" — lean and defined, not mass —
+runnable anywhere (home, hotel, travel) in **22 min/day** — the brand *is* the dose
+(TwentyTwo = a 22-minute morning; surface "22 minutes", never "15–20", in all copy).
+Goal is general "great shape" — lean and defined, not mass —
 alongside a leaner body composition. Starting from zero, so habit-building matters
 as much as the program; the product spine is ADHD-first (opens on today's workout,
 one-tap logging, no breakable streaks).

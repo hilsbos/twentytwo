@@ -1,7 +1,7 @@
 {
   "name": "twentyTwo",
   "short_name": "22",
-  "description": "Morning calisthenics — run it anywhere in 15–20 minutes.",
+  "description": "Morning calisthenics — run it anywhere in 22 minutes.",
   "display": "standalone",
   "orientation": "portrait",
   "start_url": "./",

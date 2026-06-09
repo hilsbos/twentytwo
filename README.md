@@ -2,7 +2,7 @@
 
 A minimal, phone-first workout app for the **Twenty-Two** morning calisthenics
 program — push / legs / pull rotating Mon–Sat plus a Sunday core day, runnable
-anywhere in 15–20 minutes.
+anywhere in 22 minutes (the name is the dose).
 
 - React 19 + Vite + TypeScript (static build, no router/state/CSS frameworks)
 - Supabase (Postgres + magic-link auth + RLS) for accounts, logs, and friend presence

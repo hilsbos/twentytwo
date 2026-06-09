@@ -117,7 +117,7 @@ export default function Auth({ onProfileReady }: AuthProps) {
   if (step === 'loading') {
     return (
       <div className="wrap">
-        <Header sub="Daily calisthenics. 15–20 minutes. Anywhere." />
+        <Header sub="Daily calisthenics. 22 minutes. Anywhere." />
       </div>
     );
   }
@@ -181,7 +181,7 @@ export default function Auth({ onProfileReady }: AuthProps) {
   // step === 'email'
   return (
     <div className="wrap">
-      <Header sub="Daily calisthenics. 15–20 minutes. Anywhere. Sign in to track it." />
+      <Header sub="Daily calisthenics. 22 minutes. Anywhere. Sign in to track it." />
       <form onSubmit={handleSendLink}>
         <div className="label">Sign in</div>
         <input

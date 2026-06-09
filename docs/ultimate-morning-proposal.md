@@ -12,7 +12,7 @@ trunk** well, and **nails adherence** — but provides essentially zero **cardio
 **dedicated mobility**, or **bone-grade loading**, and leaves **body composition**
 (the thing that makes you look "defined") to diet, which the app only nudges.
 
-"Perfect in every metric" is not a real target for any 15–20 min routine —
+"Perfect in every metric" is not a real target for any 22-min routine —
 elite VO₂max, elite strength, and elite mobility actively compete. The realistic
 and worthy target is **every vector at "very good," none neglected.** That is
 reachable.
@@ -29,7 +29,7 @@ habit; heavy/bone loading eventually = real external load).
 - **Doorway pull-up bar (~$25).** Highest-leverage item: unlocks vertical pull,
   grip, and heavier bone loading; prerequisite for the pull-up module. Until it
   exists, that module stays blocked.
-- **A daily brisk walk.** Long Zone-2 can't fit a 20-min strength block; it must
+- **A daily brisk walk.** Long Zone-2 can't fit the 22-min strength block; it must
   be incidental. The app can remind; it can't walk for you.
 
 **Me (app/program):** the §4 module additions + the §5 protein tracker.
