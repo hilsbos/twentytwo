@@ -33,6 +33,8 @@ export interface Session {
   on_date: string;
   day_type: DayType;
   floor_mode: boolean;
+  /** Per-day "had my ~30g protein" flag — the one nutrition lever the app tracks. */
+  protein_hit: boolean;
   completed_at: string | null;
 }
 

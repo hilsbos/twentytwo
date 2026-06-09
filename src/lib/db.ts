@@ -89,7 +89,7 @@ export async function fetchMyHistory(
 
   const { data: sessions, error: sErr } = await supabase
     .from('sessions')
-    .select('id, user_id, on_date, day_type, floor_mode, completed_at')
+    .select('id, user_id, on_date, day_type, floor_mode, protein_hit, completed_at')
     .eq('user_id', uid)
     .gte('on_date', sinceISO)
     .order('on_date', { ascending: false });
@@ -137,7 +137,7 @@ export async function getOrCreateTodaySession(
   return retryAsync(async () => {
     const { data: existing, error: exErr } = await supabase
       .from('sessions')
-      .select('id, user_id, on_date, day_type, floor_mode, completed_at')
+      .select('id, user_id, on_date, day_type, floor_mode, protein_hit, completed_at')
       .eq('user_id', uid)
       .eq('on_date', onDate)
       .maybeSingle();
@@ -152,7 +152,7 @@ export async function getOrCreateTodaySession(
         day_type: dayType,
         floor_mode: floorMode,
       })
-      .select('id, user_id, on_date, day_type, floor_mode, completed_at')
+      .select('id, user_id, on_date, day_type, floor_mode, protein_hit, completed_at')
       .single();
     if (error) {
       // A concurrent caller may have won the race and inserted today's row first,
@@ -160,7 +160,7 @@ export async function getOrCreateTodaySession(
       if (error.code === '23505') {
         const { data: raced, error: reErr } = await supabase
           .from('sessions')
-          .select('id, user_id, on_date, day_type, floor_mode, completed_at')
+          .select('id, user_id, on_date, day_type, floor_mode, protein_hit, completed_at')
           .eq('user_id', uid)
           .eq('on_date', onDate)
           .single();
@@ -223,6 +223,16 @@ export async function setFloorMode(sessionId: string, on: boolean): Promise<void
     const { error } = await supabase
       .from('sessions')
       .update({ floor_mode: on })
+      .eq('id', sessionId);
+    if (error) throw error;
+  });
+}
+
+export async function setProteinHit(sessionId: string, hit: boolean): Promise<void> {
+  await retryAsync(async () => {
+    const { error } = await supabase
+      .from('sessions')
+      .update({ protein_hit: hit })
       .eq('id', sessionId);
     if (error) throw error;
   });

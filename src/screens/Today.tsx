@@ -19,6 +19,7 @@ import {
   logSet as dbLogSet,
   markCompleted,
   setFloorMode as dbSetFloorMode,
+  setProteinHit as dbSetProteinHit,
   advanceStep as dbAdvanceStep,
 } from '../lib/db';
 import { isGuidable, loadGuide } from '../illustrations';
@@ -68,6 +69,7 @@ export default function Today({ profile }: TodayProps) {
   const [todayLogs, setTodayLogs] = useState<Map<string, SetLog>>(new Map());
 
   const [floorMode, setFloorModeState] = useState(false);
+  const [proteinHit, setProteinHitState] = useState(false);
   const [completedAt, setCompletedAt] = useState<string | null>(null);
   const [bannerShown, setBannerShown] = useState(false);
 
@@ -120,6 +122,7 @@ export default function Today({ profile }: TodayProps) {
         if (existing) {
           setSession(existing.session);
           setFloorModeState(existing.session.floor_mode);
+          setProteinHitState(existing.session.protein_hit);
           setCompletedAt(existing.session.completed_at);
           const m = new Map<string, SetLog>();
           for (const l of existing.logs) {
@@ -202,6 +205,19 @@ export default function Today({ profile }: TodayProps) {
         setFloorModeState(!next);
         setRetryHint('Could not save floor mode — tap to retry.');
       });
+    }
+  }
+
+  // ---- protein check (optimistic, with rollback) ----
+  async function toggleProtein() {
+    const next = !proteinHit;
+    setProteinHitState(next);
+    try {
+      const s = await ensureSession();
+      await dbSetProteinHit(s.id, next);
+    } catch {
+      setProteinHitState(!next);
+      setRetryHint('Could not save that — tap to retry.');
     }
   }
 
@@ -321,6 +337,8 @@ export default function Today({ profile }: TodayProps) {
         );
       })}
 
+      {completedAt && <ProteinCheck on={proteinHit} onToggle={toggleProtein} />}
+
       {retryHint && <p className="err">{retryHint}</p>}
 
       {bannerShown && (
@@ -399,6 +417,27 @@ function FloorToggle({
       <span className="ico">Low day?</span>
       <p>One round of the main moves still counts as a win.</p>
       <span className="switch" aria-hidden="true" />
+    </button>
+  );
+}
+
+// ===========================================================================
+// Protein check — one-tap daily nutrition nudge (shown once the session is done)
+// ===========================================================================
+function ProteinCheck({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+  return (
+    <button
+      className={`protein-check${on ? ' is-on' : ''}`}
+      type="button"
+      aria-pressed={on}
+      onClick={onToggle}
+    >
+      <span className="pc-box" aria-hidden="true">
+        {on ? '✓' : ''}
+      </span>
+      <span className="pc-label">
+        {on ? 'Protein logged' : 'Had ~30g protein?'}
+      </span>
     </button>
   );
 }

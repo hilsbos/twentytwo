@@ -82,6 +82,7 @@ export default function Week({ profile, onSignOut }: WeekProps) {
           on_date: s.on_date,
           day_type: 'push' as const,
           floor_mode: false,
+          protein_hit: false,
           completed_at: s.completed_at,
         }));
         setMine(consistency7(mySessions, todayISO));

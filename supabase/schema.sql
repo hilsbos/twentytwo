@@ -21,6 +21,8 @@ create table if not exists public.sessions (
   -- programmed 'core' day; the app no longer writes it.
   day_type text not null check (day_type in ('push', 'legs', 'pull', 'flex', 'core')),
   floor_mode boolean not null default false,
+  -- per-day "had my ~30g protein" flag (the one nutrition lever the app tracks)
+  protein_hit boolean not null default false,
   completed_at timestamptz,
   created_at timestamptz not null default now(),
   unique (user_id, on_date)

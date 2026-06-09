@@ -1028,6 +1028,54 @@ a {
 }
 
 /* ---------------------------------------------------------------------------
+   Protein check (one-tap daily nutrition nudge, shown after completion)
+   ------------------------------------------------------------------------- */
+.protein-check {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  text-align: left;
+  margin: 14px 0 104px; /* clear the fixed completion banner below */
+  padding: 13px 15px;
+  border-radius: 11px;
+  background: var(--surface);
+  border: 1px solid var(--line2);
+}
+.protein-check .pc-box {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  border: 1px solid var(--line2);
+  background: var(--surface2);
+  display: grid;
+  place-items: center;
+  color: var(--bg);
+  font-weight: 700;
+  font-size: 14px;
+}
+.protein-check .pc-label {
+  font-family: 'Oswald', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.protein-check.is-on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+}
+.protein-check.is-on .pc-box {
+  background: var(--accent);
+  border-color: transparent;
+}
+.protein-check.is-on .pc-label {
+  color: var(--accent);
+}
+
+/* ---------------------------------------------------------------------------
    First-session orientation note (dismissible)
    ------------------------------------------------------------------------- */
 .onboard-note {

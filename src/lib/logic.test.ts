@@ -27,6 +27,7 @@ function makeSession(on_date: string, over: Partial<Session> = {}): Session {
     on_date,
     day_type: 'push',
     floor_mode: false,
+    protein_hit: false,
     completed_at: null,
     ...over,
   };

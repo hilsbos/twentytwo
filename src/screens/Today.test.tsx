@@ -14,6 +14,7 @@ vi.mock('../lib/db', () => ({
   logSet: vi.fn(),
   markCompleted: vi.fn(),
   setFloorMode: vi.fn(),
+  setProteinHit: vi.fn(),
   advanceStep: vi.fn(),
 }));
 
@@ -24,6 +25,7 @@ vi.mock('../illustrations', () => ({
 }));
 
 import Today from './Today';
+import { localDateISO } from '../lib/logic';
 import {
   fetchMyHistory,
   fetchProgression,
@@ -32,6 +34,7 @@ import {
   logSet,
   markCompleted,
   setFloorMode,
+  setProteinHit,
 } from '../lib/db';
 
 const profile = { id: 'u1', display_name: 'Pat' };
@@ -41,6 +44,7 @@ const fakeSession: Session = {
   on_date: '2026-06-08',
   day_type: 'push',
   floor_mode: false,
+  protein_hit: false,
   completed_at: null,
 };
 const savedLog = (over: Partial<SetLog> = {}): SetLog => ({
@@ -148,5 +152,32 @@ describe('Today — set logging error paths', () => {
     expect(
       screen.getByRole('button', { name: /low day/i }),
     ).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('shows the protein check after completion and persists a tap', async () => {
+    const user = userEvent.setup();
+    const todayISO = localDateISO(new Date());
+    vi.mocked(fetchMyHistory).mockResolvedValue([
+      {
+        session: {
+          ...fakeSession,
+          on_date: todayISO,
+          completed_at: '2026-06-08T12:00:00Z',
+          protein_hit: false,
+        },
+        logs: [],
+      },
+    ]);
+    vi.mocked(setProteinHit).mockResolvedValue(undefined);
+
+    render(<Today profile={profile} />);
+
+    const toggle = await screen.findByRole('button', {
+      name: /had ~30g protein/i,
+    });
+    await user.click(toggle);
+
+    expect(await screen.findByText(/protein logged/i)).toBeInTheDocument();
+    expect(setProteinHit).toHaveBeenCalledWith('s1', true);
   });
 });
