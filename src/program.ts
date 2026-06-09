@@ -48,7 +48,7 @@ const PUSH: Exercise[] = [
     unit: 'reps',
     range: [10, 15],
     path: ['Band pushdown', 'Overhead band extension', 'Diamond push-up'],
-    note: 'Long band over the door for pushdowns. Same triceps, none of the shoulder strain dips cause.',
+    note: 'Long band over the door for pushdowns. Triceps work that\'s easy on the shoulders.',
     main: true,
   },
   {
@@ -197,7 +197,7 @@ export const DAYS: Record<DayType, Day> = {
     type: 'push',
     title: 'Push day',
     focus:
-      'Pressing strength and a fuller chest and shoulders. The band triceps press now replaces dips. Stop each set when you think you have about 2 clean reps left in the tank — don\'t grind to total exhaustion. Lower for a 3-count (count three seconds on the way down).',
+      'Pressing strength and a fuller chest and shoulders. Stop each set when you think you have about 2 clean reps left in the tank — don\'t grind to total exhaustion. Lower for a 3-count (count three seconds on the way down).',
     exercises: PUSH,
   },
   legs: {
