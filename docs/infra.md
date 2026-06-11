@@ -37,7 +37,29 @@ Cache tiers set by `deploy.sh`: hashed `assets/*` immutable 1y · icons 1d ·
 
 Production redirect URL `https://shushu.be/twentytwo/` must be in
 Authentication → URL Configuration → Redirect URLs (alongside
-`http://localhost:5173` for dev).
+`http://localhost:5173` for dev). (Legacy of the magic-link era — auth is now a
+6-digit email code verified in-app, so the redirect is no longer load-bearing;
+kept during transition.)
+
+## Auth email (AWS SES, added 2026-06-11)
+
+Sign-in codes send via **AWS SES SMTP**, configured in Supabase →
+Authentication → Emails → SMTP Settings:
+
+- Sender: `twentyTwo <code@shushu.be>` — domain identity `shushu.be` verified
+  in SES **us-east-1** (3 DKIM CNAMEs in the shushu.be Route 53 zone,
+  `Z00916933MVU7N956CLO0`).
+- SMTP host `email-smtp.us-east-1.amazonaws.com:465`; credentials belong to the
+  send-only IAM user **`twentytwo-ses-smtp`** (policy: `ses:SendEmail`/
+  `SendRawEmail` only). Rotate by deleting that user's access key and deriving a
+  new SMTP password (AWS-documented HMAC algorithm).
+- The Supabase **Magic Link email template** carries `{{ .Token }}` (code-only —
+  never re-add `{{ .ConfirmationURL }}` alongside it; the dual template is an
+  unresolved upstream bug and email-scanner-fragile).
+- **Sandbox status**: production access requested 2026-06-10 (transactional,
+  low volume). Until approved, SES only delivers to verified identities
+  (`patrick@hilsbos.com` is verified) — crew sign-ups need production access.
+  Check: `aws --profile hilsbos sesv2 get-account --region us-east-1`.
 
 ## Rollback (if some old shared direct-S3 link turns out to matter)
 

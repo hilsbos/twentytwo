@@ -18,19 +18,31 @@ The deliverable is the React app. `docs/legacy-reference-card.html` is the
 ## Stack & architecture
 - **React 19 + Vite + TypeScript**, static build. No router, no state lib, no CSS
   framework — hand-rolled. Vite `base: './'`; all asset/manifest/icon paths are
-  relative so `dist/` can be dropped under any subpath.
-- **Supabase** (Postgres + magic-link auth + RLS) for accounts, logs, and the
+  relative so `dist/` can be dropped under any subpath. PWA: installable on
+  Android (WebAPK) with zero extra code; iOS gets a dismissible add-to-home-screen
+  hint (`InstallHint`, iOS-Safari-only).
+- **Supabase** (Postgres + email-code auth + RLS) for accounts, logs, and the
   social layer. Schema is `supabase/schema.sql` (idempotent, full RLS):
   `profiles`, `sessions`, `set_logs`, `progression`. `sessions.day_type` allows
   `push`/`legs`/`pull`/`core`/`flex` — `core` is Sunday's programmed day; `flex`
-  is retained only for historical rows and is no longer written. Migration:
-  `supabase/migrations/2026-06-07_add_sunday_day.sql` (idempotent CHECK swap).
-- Magic-link redirect uses `location.origin + location.pathname`, so every served
-  subpath must be allow-listed in Supabase Auth → Redirect URLs.
+  is retained only for historical rows and is no longer written.
+  `sessions.protein_hit` (boolean) backs the protein tracker. Migrations:
+  `2026-06-07_add_sunday_day.sql`, `2026-06-08_add_protein_hit.sql` (both idempotent).
+- **Auth is a 6-digit email code**, not a magic link: `signInWithOtp` sends,
+  `verifyOtp({ type: 'email' })` verifies in-app (`db.ts`). The Supabase
+  **Magic Link email template carries `{{ .Token }}`** (code-only — the link+code
+  dual template is an unresolved upstream bug and prefetch-fragile). Magic links
+  were abandoned because iOS standalone PWAs have storage isolated from Safari —
+  a mailed link signs into Safari, never the installed app.
+- Auth email sends via **AWS SES SMTP**: `code@shushu.be`, us-east-1, send-only
+  IAM user `twentytwo-ses-smtp`. **Production access pending** at time of
+  writing — sandbox mode only delivers to verified addresses.
 - **Social layer is presence-only**: friends see each other's session presence and
   rolling consistency, **never reps or numbers**.
 - **Deployed at https://shushu.be/twentytwo/** — `./deploy.sh` (scoped IAM
-  profile `twentytwo-deploy`). Full infra details + rollback: `docs/infra.md`.
+  profile `twentytwo-deploy`). The assets sync deliberately does **not**
+  `--delete` old hashed chunks: a stale cached HTML must still find its JS, or
+  the app black-screens. Full infra details + rollback: `docs/infra.md`.
 
 ### Layout
 ```
@@ -38,15 +50,18 @@ src/
   program.ts        program config (rotation, exercises, progression paths)
   types.ts          shared contracts
   lib/logic.ts      pure, unit-tested logic (dates, targets, consistency, level-up)
+  lib/retry.ts      retry-with-backoff wrapper for write paths
   lib/supabase.ts   client init from env
   lib/db.ts         typed data-access wrappers (no UI logic)
-  screens/          Auth / Today / Week
-  components/       FormSheet (form guide sheet)
+  screens/          Auth / Today / Week (+ Auth.test.tsx, Today.test.tsx)
+  components/       FormSheet (form guide sheet), InstallHint (iOS A2HS hint)
   illustrations/    per-exercise 2-pose SVGs + CONVENTIONS.md + registry test
-  App.tsx           two-screen shell (brand bar + nav) + auth gate
+  App.tsx           two-screen shell (brand bar + nav) + auth gate + boot watchdog
 supabase/           schema.sql + migrations/
 scripts/            gen_icons.py, render-grid.tsx
-docs/               infra.md, program-view-proposal.md, exercise-guide-grid.png,
+docs/               infra.md, program-view-proposal.md,
+                    ultimate-morning-proposal.md, improvements-brainstorm.md,
+                    form-guide-review.md, exercise-guide-grid.png,
                     legacy-reference-card.html
 deploy.sh           one-command production deploy (see docs/infra.md)
 ```
@@ -89,50 +104,82 @@ Evidence-review changes (v1 → current) and their rationale:
 - **Level-up suggestions are tenure-gated**: only suggested after hitting top of
   range AND `sessionsAtStep >= 6` per step (~3 wks at 2×/wk). Tendon adaptation
   lags muscle by 2–3 months, so we don't push variations on rep performance alone.
-  (Logic: `shouldSuggestAdvance` in `lib/logic.ts`.)
+  (Logic: `advanceState` / `shouldSuggestAdvance` in `lib/logic.ts`; the gate is
+  visible in the UI, not silent.)
+
+This evolution history lives **here only** — user-facing copy is present tense
+and never references what the program used to be.
 
 ## Nutrition — the single highest-impact fix
 Add **~25–30 g complete protein (whey or plant blend)** when the eating window
 opens (~8:30am). The morning collagen smoothie is leucine-poor (~0.9 g vs the
 ~2.5–3 g per-meal leucine threshold for muscle protein synthesis), so collagen
 stays only as a **tendon-support add-on**, not the protein source. Daily target
-**1.6–2.2 g/kg**. The app's completion banner reminds the user ("~30g protein when the window opens").
+**1.6–2.2 g/kg**. In-app: the completion banner reminds ("~30g protein when the
+window opens"), and a **one-tap protein toggle** appears after completion,
+persisted to `sessions.protein_hit`.
 
 ## App features
-- **Auth screen** — magic-link sign-in.
+- **Auth screen** — email a 6-digit code, numeric input with
+  `autoComplete="one-time-code"` (iOS autofills from Mail), auto-submit at 6
+  digits, resend with 60s cooldown.
 - **Today screen** — opens here. Today's day-type from rotation, warm-up
-  (collapsed), exercise cards with one-tap set logging, floor mode, level-up
-  prompt (when gated conditions met), completion banner.
+  (collapsed), exercise cards with one-tap set logging (aria-labeled set chips,
+  always-visible Form button), floor mode (with its own done state), level-up
+  prompt with the tenure gate shown, finisher required before completion,
+  one-line completion banner, protein toggle, and a **Sunday recap sheet**
+  ("the week came together") once the core day completes.
 - **Week screen** — rolling **7-day consistency** (count out of 7, no breakable
-  streak; Sunday is the designated drop day, so 6 of 7 is a full win), plus
-  **friends presence** (who trained, never reps).
-- **Form guides** — per-exercise sheets with cues, using **"learn, then fade"**:
-  the inline cue + form tag show while `familiarity < 3` distinct past sessions at
-  that step, then fade out once the move is learned. (`FormSheet`, `fetchFamiliarity`.)
+  streak; Sunday is the designated drop day, so 6 of 7 is a full win — the count
+  shows a placeholder until data arrives, never a misleading 0), **friends
+  presence** (who trained, never reps), and the **Program View (C1 "The
+  Machine")**: a collapsed, tap-to-expand section showing the rotation,
+  per-pattern frequency and 72h recovery spacing, weekly working-set bars, and
+  per-day exercise detail — all derived from `program.ts` at render time
+  (`programPatterns` in `lib/logic.ts`). Deferred C-pieces (Week Simulator,
+  muscle map) per `docs/program-view-proposal.md`.
+- **Form guides** — per-exercise sheets with cues, opened via the always-visible
+  Form button on each card; the inline **"learn, then fade"** cue shows while
+  `familiarity < 3` distinct past sessions at that step, then fades once the
+  move is learned. (`FormSheet`, `fetchFamiliarity`.)
 - **Floor mode** — the 10-min "bad day" floor; logs the session as
   `floor_mode = true` so consistency still counts.
+- **Resilience** — writes go through `lib/retry.ts` (exponential backoff, full
+  jitter) so a logged rep survives flaky hotel wifi; a boot watchdog surfaces a
+  reload prompt if the auth fetch hangs instead of leaving a blank screen.
+- **Tests** — pure-logic unit tests plus integration tests for the two critical
+  screens (`Today.test.tsx`, `Auth.test.tsx`).
 
 ## Illustration system
 Custom **2-pose animated SVGs**, one file per exercise key in `src/illustrations/`
 (default export = `VariationGuide[]` matching that key's `path` order). Two pose
-groups `pose-a`/`pose-b` crossfade via CSS. The spec is
-`src/illustrations/CONVENTIONS.md` — read it fully before drawing: fixed canvas
-(`viewBox 0 0 200 120`), one consistent ~70px side-profile figure, `currentColor`
-stroke, joint dots, one dashed movement arrow, 3 external-focus cues (≤6 words,
-setup→drive→finish). **Render-verify loop is mandatory**: render the SVG with
-headless Chrome, Read the PNG, and confirm the distinguishing feature is legible
-before shipping a panel. `pushup.tsx` and `squat.tsx` are the finished references;
-`scripts/render-grid.tsx` renders the full grid (`docs/exercise-guide-grid.png`).
+groups `pose-a`/`pose-b` crossfade via CSS. **Lazy-loaded**: `all.ts` is the heavy
+registry behind a dynamic `import()`; `index.ts` exports only the eager
+`GUIDABLE_KEYS` list, and `registry.test.ts` guards that the two stay in sync.
+The spec is `src/illustrations/CONVENTIONS.md` — read it fully before drawing:
+fixed canvas (`viewBox 0 0 200 120`), one consistent ~70px side-profile figure,
+`currentColor` stroke, joint dots, one dashed movement arrow, 3 external-focus
+cues (≤6 words, setup→drive→finish). **Render-verify loop is mandatory**: render
+the SVG with headless Chrome, Read the PNG, and confirm the distinguishing
+feature is legible before shipping a panel. `pushup.tsx` and `squat.tsx` are the
+finished references; `scripts/render-grid.tsx` renders the full grid
+(`docs/exercise-guide-grid.png`).
 
 ## User preferences (learned)
 - **NO day-color left stripe** on exercise cards. Keep the dark athletic theme
   (Oswald + Hanken Grotesk, lime `#C8FA4B` accent on `#0E100D`).
 - UI taste: **minimalistic but complete** — quiet brand presence (slim brand
   bar), no dashboards, nothing that adds friction before the first logged set.
+- **Completion banner stays one line.** Owner rejected denser copy and explicitly
+  rejected the C4 "tomorrow whisper" — do not re-add it anywhere.
+- **User-facing copy is present tense only** — never reference what the program
+  used to be (history belongs in this doc, not the app). No science-faking:
+  never display data the app can't honestly know.
 - Wants evidence-backed, specific, ranked recommendations — not generic advice.
 - For substantial features/changes, prefers **ultracode multi-agent workflows**
   (design → build → adversarial verify); for brainstorms, a written proposal
-  doc to review before any code (see `docs/program-view-proposal.md`).
+  doc to review before any code (see `docs/program-view-proposal.md`,
+  `docs/ultimate-morning-proposal.md`).
 
 ## Dev commands
 ```bash
@@ -140,17 +187,19 @@ npm install
 npm run dev       # http://localhost:5173
 npm run build     # tsc typecheck + vite build -> dist/
 npm run preview   # serve the production build
-npm test          # vitest run (pure-logic unit tests)
+npm test          # vitest run (logic unit tests + screen integration tests)
 python3 scripts/gen_icons.py   # regenerate PWA icons (stdlib-only)
 ```
 Env: copy `.env.example` → `.env.local`, set `VITE_SUPABASE_URL` and
 `VITE_SUPABASE_ANON_KEY` (anon/publishable key only — never `service_role`).
 
 ## Backlog / next steps
-1. **Program View** — chosen package from `docs/program-view-proposal.md`
-   (deferred pieces: Week Simulator needs ~4-6 weeks of logs; muscle map
-   authoring batched with the next program change).
-2. **Pull-up progression module** — slot in once a doorway bar is acquired
+1. **Ultimate-morning Phase 1** — ready to build: Sunday mobility flow, band
+   lateral raises, single-leg calf raises (low-conflict additions). **Phase 2 is
+   blocked on two owner decisions**: include impact/hops for bone density, yes
+   or no; interval finisher programmed vs a reminder. See
+   `docs/ultimate-morning-proposal.md`.
+2. **Pull-up progression module** — blocked on the doorway bar purchase
    (dead hangs → negatives → first pull-up).
-3. **Deeper nutrition layer** — beyond the completion-banner reminder (protein
-   timing/tracking around the fasted window).
+3. **Nutrition timing layer** — beyond the one-tap protein toggle (timing/amount
+   tracking around the fasted window), only if the owner still wants it.
