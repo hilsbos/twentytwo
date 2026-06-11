@@ -60,6 +60,44 @@ describe('Auth — email-code sign-in', () => {
     expect(verifyEmailCode).toHaveBeenCalledTimes(1);
   });
 
+  it('verifies a longer code pasted/autofilled in one shot (OTP-length drift)', async () => {
+    const user = userEvent.setup();
+    vi.mocked(verifyEmailCode).mockResolvedValue(undefined);
+
+    const codeInput = await requestCode(user);
+    await user.click(codeInput);
+    await user.paste('45856187');
+
+    await waitFor(() =>
+      expect(verifyEmailCode).toHaveBeenCalledWith('pat@example.com', '45856187'),
+    );
+    expect(verifyEmailCode).toHaveBeenCalledTimes(1);
+  });
+
+  it('accepts a typed 8-digit code without truncating and verifies on submit', async () => {
+    const user = userEvent.setup();
+    // Typing past 6 means the auto-fire at 6 used a wrong prefix — it fails,
+    // the user keeps typing the real 8-digit code and submits manually.
+    vi.mocked(verifyEmailCode)
+      .mockRejectedValueOnce(new Error('bad prefix'))
+      .mockResolvedValue(undefined);
+
+    const codeInput = await requestCode(user);
+    await user.type(codeInput, '45856187');
+
+    expect(codeInput).toHaveValue('45856187');
+    const verifyBtn = screen.getByRole('button', { name: 'Verify code' });
+    expect(verifyBtn).toBeEnabled();
+    await user.click(verifyBtn);
+
+    await waitFor(() =>
+      expect(verifyEmailCode).toHaveBeenLastCalledWith(
+        'pat@example.com',
+        '45856187',
+      ),
+    );
+  });
+
   it('shows the error copy on a failed verify and lets you retype', async () => {
     const user = userEvent.setup();
     vi.mocked(verifyEmailCode)

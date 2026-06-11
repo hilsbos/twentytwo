@@ -35,6 +35,11 @@ function errMessage(e: unknown): string {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Codes are 6 digits (Supabase "Email OTP length"), but the input tolerates up
+// to Supabase's max of 10 so a config drift can't make the code un-enterable.
+const CODE_LEN = 6;
+const CODE_LEN_MAX = 10;
+
 export default function Auth({ onProfileReady }: AuthProps) {
   // If the user is already signed in (e.g. returned via magic link) but has no
   // profile, the App renders us so the user can pick a display name.
@@ -112,14 +117,22 @@ export default function Auth({ onProfileReady }: AuthProps) {
   }
 
   function handleCodeChange(ev: React.ChangeEvent<HTMLInputElement>) {
-    const digits = ev.target.value.replace(/\D/g, '').slice(0, 6);
+    const digits = ev.target.value.replace(/\D/g, '').slice(0, CODE_LEN_MAX);
+    const inserted = digits.length - code.length;
     setCode(digits);
-    if (digits.length === 6) void handleVerify(digits);
+    // Auto-verify when a whole code lands at once (iOS autofill / paste) at any
+    // accepted length, or when typing reaches the standard 6 digits.
+    if (
+      digits.length >= CODE_LEN &&
+      (inserted > 1 || digits.length === CODE_LEN)
+    ) {
+      void handleVerify(digits);
+    }
   }
 
   async function handleVerifySubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (code.length === 6) await handleVerify(code);
+    if (code.length >= CODE_LEN) await handleVerify(code);
   }
 
   async function handleResend() {
@@ -197,7 +210,7 @@ export default function Auth({ onProfileReady }: AuthProps) {
             type="text"
             inputMode="numeric"
             pattern="[0-9]*"
-            maxLength={6}
+            maxLength={CODE_LEN_MAX}
             value={code}
             onChange={handleCodeChange}
             placeholder="123456"

@@ -56,6 +56,10 @@ Authentication → Emails → SMTP Settings:
 - The Supabase **Magic Link email template** carries `{{ .Token }}` (code-only —
   never re-add `{{ .ConfirmationURL }}` alongside it; the dual template is an
   unresolved upstream bug and email-scanner-fragile).
+- **Email OTP length must stay 6** (Authentication → Sign In / Providers →
+  Email). It drifted to 8 once (2026-06-11) and bricked sign-in; the app's code
+  input now tolerates 6–10 digits so a drift degrades instead of blocking, but
+  6 is what the copy and auto-submit assume.
 - **Sandbox status**: production access requested 2026-06-10 (transactional,
   low volume). Until approved, SES only delivers to verified identities
   (`patrick@hilsbos.com` is verified) — crew sign-ups need production access.
