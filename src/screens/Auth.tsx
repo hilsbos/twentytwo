@@ -3,6 +3,7 @@ import type { Profile } from '../types';
 import {
   getSession,
   signInWithMagicLink,
+  verifyEmailCode,
   signOut,
   createProfile,
 } from '../lib/db';
@@ -41,10 +42,20 @@ export default function Auth({ onProfileReady }: AuthProps) {
 
   const [email, setEmail] = useState('');
   const [sentTo, setSentTo] = useState('');
+  const [code, setCode] = useState('');
   const [name, setName] = useState('');
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Resend countdown (Supabase rate-limits OTP requests to one per 60s).
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
 
   useEffect(() => {
     let alive = true;
@@ -70,7 +81,55 @@ export default function Auth({ onProfileReady }: AuthProps) {
     try {
       await signInWithMagicLink(addr);
       setSentTo(addr);
+      setCode('');
+      setCooldown(60);
       setStep('sent');
+    } catch (err) {
+      setError(errMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleVerify(value: string) {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await verifyEmailCode(sentTo, value);
+      // Success: advance to the name step LOCALLY. Existing users with a
+      // profile get unmounted by App's onAuthChange a beat later; without
+      // this, a profile-less first-timer would hang on "Verifying…" forever
+      // (App re-renders the same 'auth' branch, so Auth never remounts and
+      // its mount-time getSession→'name' check never re-runs).
+      setError(null);
+      setBusy(false);
+      setStep('name');
+    } catch {
+      setError("That code didn't work — check the latest email or resend.");
+      setBusy(false);
+    }
+  }
+
+  function handleCodeChange(ev: React.ChangeEvent<HTMLInputElement>) {
+    const digits = ev.target.value.replace(/\D/g, '').slice(0, 6);
+    setCode(digits);
+    if (digits.length === 6) void handleVerify(digits);
+  }
+
+  async function handleVerifySubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (code.length === 6) await handleVerify(code);
+  }
+
+  async function handleResend() {
+    if (cooldown > 0 || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await signInWithMagicLink(sentTo);
+      setCode('');
+      setCooldown(60);
     } catch (err) {
       setError(errMessage(err));
     } finally {
@@ -81,6 +140,7 @@ export default function Auth({ onProfileReady }: AuthProps) {
   function handleUseDifferentEmail() {
     setError(null);
     setSentTo('');
+    setCode('');
     setStep('email');
   }
 
@@ -125,20 +185,50 @@ export default function Auth({ onProfileReady }: AuthProps) {
   if (step === 'sent') {
     return (
       <div className="wrap">
-        <Header sub="Check your email to finish signing in." />
-        <div className="label">Magic link sent</div>
-        <p className="focus" style={{ margin: '0 0 18px' }}>
-          We sent a sign-in link to <b style={{ color: 'var(--text)' }}>{sentTo}</b>.
-          Open it on this device to continue. No password needed.
-        </p>
-        <button
-          type="button"
-          className="muted-link"
-          onClick={handleUseDifferentEmail}
-        >
-          Use a different email
-        </button>
+        <Header sub="Check your email for a code." />
+        <form onSubmit={handleVerifySubmit}>
+          <div className="label">Enter code</div>
+          <p className="focus" style={{ margin: '0 0 12px' }}>
+            Enter the 6-digit code we emailed to{' '}
+            <b style={{ color: 'var(--text)' }}>{sentTo}</b>.
+          </p>
+          <input
+            className="input"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={6}
+            value={code}
+            onChange={handleCodeChange}
+            placeholder="123456"
+            autoComplete="one-time-code"
+            autoFocus
+            aria-label="6-digit code"
+          />
+          <div style={{ height: 12 }} />
+          <button className="btn" type="submit" disabled={busy || code.length < 6}>
+            {busy ? 'Verifying…' : 'Verify code'}
+          </button>
+        </form>
         {error && <p className="err">{error}</p>}
+        <div style={{ height: 14 }} />
+        <div style={{ display: 'flex', gap: 16 }}>
+          <button
+            type="button"
+            className="muted-link"
+            onClick={handleResend}
+            disabled={cooldown > 0 || busy}
+          >
+            {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend code'}
+          </button>
+          <button
+            type="button"
+            className="muted-link"
+            onClick={handleUseDifferentEmail}
+          >
+            Use a different email
+          </button>
+        </div>
       </div>
     );
   }
@@ -197,11 +287,11 @@ export default function Auth({ onProfileReady }: AuthProps) {
         />
         <div style={{ height: 12 }} />
         <button className="btn" type="submit" disabled={busy || !email.trim()}>
-          {busy ? 'Sending…' : 'Send magic link'}
+          {busy ? 'Sending…' : 'Email me a code'}
         </button>
       </form>
       <p className="focus" style={{ marginTop: 16 }}>
-        We'll email you a one-tap sign-in link. No password.
+        We'll email you a 6-digit code. No password.
       </p>
       {error && <p className="err">{error}</p>}
     </div>

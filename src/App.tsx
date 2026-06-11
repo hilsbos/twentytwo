@@ -5,6 +5,7 @@ import { getSession, onAuthChange, getProfile, signOut } from './lib/db';
 import Auth from './screens/Auth';
 import Today from './screens/Today';
 import Week from './screens/Week';
+import InstallHint from './components/InstallHint';
 
 type Phase = 'loading' | 'auth' | 'app';
 type Screen = 'today' | 'week';
@@ -124,11 +125,17 @@ export default function App() {
   }
 
   if (phase === 'auth' || !profile) {
-    return <Auth onProfileReady={handleProfileReady} />;
+    return (
+      <>
+        <InstallHint />
+        <Auth onProfileReady={handleProfileReady} />
+      </>
+    );
   }
 
   return (
     <>
+      <InstallHint />
       <header className="wrap">
         <BrandBar />
       </header>
