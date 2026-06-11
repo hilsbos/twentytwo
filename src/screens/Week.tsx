@@ -1,7 +1,13 @@
-import { useEffect, useState } from 'react';
-import type { Profile } from '../types';
-import { consistency7, localDateISO } from '../lib/logic';
-import { fetchPresence } from '../lib/db';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { DayType, Profile } from '../types';
+import {
+  consistency7,
+  localDateISO,
+  programPatterns,
+  rotationIndex,
+} from '../lib/logic';
+import { DAYS, ROTATION } from '../program';
+import { fetchPresence, fetchProgression } from '../lib/db';
 
 export interface WeekProps {
   profile: Profile;
@@ -10,6 +16,25 @@ export interface WeekProps {
 
 const APP_VERSION = 'v1.0.0';
 const WEEKDAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+const DAY_CLASS: Record<DayType, string> = {
+  push: 'is-push',
+  legs: 'is-legs',
+  pull: 'is-pull',
+  core: 'is-core',
+};
+const DAY_SHORT: Record<DayType, string> = {
+  push: 'Pu',
+  legs: 'Le',
+  pull: 'Pl',
+  core: 'Co',
+};
+const DAY_WORD: Record<DayType, string> = {
+  push: 'Push',
+  legs: 'Legs',
+  pull: 'Pull',
+  core: 'Core',
+};
 
 type PresenceSession = {
   user_id: string;
@@ -162,6 +187,8 @@ export default function Week({ profile, onSignOut }: WeekProps) {
         })}
       </div>
 
+      <ProgramSection />
+
       <section className="crew">
         <p className="label">The crew</p>
 
@@ -203,6 +230,173 @@ export default function Week({ profile, onSignOut }: WeekProps) {
         <span className="ver">twentyTwo {APP_VERSION}</span>
       </footer>
     </div>
+  );
+}
+
+// ===========================================================================
+// Program section — how the week fits together (collapsed by default)
+// ===========================================================================
+function ProgramSection() {
+  const [open, setOpen] = useState(false);
+  // Index into ROTATION of the day whose exercise list is expanded.
+  const [openDay, setOpenDay] = useState<number | null>(null);
+  // Current path step per exercise — fetched once, on first expand.
+  const [progression, setProgression] = useState<Map<string, number>>(new Map());
+  const fetchedRef = useRef(false);
+
+  const patterns = useMemo(() => programPatterns(), []);
+  const maxSets = Math.max(...patterns.map((p) => p.weeklySets));
+  const todayIdx = rotationIndex(new Date());
+
+  useEffect(() => {
+    if (!open || fetchedRef.current) return;
+    fetchedRef.current = true;
+    let alive = true;
+    fetchProgression().then(
+      (m) => {
+        if (alive) setProgression(m);
+      },
+      () => {
+        // Non-fatal: chips fall back to the first variation of each path.
+      },
+    );
+    return () => {
+      alive = false;
+    };
+  }, [open]);
+
+  return (
+    <section className="program">
+      <button
+        className="program-toggle"
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+      >
+        How the week fits together
+        <span className="chev" aria-hidden="true">
+          {open ? '–' : '+'}
+        </span>
+      </button>
+
+      {open && (
+        <div className="program-body">
+          {/* the rotation */}
+          <div>
+            <p className="label">The rotation</p>
+            <div className="rota">
+              {ROTATION.map((t, i) => (
+                <div
+                  key={i}
+                  className={
+                    `rota-day ${DAY_CLASS[t]}` + (i === todayIdx ? ' today' : '')
+                  }
+                >
+                  <span className="rota-box">{DAY_SHORT[t]}</span>
+                  <span className="lt">{WEEKDAY_LETTERS[i]}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* frequency · recovery */}
+          <div>
+            <p className="label">Frequency · recovery</p>
+            <div className="freq">
+              {patterns.map((p) => (
+                <p key={p.type} className={`freq-row ${DAY_CLASS[p.type]}`}>
+                  <span className="fq-name">{DAY_WORD[p.type]}</span>
+                  <span className="fq-detail">
+                    {p.perWeek}×/wk
+                    {p.gapHours !== null ? ` · ${p.gapHours}h apart` : ''}
+                  </span>
+                </p>
+              ))}
+            </div>
+          </div>
+
+          {/* weekly working sets */}
+          <div>
+            <p className="label">Weekly working sets</p>
+            <div className="setbars">
+              {patterns.map((p) => (
+                <div key={p.type} className={`setbar ${DAY_CLASS[p.type]}`}>
+                  <span className="sb-name">{DAY_WORD[p.type]}</span>
+                  <span className="sb-track">
+                    <span
+                      className="sb-fill"
+                      style={{ width: `${(p.weeklySets / maxSets) * 100}%` }}
+                    />
+                  </span>
+                  <span className="sb-num">~{p.weeklySets}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* day by day */}
+          <div>
+            <p className="label">Day by day</p>
+            <div className="pdays">
+              {ROTATION.map((t, i) => {
+                const expanded = openDay === i;
+                return (
+                  <div key={i} className={`pday ${DAY_CLASS[t]}`}>
+                    <button
+                      type="button"
+                      className="pday-head"
+                      aria-expanded={expanded}
+                      onClick={() => setOpenDay(expanded ? null : i)}
+                    >
+                      <span className="pday-lt">{WEEKDAY_LETTERS[i]}</span>
+                      <span className="ptag">{DAY_WORD[t]}</span>
+                      <span className="chev" aria-hidden="true">
+                        {expanded ? '–' : '+'}
+                      </span>
+                    </button>
+                    {expanded && (
+                      <div className="pday-body">
+                        {DAYS[t].exercises.map((ex) => {
+                          const step = progression.get(ex.key) ?? 0;
+                          const unit = ex.unit === 'secs' ? 'sec' : 'reps';
+                          return (
+                            <div className="pday-ex" key={ex.key}>
+                              <div className="pday-ex-top">
+                                <span className="pday-ex-name">{ex.name}</span>
+                                {!ex.main && (
+                                  <span className="pday-fin">finisher</span>
+                                )}
+                                <span className="pday-ex-sets">
+                                  {ex.sets}×{ex.range[0]}
+                                  {ex.range[1] !== ex.range[0]
+                                    ? `–${ex.range[1]}`
+                                    : ''}{' '}
+                                  {unit}
+                                </span>
+                              </div>
+                              <div className="path">
+                                {ex.path.map((s, si) => (
+                                  <span
+                                    key={si}
+                                    className={`path-step${si === step ? ' now' : ''}`}
+                                  >
+                                    {s}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
   );
 }
 

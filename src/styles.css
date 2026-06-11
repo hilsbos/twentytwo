@@ -738,6 +738,222 @@ a {
   box-shadow: 0 0 0 2px var(--line2);
 }
 
+/* program section — how the week fits together (collapsed by default) ------- */
+.program {
+  margin-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.program .chev {
+  font-family: 'Oswald', sans-serif;
+  color: var(--faint);
+}
+.program-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 44px;
+  padding: 14px 0;
+  background: none;
+  border: none;
+  text-align: left;
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--faint);
+}
+.program-body {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 4px 0 22px;
+}
+.program-body .label {
+  margin-bottom: 10px;
+}
+
+/* the rotation strip */
+.rota {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+.rota-day {
+  flex: 1 1 0;
+  max-width: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.rota-box {
+  width: 100%;
+  height: 40px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--day);
+  background: color-mix(in srgb, var(--day) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--day) 30%, transparent);
+}
+.rota-day .lt {
+  font-family: 'Oswald', sans-serif;
+  font-size: 12px;
+  color: var(--faint);
+  text-transform: uppercase;
+}
+.rota-day.today .rota-box {
+  box-shadow: 0 0 0 2px var(--line2);
+}
+.rota-day.today .lt {
+  color: var(--text);
+}
+
+/* frequency · recovery rows */
+.freq {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.freq-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+.freq-row .fq-name {
+  color: var(--day);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  min-width: 44px;
+}
+.freq-row .fq-detail {
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+
+/* weekly working sets bars */
+.setbars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.setbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.setbar .sb-name {
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--day);
+  min-width: 44px;
+}
+.setbar .sb-track {
+  flex: 1;
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface2);
+  overflow: hidden;
+}
+.setbar .sb-fill {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--day);
+}
+.setbar .sb-num {
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  min-width: 32px;
+  text-align: right;
+}
+
+/* day-by-day expandable rows */
+.pdays {
+  border-top: 1px solid var(--line);
+}
+.pday {
+  border-bottom: 1px solid var(--line);
+}
+.pday-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 0;
+  background: none;
+  border: none;
+  text-align: left;
+}
+.pday-head .pday-lt {
+  font-family: 'Oswald', sans-serif;
+  font-size: 12px;
+  color: var(--faint);
+  text-transform: uppercase;
+  width: 14px;
+}
+.pday-head .ptag {
+  padding: 3px 9px;
+  font-size: 12px;
+}
+.pday-head .chev {
+  margin-left: auto;
+}
+.pday-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 0 16px 26px;
+}
+.pday-ex-top {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.pday-ex-name {
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text);
+}
+.pday-fin {
+  font-size: 11px;
+  color: var(--faint);
+}
+.pday-ex-sets {
+  margin-left: auto;
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--day);
+  white-space: nowrap;
+}
+.pday-ex .path {
+  margin-top: 7px;
+}
+
 /* crew / friend rows -------------------------------------------------------- */
 .crew {
   margin-top: 30px;
@@ -1179,7 +1395,7 @@ a {
 }
 
 /* ---------------------------------------------------------------------------
-   Completion-banner extras: protein "why", tomorrow whisper, recap variant
+   Completion-banner extras: recap variant
    ------------------------------------------------------------------------- */
 .done-banner.is-recap {
   display: block;

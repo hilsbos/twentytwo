@@ -1,5 +1,5 @@
 import type { Day, DayType, Exercise, Session, SetLog } from '../types';
-import { ROTATION } from '../program';
+import { DAYS, ROTATION } from '../program';
 
 /** LOCAL-timezone YYYY-MM-DD. Never use toISOString (that is UTC). */
 export function localDateISO(d: Date): string {
@@ -271,6 +271,58 @@ export function weekRecap(
   }
 
   return { patterns, totalSets, levelUps, sessionsCount: trainedDates.size };
+}
+
+export interface PatternSummary {
+  type: DayType;
+  /** Sessions per week the rotation schedules for this pattern. */
+  perWeek: number;
+  /** Shortest gap between two sessions of this pattern, in hours (null at 1×/wk). */
+  gapHours: number | null;
+  /** Planned MAIN working sets per week (per-day main sets × occurrences). */
+  weeklySets: number;
+}
+
+/**
+ * Per-pattern weekly summary, derived entirely from ROTATION + DAYS so the
+ * numbers can never drift from the program config. Patterns are ordered by
+ * first appearance in the rotation. The gap is the minimum cyclic distance
+ * between occurrences (the week repeats), in hours.
+ */
+export function programPatterns(): PatternSummary[] {
+  const order: DayType[] = [];
+  const indices = new Map<DayType, number[]>();
+  ROTATION.forEach((type, i) => {
+    let idx = indices.get(type);
+    if (!idx) {
+      idx = [];
+      indices.set(type, idx);
+      order.push(type);
+    }
+    idx.push(i);
+  });
+
+  return order.map((type) => {
+    const idx = indices.get(type)!;
+    const perWeek = idx.length;
+
+    let gapHours: number | null = null;
+    if (perWeek >= 2) {
+      let minDays = ROTATION.length;
+      for (let i = 0; i < idx.length; i++) {
+        const next = idx[(i + 1) % idx.length];
+        const gap = (next - idx[i] + ROTATION.length) % ROTATION.length;
+        minDays = Math.min(minDays, gap);
+      }
+      gapHours = minDays * 24;
+    }
+
+    const setsPerDay = DAYS[type].exercises
+      .filter((e) => e.main)
+      .reduce((sum, e) => sum + e.sets, 0);
+
+    return { type, perWeek, gapHours, weeklySets: setsPerDay * perWeek };
+  });
 }
 
 /** Parse a YYYY-MM-DD string into a LOCAL Date (avoids UTC shift of new Date(str)). */

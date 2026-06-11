@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { Day, Exercise, Session, SetLog } from '../types';
-import { DAYS } from '../program';
+import { DAYS, ROTATION } from '../program';
 import {
   localDateISO,
   rotationIndex,
@@ -13,6 +13,7 @@ import {
   weekRecap,
   consistency7,
   isSessionComplete,
+  programPatterns,
 } from './logic';
 
 // ---------- test fixtures / builders ----------
@@ -572,6 +573,60 @@ describe('consistency7', () => {
     const { days } = consistency7([], '2026-07-02');
     expect(days[0].date).toBe('2026-06-26');
     expect(days[6].date).toBe('2026-07-02');
+  });
+});
+
+// ---------- programPatterns ----------
+
+describe('programPatterns', () => {
+  it('orders patterns by first appearance in the rotation', () => {
+    expect(programPatterns().map((p) => p.type)).toEqual([
+      'push',
+      'legs',
+      'pull',
+      'core',
+    ]);
+  });
+
+  it('push/legs/pull run 2×/wk with a 72h gap', () => {
+    const byType = new Map(programPatterns().map((p) => [p.type, p]));
+    for (const t of ['push', 'legs', 'pull'] as const) {
+      expect(byType.get(t)!.perWeek).toBe(2);
+      expect(byType.get(t)!.gapHours).toBe(72);
+    }
+  });
+
+  it('core runs 1×/wk with no gap (single weekly session)', () => {
+    const core = programPatterns().find((p) => p.type === 'core')!;
+    expect(core.perWeek).toBe(1);
+    expect(core.gapHours).toBeNull();
+  });
+
+  it('weekly sets = per-day MAIN sets × occurrences, straight from the config', () => {
+    for (const p of programPatterns()) {
+      const perDay = DAYS[p.type].exercises
+        .filter((e) => e.main)
+        .reduce((s, e) => s + e.sets, 0);
+      const occurrences = ROTATION.filter((t) => t === p.type).length;
+      expect(p.weeklySets).toBe(perDay * occurrences);
+    }
+  });
+
+  it('matches the current program volume (18/18/18/9)', () => {
+    const byType = new Map(programPatterns().map((p) => [p.type, p.weeklySets]));
+    expect(byType.get('push')).toBe(18);
+    expect(byType.get('legs')).toBe(18);
+    expect(byType.get('pull')).toBe(18);
+    expect(byType.get('core')).toBe(9);
+  });
+
+  it('finisher sets are excluded from the weekly totals', () => {
+    // Every day has at least one finisher, so including them would inflate totals.
+    for (const p of programPatterns()) {
+      const allSets = DAYS[p.type].exercises.reduce((s, e) => s + e.sets, 0);
+      const occurrences = ROTATION.filter((t) => t === p.type).length;
+      expect(p.weeklySets).toBeLessThan(allSets * occurrences);
+    }
   });
 });
 
