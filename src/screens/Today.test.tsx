@@ -154,20 +154,35 @@ describe('Today — set logging error paths', () => {
     ).toHaveAttribute('aria-pressed', 'false');
   });
 
-  it('shows the protein check after completion and persists a tap', async () => {
+  it('shows the protein check every morning (before any workout) and persists a tap', async () => {
     const user = userEvent.setup();
-    const todayISO = localDateISO(new Date());
-    vi.mocked(fetchMyHistory).mockResolvedValue([
-      {
-        session: {
-          ...fakeSession,
-          on_date: todayISO,
-          completed_at: '2026-06-08T12:00:00Z',
-          protein_hit: false,
-        },
-        logs: [],
-      },
-    ]);
+    // No today session in history — a brand-new, nothing-logged morning.
+    vi.mocked(fetchMyHistory).mockResolvedValue([]);
+    vi.mocked(getOrCreateTodaySession).mockResolvedValue({
+      ...fakeSession,
+      on_date: localDateISO(new Date()),
+    });
+    vi.mocked(setProteinHit).mockResolvedValue(undefined);
+
+    render(<Today profile={profile} />);
+
+    // Renders independent of completion — present from first paint.
+    const toggle = await screen.findByRole('button', {
+      name: /had ~30g protein/i,
+    });
+    await user.click(toggle);
+
+    expect(await screen.findByText(/protein logged/i)).toBeInTheDocument();
+    expect(setProteinHit).toHaveBeenCalledWith('s1', true);
+  });
+
+  it('logging protein with no workout does not mark the session completed', async () => {
+    const user = userEvent.setup();
+    vi.mocked(fetchMyHistory).mockResolvedValue([]);
+    vi.mocked(getOrCreateTodaySession).mockResolvedValue({
+      ...fakeSession,
+      on_date: localDateISO(new Date()),
+    });
     vi.mocked(setProteinHit).mockResolvedValue(undefined);
 
     render(<Today profile={profile} />);
@@ -177,7 +192,10 @@ describe('Today — set logging error paths', () => {
     });
     await user.click(toggle);
 
-    expect(await screen.findByText(/protein logged/i)).toBeInTheDocument();
-    expect(setProteinHit).toHaveBeenCalledWith('s1', true);
+    // The protein write lands...
+    await waitFor(() => expect(setProteinHit).toHaveBeenCalledWith('s1', true));
+    // ...but the session is never completed (no set_logs, completed_at stays null),
+    // so a protein-only morning cannot inflate the trained count or crew presence.
+    expect(markCompleted).not.toHaveBeenCalled();
   });
 });

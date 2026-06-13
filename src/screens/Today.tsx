@@ -337,7 +337,15 @@ export default function Today({ profile }: TodayProps) {
         );
       })}
 
-      {completedAt && <ProteinCheck on={proteinHit} onToggle={toggleProtein} />}
+      {/* Quiet optional daily row — protein is logged every morning, including
+          the non-calisthenics yoga mornings, independent of workout completion.
+          Tapping lazily creates the day row (completed_at stays null), so it
+          never inflates the trained count or crew presence. */}
+      <ProteinCheck
+        on={proteinHit}
+        onToggle={toggleProtein}
+        clearBanner={bannerShown}
+      />
 
       {retryHint && <p className="err">{retryHint}</p>}
 
@@ -422,12 +430,22 @@ function FloorToggle({
 }
 
 // ===========================================================================
-// Protein check — one-tap daily nutrition nudge (shown once the session is done)
+// Protein check — one-tap daily nutrition nudge (a quiet optional row, every
+// morning, independent of whether a workout was logged)
 // ===========================================================================
-function ProteinCheck({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+function ProteinCheck({
+  on,
+  onToggle,
+  clearBanner,
+}: {
+  on: boolean;
+  onToggle: () => void;
+  // Adds bottom space to clear the fixed completion banner — only when it shows.
+  clearBanner: boolean;
+}) {
   return (
     <button
-      className={`protein-check${on ? ' is-on' : ''}`}
+      className={`protein-check${on ? ' is-on' : ''}${clearBanner ? ' clear-banner' : ''}`}
       type="button"
       aria-pressed={on}
       onClick={onToggle}
@@ -821,6 +839,13 @@ function patternCells(trained: number, planned: number): boolean[] {
   return Array.from({ length: total }, (_, i) => i < trained);
 }
 
+/** 24h integer hour -> "6am" / "12pm" / "6pm" (recap typical-hour line). */
+function formatHour12(h: number): string {
+  const period = h < 12 ? 'am' : 'pm';
+  const display = h % 12 === 0 ? 12 : h % 12;
+  return `${display}${period}`;
+}
+
 function RecapSheet({
   recap,
   onClose,
@@ -893,6 +918,11 @@ function RecapSheet({
             <p className="recap-stat">
               <b>{recap.totalSets}</b> sets logged this week
             </p>
+            {recap.typicalHour != null && (
+              <p className="recap-stat">
+                ~{formatHour12(recap.typicalHour)} most mornings
+              </p>
+            )}
             {recap.levelUps.length > 0 && (
               <p className="recap-stat recap-levelups">
                 Leveled up:{' '}

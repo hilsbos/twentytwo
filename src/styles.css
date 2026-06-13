@@ -704,6 +704,13 @@ a {
   font-size: 14px;
   margin-top: 6px;
 }
+/* quiet week-position reflection — additive to the /7 count, never a restatement.
+   --faint (quieter than --cap's --muted), Hanken body (not Oswald imperative). */
+.week-pos {
+  color: var(--faint);
+  font-size: 13px;
+  margin-top: 4px;
+}
 .week-dots {
   display: flex;
   justify-content: center;
@@ -791,6 +798,7 @@ a {
   gap: 6px;
 }
 .rota-box {
+  position: relative;
   width: 100%;
   height: 40px;
   border-radius: 8px;
@@ -803,6 +811,24 @@ a {
   color: var(--day);
   background: color-mix(in srgb, var(--day) 14%, transparent);
   border: 1px solid color-mix(in srgb, var(--day) 30%, transparent);
+}
+/* weekend band — a faint NEUTRAL wash on the cell wrapper, keyed off --text (NOT
+   --day, NOT lime): no fifth day-color, the rep-day hues stay the only saturated
+   colors on the strip. Sits behind the day-colored .rota-box. */
+.rota-day.is-weekend {
+  background: color-mix(in srgb, var(--text) 4%, transparent);
+  border-radius: 8px;
+}
+/* yoga-morning glyph — a quiet 6px ring, top-right of the box; --faint, never a
+   day hue or lime, so it marks the morning without competing with the rep color. */
+.rota-yoga {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1px solid var(--faint);
 }
 .rota-day .lt {
   font-family: 'Oswald', sans-serif;
@@ -1284,11 +1310,16 @@ a {
   gap: 11px;
   width: 100%;
   text-align: left;
-  margin: 14px 0 104px; /* clear the fixed completion banner below */
+  margin: 14px 0 24px;
   padding: 13px 15px;
   border-radius: 11px;
   background: var(--surface);
   border: 1px solid var(--line2);
+}
+/* Extra clearance only when the fixed completion banner is actually shown,
+   so a protein-only morning (no banner) has no dead trailing whitespace. */
+.protein-check.clear-banner {
+  margin-bottom: 104px;
 }
 .protein-check .pc-box {
   flex: 0 0 auto;

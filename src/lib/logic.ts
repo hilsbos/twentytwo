@@ -120,13 +120,18 @@ export function shouldSuggestAdvance(
 }
 
 /**
- * Last 7 calendar days inclusive of today. count = distinct on_date with a session.
+ * Last 7 calendar days inclusive of today. count = distinct in-window dates
+ * present in `dates`. The caller passes a PRE-FILTERED list of TRAINED dates
+ * (YYYY-MM-DD) — this function only knows dates, never sessions. The
+ * trained-day filter (completed_at != null, calisthenics-only) lives at the
+ * call site, so the count can never absorb a protein-only morning or the
+ * static yoga schedule.
  */
-export function consistency7(
-  sessions: Session[],
+export function consistencyWindow(
+  dates: string[],
   todayISO: string,
 ): { count: number; days: { date: string; trained: boolean }[] } {
-  const trainedDates = new Set(sessions.map((s) => s.on_date));
+  const trainedDates = new Set(dates);
   const today = parseISO(todayISO);
 
   const days: { date: string; trained: boolean }[] = [];
@@ -212,6 +217,8 @@ export interface WeekRecap {
   levelUps: { key: string; from: number; to: number }[];
   /** Distinct trained calendar days in the window. */
   sessionsCount: number;
+  /** Mean local completion hour (0-23) across completed sessions, null below 3 samples. */
+  typicalHour: number | null;
 }
 
 /**
@@ -235,9 +242,12 @@ export function weekRecap(
   const trainedDates = new Set<string>();
   let totalSets = 0;
   const stepRange = new Map<string, { min: number; max: number }>();
+  const hours: number[] = [];
 
   for (const h of inWindow) {
     trainedDates.add(h.session.on_date);
+    const hour = completionHourLocal(h.session.completed_at);
+    if (hour !== null) hours.push(hour);
     const t = h.session.day_type;
     if (t === 'push' || t === 'legs' || t === 'pull' || t === 'core') {
       let set = trainedDatesByType.get(t);
@@ -270,7 +280,18 @@ export function weekRecap(
     if (r.max > r.min) levelUps.push({ key, from: r.min, to: r.max });
   }
 
-  return { patterns, totalSets, levelUps, sessionsCount: trainedDates.size };
+  const typicalHour =
+    hours.length >= 3
+      ? Math.round(hours.reduce((a, b) => a + b, 0) / hours.length)
+      : null;
+
+  return {
+    patterns,
+    totalSets,
+    levelUps,
+    sessionsCount: trainedDates.size,
+    typicalHour,
+  };
 }
 
 export interface PatternSummary {

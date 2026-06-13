@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { DayType, Profile } from '../types';
 import {
-  consistency7,
+  consistencyWindow,
   localDateISO,
   programPatterns,
   rotationIndex,
 } from '../lib/logic';
+import { isWeekendOpen, weekPosition, YOGA_DAYS } from '../rhythm';
 import { DAYS, ROTATION } from '../program';
 import { fetchPresence, fetchProgression } from '../lib/db';
 
@@ -85,7 +86,7 @@ export default function Week({ profile, onSignOut }: WeekProps) {
   const [mine, setMine] = useState<{
     count: number;
     days: { date: string; trained: boolean }[];
-  }>(() => consistency7([], todayISO));
+  }>(() => consistencyWindow([], todayISO));
 
   useEffect(() => {
     let alive = true;
@@ -102,24 +103,22 @@ export default function Week({ profile, onSignOut }: WeekProps) {
           sessByUser.set(s.user_id, arr);
         }
 
-        // My rolling 7-day consistency.
-        const mySessions = (sessByUser.get(profile.id) ?? []).map((s) => ({
-          id: '',
-          user_id: s.user_id,
-          on_date: s.on_date,
-          day_type: 'push' as const,
-          floor_mode: false,
-          protein_hit: false,
-          completed_at: s.completed_at,
-        }));
-        setMine(consistency7(mySessions, todayISO));
+        // My rolling 7-day consistency. Only completed_at != null counts as
+        // trained — a bare protein-only morning (completed_at null) must not.
+        const myTrainedDates = (sessByUser.get(profile.id) ?? [])
+          .filter((s) => s.completed_at != null)
+          .map((s) => s.on_date);
+        setMine(consistencyWindow(myTrainedDates, todayISO));
 
         // Crew: everyone except me. Presence only — sessions, never reps.
         const members: CrewMember[] = profiles
           .filter((p) => p.id !== profile.id)
           .map((p) => {
-            const theirs = sessByUser.get(p.id) ?? [];
-            const dates = new Set(theirs.map((s) => s.on_date));
+            // Trained = a completed session (floor or full). A protein-only
+            // morning has completed_at null and never reads as trained.
+            const theirs = (sessByUser.get(p.id) ?? []).filter(
+              (s) => s.completed_at != null,
+            );
             const lastDate =
               theirs.length > 0
                 ? theirs.reduce(
@@ -130,7 +129,7 @@ export default function Week({ profile, onSignOut }: WeekProps) {
             return {
               id: p.id,
               name: p.display_name,
-              trainedToday: dates.has(todayISO),
+              trainedToday: theirs.some((s) => s.on_date === todayISO),
               count: countLast7(theirs, todayISO),
               lastDate,
             };
@@ -166,6 +165,7 @@ export default function Week({ profile, onSignOut }: WeekProps) {
           <span className="slash"> / 7</span>
         </div>
         <p className="cap">mornings this week — 6 in a week is a full win</p>
+        {loaded && <p className="week-pos">{weekPosition(new Date()).line}</p>}
       </section>
 
       <div className="week-dots">
@@ -246,7 +246,10 @@ function ProgramSection() {
 
   const patterns = useMemo(() => programPatterns(), []);
   const maxSets = Math.max(...patterns.map((p) => p.weeklySets));
-  const todayIdx = rotationIndex(new Date());
+  const now = new Date();
+  const todayIdx = rotationIndex(now);
+  // The weekend band "opens" live mid-Friday (Fri ≥ 14:30, else Sat/Sun).
+  const weekendOpen = isWeekendOpen(now);
 
   useEffect(() => {
     if (!open || fetchedRef.current) return;
@@ -285,17 +288,29 @@ function ProgramSection() {
           <div>
             <p className="label">The rotation</p>
             <div className="rota">
-              {ROTATION.map((t, i) => (
-                <div
-                  key={i}
-                  className={
-                    `rota-day ${DAY_CLASS[t]}` + (i === todayIdx ? ' today' : '')
-                  }
-                >
-                  <span className="rota-box">{DAY_SHORT[t]}</span>
-                  <span className="lt">{WEEKDAY_LETTERS[i]}</span>
-                </div>
-              ))}
+              {ROTATION.map((t, i) => {
+                // Weekend band: Sat/Sun always; Friday only once it's open.
+                const isWeekend = i === 5 || i === 6 || (i === 4 && weekendOpen);
+                const isYoga = YOGA_DAYS.has(i);
+                return (
+                  <div
+                    key={i}
+                    className={
+                      `rota-day ${DAY_CLASS[t]}` +
+                      (i === todayIdx ? ' today' : '') +
+                      (isWeekend ? ' is-weekend' : '')
+                    }
+                  >
+                    <span className="rota-box">
+                      {DAY_SHORT[t]}
+                      {isYoga && (
+                        <span className="rota-yoga" role="img" aria-label="yoga day" />
+                      )}
+                    </span>
+                    <span className="lt">{WEEKDAY_LETTERS[i]}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
 

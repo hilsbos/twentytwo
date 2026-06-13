@@ -11,7 +11,7 @@ import {
   advanceState,
   completionHourLocal,
   weekRecap,
-  consistency7,
+  consistencyWindow,
   isSessionComplete,
   programPatterns,
 } from './logic';
@@ -507,33 +507,75 @@ describe('weekRecap', () => {
     expect(r.sessionsCount).toBe(1);
     expect(r.totalSets).toBe(1);
   });
+
+  // ---- typicalHour: mean local completion hour, hidden below 3 samples ----
+
+  it('typicalHour is null with fewer than 3 completed sessions', () => {
+    const hist = [
+      h('2026-06-02', 'push', [makeLog('pushup', 1, 10)], {
+        completed_at: new Date(2026, 5, 2, 6, 0).toISOString(),
+      }),
+      h('2026-06-04', 'push', [makeLog('pushup', 1, 10)], {
+        completed_at: new Date(2026, 5, 4, 7, 0).toISOString(),
+      }),
+    ];
+    expect(weekRecap(hist, today).typicalHour).toBeNull();
+  });
+
+  it('typicalHour is the rounded mean local hour across >=3 completed sessions', () => {
+    const hist = [
+      h('2026-06-02', 'push', [makeLog('pushup', 1, 10)], {
+        completed_at: new Date(2026, 5, 2, 6, 0).toISOString(),
+      }),
+      h('2026-06-04', 'push', [makeLog('pushup', 1, 10)], {
+        completed_at: new Date(2026, 5, 4, 6, 0).toISOString(),
+      }),
+      h('2026-06-05', 'legs', [makeLog('squat', 1, 10)], {
+        completed_at: new Date(2026, 5, 5, 7, 0).toISOString(),
+      }),
+    ];
+    // mean(6,6,7) = 6.33 -> rounds to 6
+    expect(weekRecap(hist, today).typicalHour).toBe(6);
+  });
+
+  it('typicalHour ignores sessions with no completed_at (protein-only)', () => {
+    const hist = [
+      h('2026-06-02', 'push', [makeLog('pushup', 1, 10)], {
+        completed_at: new Date(2026, 5, 2, 8, 0).toISOString(),
+      }),
+      h('2026-06-04', 'push', [makeLog('pushup', 1, 10)], {
+        completed_at: new Date(2026, 5, 4, 8, 0).toISOString(),
+      }),
+      // two protein-only rows (completed_at null) — must not count toward samples
+      h('2026-06-05', 'legs', [makeLog('squat', 1, 10)], { completed_at: null }),
+      h('2026-06-06', 'pull', [makeLog('row', 1, 10)], { completed_at: null }),
+    ];
+    // Only 2 completed sessions -> below the 3-sample floor.
+    expect(weekRecap(hist, today).typicalHour).toBeNull();
+  });
 });
 
-// ---------- consistency7 ----------
+// ---------- consistencyWindow ----------
 
-describe('consistency7', () => {
+describe('consistencyWindow', () => {
   const today = '2026-06-10'; // Wednesday
 
   it('returns 7 days, today inclusive and last', () => {
-    const { days } = consistency7([], today);
+    const { days } = consistencyWindow([], today);
     expect(days).toHaveLength(7);
     expect(days[6].date).toBe('2026-06-10');
     expect(days[0].date).toBe('2026-06-04');
   });
 
-  it('counts zero when no sessions', () => {
-    const { count, days } = consistency7([], today);
+  it('counts zero when no dates', () => {
+    const { count, days } = consistencyWindow([], today);
     expect(count).toBe(0);
     expect(days.every((d) => !d.trained)).toBe(true);
   });
 
   it('marks trained days and counts them', () => {
-    const sessions = [
-      makeSession('2026-06-10'),
-      makeSession('2026-06-08'),
-      makeSession('2026-06-04'),
-    ];
-    const { count, days } = consistency7(sessions, today);
+    const dates = ['2026-06-10', '2026-06-08', '2026-06-04'];
+    const { count, days } = consistencyWindow(dates, today);
     expect(count).toBe(3);
     expect(days.find((d) => d.date === '2026-06-10')?.trained).toBe(true);
     expect(days.find((d) => d.date === '2026-06-08')?.trained).toBe(true);
@@ -541,22 +583,19 @@ describe('consistency7', () => {
     expect(days.find((d) => d.date === '2026-06-09')?.trained).toBe(false);
   });
 
-  it('counts duplicate same-day sessions only once', () => {
-    const sessions = [
-      makeSession('2026-06-10'),
-      makeSession('2026-06-10', { id: 'dupe' }),
-    ];
-    const { count } = consistency7(sessions, today);
+  it('counts duplicate same-day dates only once', () => {
+    const dates = ['2026-06-10', '2026-06-10'];
+    const { count } = consistencyWindow(dates, today);
     expect(count).toBe(1);
   });
 
-  it('excludes sessions outside the rolling 7-day window', () => {
-    const sessions = [
-      makeSession('2026-06-03'), // 1 day before window start
-      makeSession('2026-06-11'), // tomorrow (after today)
-      makeSession('2026-06-04'), // earliest in-window day
+  it('excludes dates outside the rolling 7-day window', () => {
+    const dates = [
+      '2026-06-03', // 1 day before window start
+      '2026-06-11', // tomorrow (after today)
+      '2026-06-04', // earliest in-window day
     ];
-    const { count, days } = consistency7(sessions, today);
+    const { count, days } = consistencyWindow(dates, today);
     expect(count).toBe(1);
     expect(days.find((d) => d.date === '2026-06-04')?.trained).toBe(true);
     // out-of-window dates are not present at all
@@ -565,14 +604,41 @@ describe('consistency7', () => {
   });
 
   it('today on the window edge counts', () => {
-    const { days } = consistency7([makeSession(today)], today);
+    const { days } = consistencyWindow([today], today);
     expect(days[6].trained).toBe(true);
   });
 
   it('window crosses a month boundary correctly', () => {
-    const { days } = consistency7([], '2026-07-02');
+    const { days } = consistencyWindow([], '2026-07-02');
     expect(days[0].date).toBe('2026-06-26');
     expect(days[6].date).toBe('2026-07-02');
+  });
+
+  // ---- the trained-day honesty boundary (filter lives at the call site) ----
+
+  it('counts only what the caller passes — a protein-only morning is never counted', () => {
+    // Simulates the Week.tsx call site: a day with a session row but completed_at
+    // null (a protein-only / yoga morning that lazily created a bare row) is
+    // filtered OUT before mapping to dates, so it must not appear in the count.
+    const sessions = [
+      makeSession('2026-06-10', { completed_at: '2026-06-10T06:30:00.000Z' }),
+      makeSession('2026-06-09', { completed_at: null }), // protein-only — excluded upstream
+      makeSession('2026-06-08', { completed_at: '2026-06-08T06:30:00.000Z' }),
+    ];
+    const trainedDates = sessions
+      .filter((s) => s.completed_at != null)
+      .map((s) => s.on_date);
+    const { count, days } = consistencyWindow(trainedDates, today);
+    expect(count).toBe(2);
+    expect(days.find((d) => d.date === '2026-06-09')?.trained).toBe(false);
+  });
+
+  it('never absorbs the static yoga schedule (calendar, not data)', () => {
+    // The yoga schedule (Mon/Wed/Sun) is calendar truth, never training data.
+    // consistencyWindow only knows the dates it is handed; passing zero trained
+    // dates yields zero, regardless of how many yoga days fall in the window.
+    const { count } = consistencyWindow([], today);
+    expect(count).toBe(0);
   });
 });
 
